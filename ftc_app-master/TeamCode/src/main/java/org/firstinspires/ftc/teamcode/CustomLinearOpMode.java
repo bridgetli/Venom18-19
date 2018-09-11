@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class CustomLinearOpMode extends LinearOpMode{
@@ -11,6 +12,9 @@ public class CustomLinearOpMode extends LinearOpMode{
     DcMotor motorFL;
     DcMotor motorBR;
     DcMotor motorBL;
+
+    //speed
+    double speed = 0.5;
 
     //winch motors???
     DcMotor motorWinchUp;
@@ -35,12 +39,16 @@ public class CustomLinearOpMode extends LinearOpMode{
 
     }
 
+
     // initzialization method
     public void initizialize() {
         motorFR = hardwareMap.dcMotor.get("motorFR");
         motorFL = hardwareMap.dcMotor.get("motorFL");
         motorBR = hardwareMap.dcMotor.get("motorBR");
         motorBL = hardwareMap.dcMotor.get("motorBL");
+
+        motorFL.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorBL.setDirection(DcMotorSimple.Direction.REVERSE);
 
         motorWinchUp = hardwareMap.dcMotor.get("motorWinchUp");
         motorWinchDown = hardwareMap.dcMotor.get("motorWinchDown");
@@ -92,6 +100,36 @@ public class CustomLinearOpMode extends LinearOpMode{
         motorWinchDown.setPower(0);
         motorWinchUp.setPower(0);
     }
+
+    //˯˯ Turn method (no PID loop)
+    public void Turn(double angle)
+    {
+        double yaw = imu.getYaw();
+        if (angle > yaw) {
+            while (yaw < angle) {
+                TurnRight();
+            }
+        }
+        else if (angle < yaw) {
+            while (yaw > angle){
+                TurnLeft();
+            }
+        }
+    }
+    public void TurnRight {
+        motorFL.setPower(-speed);
+        motorFR.setPower(speed);
+        motorBL.setPower(-speed);
+        motorBR.setPower(speed);
+    }
+
+    public void TurnLeft {
+        motorFL.setPower(speed);
+        motorFR.setPower(-speed);
+        motorBL.setPower(speed);
+        motorBR.setPower(-speed);
+    }
+
     public void release() throws InterruptedException{
         //lower the robot??
         motorWinchDown.setPower(winchDownPower);
