@@ -84,6 +84,7 @@ public class CustomLinearOpMode extends LinearOpMode{
         telemetry.addData("Initialization Complete", "");
     }
 
+    //˯˯ Sets motor power to zero
     public void stopDriveMotors() {
         motorFR.setPower(0);
         motorFL.setPower(0);
@@ -91,6 +92,7 @@ public class CustomLinearOpMode extends LinearOpMode{
         motorBL.setPower(0);
     }
 
+    //˯˯ Sets motor and winch power to zero
     public void stopAllMotors() {
         motorFR.setPower(0);
         motorFL.setPower(0);
@@ -99,6 +101,22 @@ public class CustomLinearOpMode extends LinearOpMode{
 
         motorWinchDown.setPower(0);
         motorWinchUp.setPower(0);
+    }
+
+    //˯˯ Sets motors to turn right when called in the Turn method
+    public void TurnRight() {
+        motorFL.setPower(-speed);
+        motorFR.setPower(speed);
+        motorBL.setPower(-speed);
+        motorBR.setPower(speed);
+    }
+
+    //˯˯ Sets motors to turn left when called in the Turn method
+    public void TurnLeft() {
+        motorFL.setPower(speed);
+        motorFR.setPower(-speed);
+        motorBL.setPower(speed);
+        motorBR.setPower(-speed);
     }
 
     //˯˯ Turn method (no PID loop)
@@ -116,18 +134,12 @@ public class CustomLinearOpMode extends LinearOpMode{
             }
         }
     }
-    public void TurnRight {
-        motorFL.setPower(-speed);
-        motorFR.setPower(speed);
-        motorBL.setPower(-speed);
-        motorBR.setPower(speed);
-    }
 
-    public void TurnLeft {
+    public void DriveForward (double speed){
         motorFL.setPower(speed);
-        motorFR.setPower(-speed);
+        motorFR.setPower(speed);
         motorBL.setPower(speed);
-        motorBR.setPower(-speed);
+        motorBR.setPower(speed);
     }
 
     public void release() throws InterruptedException{
