@@ -36,7 +36,6 @@ public class CustomOpMode extends OpMode{
     }
 
 
-
     // initzialization method
     public void initizialize() {
         motorFR = hardwareMap.dcMotor.get("motorFR");
@@ -94,9 +93,21 @@ public class CustomOpMode extends OpMode{
         motorWinchDown.setPower(0);
         motorWinchUp.setPower(0);
     }
-    public void release() throws InterruptedException{
+
+    public void setLeftMotors(double left){
+        motorFL.setPower(left);
+        motorBL.setPower(left);
+    }
+
+    public void setRightMotors(double right){
+        motorFR.setPower(right);
+        motorBR.setPower(right);
+    }
+    
+    public void release() throws InterruptedException {
         //lower the robot??
         motorWinchDown.setPower(winchDownPower);
         Thread.sleep(400); // we might wanna PID this
     }
 }
+
