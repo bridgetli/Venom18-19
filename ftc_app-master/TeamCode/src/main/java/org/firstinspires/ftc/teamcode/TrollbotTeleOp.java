@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+@TeleOp(name="TrollbotTeleOp", group="TrollBot")
 public class TrollbotTeleOp extends CustomOpMode{
     public void init() {
         initizialize();
@@ -10,17 +13,13 @@ public class TrollbotTeleOp extends CustomOpMode{
 
         if (Math.abs(y1) > 0.1){
             setLeftMotors(y1);
-        }
-        else
-        {
+        } else {
             setLeftMotors(0);
         }
 
         if (Math.abs(y2) > 0.1){
             setRightMotors(y2);
-        }
-        else
-        {
+        } else {
             setRightMotors(0);
         }
 
