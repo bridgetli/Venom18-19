@@ -8,7 +8,7 @@ public class TrollbotTeleOp extends CustomOpMode{
         initizialize();
     }
     public void loop() {
-        double y1 = gamepad1.left_stick_y;
+        /*double y1 = -gamepad1.left_stick_y;
         double y2 = gamepad1.right_stick_y;
 
         if (Math.abs(y1) > 0.1){
@@ -21,8 +21,22 @@ public class TrollbotTeleOp extends CustomOpMode{
             setRightMotors(y2);
         } else {
             setRightMotors(0);
-        }
+        } */
 
+
+        double yL = -gamepad1.left_stick_y;
+        double yR = -gamepad1.right_stick_y;
+        double motorScale = 1;
+
+        if (Math.abs(yL) > .1 || Math.abs(yR) > .1) {
+
+            motorBL.setPower(leftABSMotorVal(yL) * motorScale);
+            motorFL.setPower(leftABSMotorVal(yL) * motorScale);
+
+            motorBR.setPower(rightABSMotorVal(yR) * motorScale);
+            motorFR.setPower(rightABSMotorVal(yR) * motorScale);
+
+        }
     }
 
 }
