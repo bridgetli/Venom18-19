@@ -1,12 +1,19 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.graphics.Bitmap;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import for_camera_opmodes.LinearOpModeCamera;
 
-public class CustomLinearOpMode extends LinearOpMode{
+import static android.graphics.Color.blue;
+import static android.graphics.Color.red;
+
+public class CustomLinearOpMode extends LinearOpModeCamera {
     //drive motors
     DcMotor motorFR;
     DcMotor motorFL;
@@ -146,5 +153,63 @@ public class CustomLinearOpMode extends LinearOpMode{
         //lower the robot??
         motorWinchDown.setPower(winchDownPower);
         Thread.sleep(400); // we might wanna PID this
+    }
+
+    public void getJewelColor() {
+        //jewel camera init
+        telemetry.addLine("JewelCamera initialization started");
+        telemetry.update();
+
+        setCameraDownsampling(2);
+
+        telemetry.addLine("Wait for camera to finish initializing!");
+        telemetry.update();
+
+        startCamera();  // can take a while.
+
+        sleep(50);
+
+        telemetry.addLine("Camera ready!");
+        telemetry.update();
+
+        ElapsedTime time = new ElapsedTime();
+        time.reset();
+        int numPics = 0;
+        int redValue = 0;
+        int blueValue = 0;
+        int numFailLoops = 0;
+
+        while (time.seconds() < 2 && opModeIsActive()) {
+            if (imageReady()) { // only do this if an image has been returned from the camera
+
+                numPics++;
+
+                // get image, rotated so (0,0) is in the bottom left of the preview window
+                Bitmap rgbImage;
+                rgbImage = convertYuvImageToRgb(yuvImage, width, height, 1);
+
+                for (int x = (int) (.8 * rgbImage.getWidth()); x < rgbImage.getWidth(); x++) {
+                    for (int y = 0; y < (int) (.25 * rgbImage.getHeight()); y++) {
+                        int pixel = rgbImage.getPixel(x, y);
+                        redValue += red(pixel);
+                        blueValue += blue(pixel);
+                    }
+                }
+            } else {
+                numFailLoops++;
+            }
+
+            sleep(10);
+        }
+
+        boolean jewelIsRed = redValue > blueValue;
+
+        stopCamera();
+
+        telemetry.addData("Is Jewel Red?", jewelIsRed);
+
+        telemetry.addData("numPics: ", numPics);
+        telemetry.addData("numFailLoops: ", numFailLoops);
+        telemetry.addData("red blue: ", redValue + "    " + blueValue);
     }
 }
