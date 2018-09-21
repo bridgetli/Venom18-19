@@ -36,18 +36,17 @@ android {
 
 dependencies {
     //deep learning 4 java
-    implementation('org.deeplearning4j:deeplearning4j-core:1.0.0-beta2') {
-        exclude group: 'com.google.code.gson'
+    compile (group: 'org.deeplearning4j', name: 'deeplearning4j-modelimport', version: '1.0.0-beta') {
         exclude group: 'org.bytedeco.javacpp-presets', module: 'opencv-platform'
-        exclude group: 'org.bytedeco.javacpp-presets', module: 'leptonica-platform'
-        exclude group: 'org.bytedeco.javacpp-presets', module: 'hdf5-platform'
-    }
-    implementation ('org.nd4j:nd4j-native:1.0.0-beta2') {
+        //exclude group: 'org.bytedeco.javacpp-presets', module: 'leptonica-platform'
+        //exclude group: 'org.bytedeco.javacpp-presets', module: 'hdf5-platform'
         exclude group: 'com.google.code.gson'
     }
-    implementation 'org.bytedeco.javacpp-presets:openblas:0.3.0-1.4.2'
-    implementation 'org.bytedeco.javacpp-presets:opencv:3.4.2-1.4.2'
-    implementation 'org.bytedeco.javacpp-presets:leptonica:1.76.0-1.4.2'
-
-    implementation 'org.slf4j:slf4j-nop:1.7.25'
+    compile (group: 'org.nd4j', name: 'nd4j-native-platform', version: '1.0.0-beta2') {
+        exclude group: 'com.google.code.gson'
+        exclude group: 'org.bytedeco.javacpp-presets'
+    }
+    compile group: 'org.bytedeco.javacpp-presets', name: 'openblas', version: '0.3.0-1.4.2'
+    compile group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.2-1.4.2'
+    compile group: 'org.bytedeco.javacpp-presets', name: 'leptonica', version: '1.76.0-1.4.2'
 }
