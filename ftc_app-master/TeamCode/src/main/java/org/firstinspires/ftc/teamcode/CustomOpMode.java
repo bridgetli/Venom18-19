@@ -120,20 +120,22 @@ public class CustomOpMode extends OpMode{
         /*if (Math.abs(joyStickVal - motorBL.getPower()) < 1) {
             return joyStickVal;
         }*/
+        double c = .2;
         if (joyStickVal >= motorBR.getPower()) {
-            return Range.clip(motorBR.getPower() + .4, -1, joyStickVal);
+            return Range.clip(motorBR.getPower() + c, -1, joyStickVal);
         }
         else if (joyStickVal < motorBR.getPower()) {
-            return Range.clip(motorBR.getPower() - .4, joyStickVal, 1);
+            return Range.clip(motorBR.getPower() - c, joyStickVal, 1);
         }
         else return joyStickVal;
     }
     public double leftABSMotorVal(double joyStickVal) {
+        double c = .2;
         if (joyStickVal >= motorBL.getPower()) {
-            return Range.clip(motorBL.getPower() + .4, -1, joyStickVal);
+            return Range.clip(motorBL.getPower() + c, -1, joyStickVal);
         }
         else if (joyStickVal < motorBL.getPower()) {
-            return Range.clip(motorBL.getPower() - .4, joyStickVal, 1);
+            return Range.clip(motorBL.getPower() - c, joyStickVal, 1);
         }
         else return joyStickVal;
     }

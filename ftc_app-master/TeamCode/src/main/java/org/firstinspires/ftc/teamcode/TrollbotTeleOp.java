@@ -28,7 +28,7 @@ public class TrollbotTeleOp extends CustomOpMode{
         double yR = -gamepad1.right_stick_y;
         double motorScale = 1;
 
-        if (Math.abs(yL) > .1 || Math.abs(yR) > .1) {
+        if (Math.abs(yL) > .2 || Math.abs(yR) > .2) {
 
             motorBL.setPower(leftABSMotorVal(yL) * motorScale);
             motorFL.setPower(leftABSMotorVal(yL) * motorScale);
@@ -36,6 +36,8 @@ public class TrollbotTeleOp extends CustomOpMode{
             motorBR.setPower(rightABSMotorVal(yR) * motorScale);
             motorFR.setPower(rightABSMotorVal(yR) * motorScale);
 
+        } else {
+            stopDriveMotors();
         }
     }
 
