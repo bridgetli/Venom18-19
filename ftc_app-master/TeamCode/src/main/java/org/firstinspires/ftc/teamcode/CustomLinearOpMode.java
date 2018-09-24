@@ -57,29 +57,29 @@ public class CustomLinearOpMode extends LinearOpModeCamera {
         motorFL.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBL.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        motorWinchUp = hardwareMap.dcMotor.get("motorWinchUp");
-        motorWinchDown = hardwareMap.dcMotor.get("motorWinchDown");
+        //motorWinchUp = hardwareMap.dcMotor.get("motorWinchUp");
+        //motorWinchDown = hardwareMap.dcMotor.get("motorWinchDown");
 
         motorBL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorBR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorFR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorWinchUp.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorWinchDown.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //motorWinchUp.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //motorWinchDown.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         motorBL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorBR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorWinchUp.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorWinchDown.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        //motorWinchUp.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        //motorWinchDown.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         stopAllMotors();
 
         telemetry.addData("Motor Initialization Complete", "");
 
-        servoMarker = hardwareMap.servo.get("servoMarker");
-        servoMarker.setPosition(0);
+        //servoMarker = hardwareMap.servo.get("servoMarker");
+        //servoMarker.setPosition(0);
 
         telemetry.addData("Servo Initialization Complete", "");
 
@@ -106,8 +106,8 @@ public class CustomLinearOpMode extends LinearOpModeCamera {
         motorBR.setPower(0);
         motorBL.setPower(0);
 
-        motorWinchDown.setPower(0);
-        motorWinchUp.setPower(0);
+        //motorWinchDown.setPower(0);
+        //motorWinchUp.setPower(0);
     }
 
     //˯˯ Sets motors to turn right when called in the Turn method
@@ -151,7 +151,7 @@ public class CustomLinearOpMode extends LinearOpModeCamera {
 
     public void release() throws InterruptedException{
         //lower the robot??
-        motorWinchDown.setPower(winchDownPower);
+        //motorWinchDown.setPower(winchDownPower);
         Thread.sleep(400); // we might wanna PID this
     }
 

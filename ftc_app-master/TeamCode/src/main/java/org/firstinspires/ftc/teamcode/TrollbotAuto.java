@@ -1,5 +1,5 @@
 package org.firstinspires.ftc.teamcode;
-
+/*
 public class TrollbotAuto extends CustomLinearOpMode {
 
     public boolean isBlock1onLeft{
@@ -212,3 +212,4 @@ public class TrollbotAuto extends CustomLinearOpMode {
     }
 
 }
+*/
