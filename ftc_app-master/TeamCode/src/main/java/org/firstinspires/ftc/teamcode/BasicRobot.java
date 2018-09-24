@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -44,8 +45,12 @@ public class BasicRobot extends OpMode{
     IMU imu;
 
     //just had to put these to run the code dw about it
-    public void init() {}
-    public void loop() {}
+    public void init() {
+
+    }
+    public void loop() {
+
+    }
 
 
 
@@ -72,6 +77,9 @@ public class BasicRobot extends OpMode{
         motorFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorWinchUp.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorWinchDown.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        motorBL.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorFL.setDirection(DcMotorSimple.Direction.REVERSE);
 
         stopAllMotors();
 
