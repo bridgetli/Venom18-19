@@ -111,7 +111,7 @@ public class CustomLinearOpMode extends LinearOpModeCamera {
     }
 
     //˯˯ Sets motors to turn right when called in the Turn method
-    public void TurnRight() {
+    public void turnRight() {
         motorFL.setPower(-speed);
         motorFR.setPower(speed);
         motorBL.setPower(-speed);
@@ -119,7 +119,7 @@ public class CustomLinearOpMode extends LinearOpModeCamera {
     }
 
     //˯˯ Sets motors to turn left when called in the Turn method
-    public void TurnLeft() {
+    public void turnLeft() {
         motorFL.setPower(speed);
         motorFR.setPower(-speed);
         motorBL.setPower(speed);
@@ -127,22 +127,22 @@ public class CustomLinearOpMode extends LinearOpModeCamera {
     }
 
     //˯˯ Turn method (no PID loop)
-    public void Turn(double angle)
+    public void turn(double angle)
     {
         double yaw = imu.getYaw();
         if (angle > yaw) {
             while (yaw < angle) {
-                TurnRight();
+                turnRight();
             }
         }
         else if (angle < yaw) {
             while (yaw > angle){
-                TurnLeft();
+                turnLeft();
             }
         }
     }
 
-    public void DriveForward (double speed){
+    public void driveForward (){
         motorFL.setPower(speed);
         motorFR.setPower(speed);
         motorBL.setPower(speed);
@@ -151,8 +151,19 @@ public class CustomLinearOpMode extends LinearOpModeCamera {
 
     public void release() throws InterruptedException{
         //lower the robot??
+<<<<<<< HEAD
         //motorWinchDown.setPower(winchDownPower);
         Thread.sleep(400); // we might wanna PID this
+=======
+        motorWinchDown.setPower(winchDownPower);
+        // we might wanna PID this
+        try {
+            Thread.sleep(400);
+        } catch (Exception e) {
+            stop();
+        }
+
+>>>>>>> c365a6d58f1369aab9669124062f32a918fa98df
     }
 
     public void getJewelColor() {
@@ -211,5 +222,11 @@ public class CustomLinearOpMode extends LinearOpModeCamera {
         telemetry.addData("numPics: ", numPics);
         telemetry.addData("numFailLoops: ", numFailLoops);
         telemetry.addData("red blue: ", redValue + "    " + blueValue);
+    }
+    public void driveBackward() {
+        motorFL.setPower(-speed);
+        motorFR.setPower(-speed);
+        motorBL.setPower(-speed);
+        motorBR.setPower(-speed);
     }
 }
