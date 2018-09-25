@@ -13,9 +13,9 @@ public class PIDtesting extends CustomLinearOpMode {
 
 
     public void rightTurn(double angle) {
-        double kP = 0.01775;
-        double kI = 0;
-        double kD = 0;
+        double kP = 0.01775 * .6;
+        double kI = 1 / 2;
+        double kD = 1 / 8;
         //double kD = 0.00005;
         double angleError = imu.getTrueDiff(angle);
         double oldTime = 0;
