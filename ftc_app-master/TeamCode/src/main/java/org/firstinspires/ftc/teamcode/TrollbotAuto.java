@@ -72,7 +72,6 @@ public class TrollbotAuto extends CustomLinearOpMode {
     public void runOpMode() {
 
         initizialize();
-        rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensor");
 
         try {
             release();
@@ -80,10 +79,7 @@ public class TrollbotAuto extends CustomLinearOpMode {
             stop();
         }
 
-        while(getDist() < 60) {
-            driveForward();
-        }
-        stopDriveMotors();
+        moveToDistance(60);
 
         knockFirstBlock();
 
@@ -297,30 +293,5 @@ public class TrollbotAuto extends CustomLinearOpMode {
         } else if(blockLocation.equals("LEFT")) {
 
         }
-    }
-
-    public void depositMarker() {
-        // deposits the marker in the thing
-    }
-
-    public String getBlockLocation() {
-        return "CENTER";
-    }
-
-    public void goForward(double distance){
-        // goes foward a certain distance after we add the sensor in
-        // distance is in inches
-    }
-    public double getDist() {
-        return rangeSensor.getDistance(DistanceUnit.INCH);
-    }
-    public void moveToDistance(double dist) {
-        while(getDist() > dist) {
-            driveForward();
-        }
-        while(getDist() < dist) {
-            driveBackward();
-        }
-        stopDriveMotors();
     }
 }

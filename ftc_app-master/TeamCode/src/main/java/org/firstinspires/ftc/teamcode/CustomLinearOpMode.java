@@ -3,11 +3,15 @@ package org.firstinspires.ftc.teamcode;
 import android.graphics.Bitmap;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 import for_camera_opmodes.LinearOpModeCamera;
 
 import static android.graphics.Color.blue;
@@ -24,8 +28,10 @@ public class CustomLinearOpMode extends LinearOpModeCamera {
     double speed = 0.5;
 
     //winch motors???
-    DcMotor motorWinchUp;
-    DcMotor motorWinchDown;
+    //DcMotor motorWinchUp;
+    //DcMotor motorWinchDown;
+
+    ModernRoboticsI2cRangeSensor rangeSensor;
 
 
     final double winchDownPower = .5;
@@ -57,26 +63,28 @@ public class CustomLinearOpMode extends LinearOpModeCamera {
         motorFL.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBL.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        motorWinchUp = hardwareMap.dcMotor.get("motorWinchUp");
-        motorWinchDown = hardwareMap.dcMotor.get("motorWinchDown");
+        //motorWinchUp = hardwareMap.dcMotor.get("motorWinchUp");
+        //motorWinchDown = hardwareMap.dcMotor.get("motorWinchDown");
 
         motorBL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorBR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorFR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorWinchUp.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorWinchDown.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //motorWinchUp.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //motorWinchDown.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         motorBL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorBR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorWinchUp.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorWinchDown.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        //motorWinchUp.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        //motorWinchDown.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         stopAllMotors();
 
         telemetry.addData("Motor Initialization Complete", "");
+
+        rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensor");
 
         servoMarker = hardwareMap.servo.get("servoMarker");
         servoMarker.setPosition(0);
@@ -106,8 +114,8 @@ public class CustomLinearOpMode extends LinearOpModeCamera {
         motorBR.setPower(0);
         motorBL.setPower(0);
 
-        motorWinchDown.setPower(0);
-        motorWinchUp.setPower(0);
+       // motorWinchDown.setPower(0);
+        //motorWinchUp.setPower(0);
     }
 
     //˯˯ Sets motors to turn right when called in the Turn method
@@ -152,7 +160,7 @@ public class CustomLinearOpMode extends LinearOpModeCamera {
     public void release() throws InterruptedException{
         //lower the robot??
         Thread.sleep(400); // we might wanna PID this
-        motorWinchDown.setPower(winchDownPower);
+       // motorWinchDown.setPower(winchDownPower);
         // we might wanna PID this
         try {
             Thread.sleep(400);
@@ -224,5 +232,29 @@ public class CustomLinearOpMode extends LinearOpModeCamera {
         motorFR.setPower(-speed);
         motorBL.setPower(-speed);
         motorBR.setPower(-speed);
+    }
+    public void depositMarker() {
+        // deposits the marker in the thing
+    }
+
+    public String getBlockLocation() {
+        return "CENTER";
+    }
+
+    public void goForward(double distance){
+        // goes foward a certain distance after we add the sensor in
+        // distance is in inches
+    }
+    public double getDist() {
+        return rangeSensor.getDistance(DistanceUnit.INCH);
+    }
+    public void moveToDistance(double dist) {
+        while(getDist() > dist) {
+            driveForward();
+        }
+        while(getDist() < dist) {
+            driveBackward();
+        }
+        stopDriveMotors();
     }
 }
