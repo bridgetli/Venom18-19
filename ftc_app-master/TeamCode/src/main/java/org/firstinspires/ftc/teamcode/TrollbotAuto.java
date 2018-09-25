@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode;
-<<<<<<< HEAD
-/*
-=======
+
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -9,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @Autonomous(name="TrollBotAuto", group="TrollBot")
->>>>>>> c365a6d58f1369aab9669124062f32a918fa98df
+
 public class TrollbotAuto extends CustomLinearOpMode {
 
     String blockLocation;
@@ -326,4 +324,3 @@ public class TrollbotAuto extends CustomLinearOpMode {
         stopDriveMotors();
     }
 }
-*/
