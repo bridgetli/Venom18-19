@@ -13,9 +13,9 @@ public class PIDtesting extends CustomLinearOpMode {
 
 
     public void rightTurn(double angle) {
-        double kP = 0.01775 * .6;
-        double kI = 1 / 2;
-        double kD = 1 / 8;
+        double kP = 0.016475;
+        double kI = 0;
+        double kD = 0;
         //double kD = 0.00005;
         double angleError = imu.getTrueDiff(angle);
         double oldTime = 0;
@@ -29,7 +29,7 @@ public class PIDtesting extends CustomLinearOpMode {
         while (Math.abs(angleError) > 0 && opModeIsActive()) {
             angleError = imu.getTrueDiff(angle);
             newTime = timeStuff.seconds();
-            totalError += (newTime - oldTime) * angleError;
+            totalError += (newTime - oldTime) * (angleError + oldError) / 2;
             P = kP * angleError;
             I = totalError * kI * angleError;
             D = -(angleError - oldError) / (newTime - oldTime) * kD;
@@ -56,5 +56,6 @@ public class PIDtesting extends CustomLinearOpMode {
         telemetry.update();
         waitForStart();
         rightTurn(turnAngle);
+        stopDriveMotors();
     }
 }
