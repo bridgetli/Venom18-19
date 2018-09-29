@@ -27,10 +27,14 @@ android {
         exclude 'META-INF/NOTICE.txt'
         exclude 'META-INF/notice.txt'
         exclude 'META-INF/INDEX.LIST'
-        /*exclude 'org/bytedeco/javacpp/windows-x86_64/*'
-        exclude 'org/bytedeco/javacpp/windows-x86/*'
-        exclude 'org/bytedeco/javacpp/ios-x86_64/*'
-        exclude 'org/bytedeco/javacpp/ios-x86/*' */
+        pickFirst 'org/bytedeco/javacpp/windows-x86_64/*'
+        pickFirst 'org/bytedeco/javacpp/windows-x86/*'
+        pickFirst 'org/bytedeco/javacpp/ios-x86_64/*'
+        pickFirst 'org/bytedeco/javacpp/ios-x86/*'
+        pickFirst 'org/bytedeco/javacpp/ios-arm64/*'
+        pickFirst 'org/bytedeco/javacpp/ios-arm/*'
+
+
     }
 
     defaultConfig {
@@ -43,14 +47,18 @@ dependencies {
     implementation (group: 'org.deeplearning4j', name: 'deeplearning4j-core', version: '1.0.0-beta2') {
         exclude group: 'com.google.code.gson'
         exclude group: 'org.bytedeco.javacpp-presets', module: 'leptonica-platform'
-        //runtimeOnly group: 'org.bytedeco.javacpp-presets', name: 'hdf5'
-        //exclude group: 'org.bytedeco.javacpp-presets', module: 'opencv-platform'
+        exclude group: 'org.bytedeco.javacpp-presets', module: 'libdc1394'
+        exclude group: 'org.bytedeco.javacpp-presets', module: 'libfreenect'
+        exclude group: 'org.bytedeco.javacpp-presets', module: 'libfreenect2'
+        exclude group: 'org.bytedeco.javacpp-presets', module: 'librealsense'
+        exclude group: 'org.bytedeco.javacpp-presets', module: 'tesseract'
+        exclude group: 'org.bytedeco.javacpp-presets', module: 'videoinput'
+        exclude group: 'org.bytedeco.javacpp-presets', module: 'artoolkitplus'
+
     }
     implementation (group: 'org.nd4j', name: 'nd4j-native-platform', version: '1.0.0-beta2') {
         exclude group: 'com.google.code.gson'
         exclude group: 'org.bytedeco.javacpp-presets'
     }
     implementation group: 'org.bytedeco.javacpp-presets', name: 'openblas-platform', version: '0.3.0-1.4.2'
-
-    implementation 'org.bytedeco.javacpp-presets:opencv:3.4.2-1.4.2:windows-x86'
 }

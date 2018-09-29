@@ -22,7 +22,7 @@ public class deepLearningTest {
             model = KerasModelImport.importKerasSequentialModelAndWeights(modelFile);
             model.init();
 
-            //model.setLabels(/*TODO set labels!!!*/);
+            //model.setLabels(TODO set labels!!!);
 
             //load input image & run inference
             input = new NativeImageLoader(28, 28, 1).asRowVector(new File(inputFile));
