@@ -39,6 +39,8 @@ public class TrollbotTeleOp extends CustomOpMode{
         } else {
             stopDriveMotors();
         }
+        telemetry.addData("Right motor speeds", yR);
+        telemetry.addData("Left motor speed", yL);
     }
 
 }
