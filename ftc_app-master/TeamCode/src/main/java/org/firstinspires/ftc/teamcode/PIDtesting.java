@@ -13,7 +13,7 @@ public class PIDtesting extends CustomLinearOpMode {
 
 
     public void rightTurn(double angle) {
-        double kU = .0253;
+        double kU = .0185;
         double tU = .55 / 1000;
 
         double kP = .6 * kU;//0.0075;
