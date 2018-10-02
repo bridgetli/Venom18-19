@@ -27,11 +27,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.robotcontroller.external.samples;
+package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.vuforia.Image;
+import com.vuforia.PIXEL_FORMAT;
+import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
@@ -42,15 +45,16 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.YZX;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.FRONT;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -107,7 +111,7 @@ public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
      * Once you've obtained a license key, copy the string from the Vuforia web site
      * and paste it in to your code on the next line, between the double quotes.
      */
-    private static final String VUFORIA_KEY = " -- YOUR NEW VUFORIA KEY GOES HERE  --- ";
+    private static final String VUFORIA_KEY = "AXb/g5n/////AAAAGSUed2rh5Us1jESA1cUn5r5KDUqTfwO2woh7MxjiLKSUyDslqBAgwCi0Qmc6lVczErnF5TIw7vG5R4TJ2igvrDVp+dP+3i2o7UUCRRj/PtyVgb4ZfNrDzHE80/6TUHifpKu4QCM04eRWYZocWNWhuRfytVeWy6NSTWefM9xadqG8FFrFk3XnvqDvk/6ZAgerNBdq5SsJ90eDdoAhgYEee40WxasoUUM9YVMvkWOqZgHSuraV2IyIUjkW/u0O+EkFtTNRUWP+aZwn1qO1H4Lk07AJYe21eqioBLMdzY7A8YqR1TeQ//0WJg8SFdXjuGbF6uHykBe2FF5UeyaehA0iTqfPS+59FLm8y1TuUt57eImq";
 
     // Since ImageTarget trackables use mm to specifiy their dimensions, we must use mm for all the physical dimension.
     // We will define some constants and conversions here
@@ -270,9 +274,44 @@ public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
+        byte[] frameBuffer = null;
+        VuforiaLocalizer.CloseableFrame frame;
+        Vuforia.setFrameFormat(PIXEL_FORMAT.RGB888, true);
+        vuforia.setFrameQueueCapacity(1);
+
         /** Start tracking the data sets we care about. */
         targetsRoverRuckus.activate();
         while (opModeIsActive()) {
+
+            frame = vuforia.getFrameQueue().poll();
+
+            if (frame != null) {
+                Image image = frame.getImage(0);
+                if (image.getFormat() == PIXEL_FORMAT.RGB888) {
+                    int imageWidth = image.getWidth(), imageHeight = image.getHeight();
+                    ByteBuffer byteBuffer = image.getPixels();
+                    /*if (frameBuffer == null) {
+                        frameBuffer = new byte[byteBuffer.capacity()];
+                    }
+                    byteBuffer.get(frameBuffer);
+                    if (this.frame == null) {
+                        this.frame = new Mat(imageHeight, imageWidth, CvType.CV_8UC3);
+
+                        if (overlayView != null) {
+                            overlayView.setImageSize(imageWidth, imageHeight);
+                        }
+                    }
+                    this.frame.put(0, 0, frameBuffer);
+
+                    Imgproc.cvtColor(this.frame, this.frame, Imgproc.COLOR_RGB2BGR);
+
+                    if (parameters.cameraDirection == VuforiaLocalizer.CameraDirection.FRONT) {
+                        Core.flip(this.frame, this.frame, 1);
+                    }
+
+                    onFrame(this.frame, vuforiaFrame.getTimeStamp());*/
+                }
+            }
 
             // check all the trackable target to see which one (if any) is visible.
             targetVisible = false;
