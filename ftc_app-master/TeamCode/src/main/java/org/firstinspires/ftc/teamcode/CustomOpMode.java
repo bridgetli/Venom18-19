@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class CustomOpMode extends OpMode{
     //drive motors
@@ -17,7 +20,7 @@ public class CustomOpMode extends OpMode{
     //winch motors???
     //DcMotor motorWinchUp;
     //DcMotor motorWinchDown;
-
+    ModernRoboticsI2cRangeSensor rangeSensor;
 
     final double winchDownPower = .5;
     final double winchUpPower = .5;
@@ -71,6 +74,8 @@ public class CustomOpMode extends OpMode{
 
         //servoMarker = hardwareMap.servo.get("servoMarker");
         //servoMarker.setPosition(0);
+
+        rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensor");
 
         telemetry.addData("Servo Initialization Complete", "");
 
@@ -139,5 +144,7 @@ public class CustomOpMode extends OpMode{
         }
         else return joyStickVal;
     }
+    public double getDist() {
+        return rangeSensor.getDistance(DistanceUnit.INCH);
+    }
 }
-
