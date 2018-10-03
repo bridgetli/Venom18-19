@@ -12,12 +12,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-import for_camera_opmodes.LinearOpModeCamera;
+//import for_camera_opmodes.LinearOpModeCamera;
 
 import static android.graphics.Color.blue;
 import static android.graphics.Color.red;
 
-public class CustomLinearOpMode extends LinearOpModeCamera {
+public class CustomLinearOpMode extends LinearOpMode {
     //drive motors
     DcMotor motorFR;
     DcMotor motorFL;
@@ -170,6 +170,7 @@ public class CustomLinearOpMode extends LinearOpModeCamera {
 
     }
 
+    /* :)
     public void getJewelColor() {
         //jewel camera init
         telemetry.addLine("JewelCamera initialization started");
@@ -226,7 +227,8 @@ public class CustomLinearOpMode extends LinearOpModeCamera {
         telemetry.addData("numPics: ", numPics);
         telemetry.addData("numFailLoops: ", numFailLoops);
         telemetry.addData("red blue: ", redValue + "    " + blueValue);
-    }
+    } */
+
     public void driveBackward() {
         motorFL.setPower(-speed);
         motorFR.setPower(-speed);
