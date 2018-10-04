@@ -139,12 +139,12 @@ public class CustomLinearOpMode extends LinearOpMode {
     {
         double yaw = imu.getYaw();
         if (angle > yaw) {
-            while (yaw < angle) {
+            while (yaw < angle && opModeIsActive()) {
                 turnRight();
             }
         }
         else if (angle < yaw) {
-            while (yaw > angle){
+            while (yaw > angle && opModeIsActive()){
                 turnLeft();
             }
         }
@@ -251,10 +251,10 @@ public class CustomLinearOpMode extends LinearOpMode {
         return rangeSensor.getDistance(DistanceUnit.INCH);
     }
     public void moveToDistance(double dist) {
-        while(getDist() > dist) {
+        while(getDist() > dist && opModeIsActive()) {
             driveForward();
         }
-        while(getDist() < dist) {
+        while(getDist() < dist && opModeIsActive()) {
             driveBackward();
         }
         stopDriveMotors();
