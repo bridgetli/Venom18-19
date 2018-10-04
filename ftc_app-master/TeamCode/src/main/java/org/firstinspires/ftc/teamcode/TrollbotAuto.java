@@ -80,7 +80,7 @@ public class TrollbotAuto extends CustomLinearOpMode {
             stop();
         }
 
-        moveToDistance(60);
+        moveToDistance(40);
 
         knockFirstBlock();
 

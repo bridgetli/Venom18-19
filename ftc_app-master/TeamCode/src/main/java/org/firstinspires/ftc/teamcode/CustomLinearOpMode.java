@@ -248,7 +248,11 @@ public class CustomLinearOpMode extends LinearOpMode {
         // distance is in inches
     }
     public double getDist() {
-        return rangeSensor.getDistance(DistanceUnit.INCH);
+        double dist = rangeSensor.getDistance(DistanceUnit.INCH);
+        while (dist > 1000 || Double.isNaN(dist) && opModeIsActive()) {
+            dist = rangeSensor.getDistance(DistanceUnit.INCH);
+        }
+        return dist;
     }
     public void moveToDistance(double dist) {
         while(getDist() > dist && opModeIsActive()) {
