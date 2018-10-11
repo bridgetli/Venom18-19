@@ -13,6 +13,46 @@ public class TrollbotAuto extends CustomLinearOpMode {
     String blockLocation = "CENTER";
     ModernRoboticsI2cRangeSensor rangeSensor;
 
+
+
+
+    // if starting in position 1
+
+    public void SummerTest1 ()
+    {
+        goForward(20);
+        // hit marker
+        turn(-90);
+        goForward(35);
+        turn(135);
+        goForward(40);
+        // deposit marker
+        turn(-155);
+        goForward(75);
+        stopAllMotors();
+    }
+
+    // if starting in position 2
+
+    public void SummerTest2()
+    {
+        goForward(20);
+        // hit marker
+        turn(-90);
+        goForward(35);
+        turn(-35);
+        goForward(50);
+        turn(155);
+        goForward(80);
+        stopAllMotors();
+    }
+
+
+
+
+
+
+
     /*public boolean isBlock1onLeft() {
         // **needs a new name
         //if first block is on the left
@@ -64,6 +104,7 @@ public class TrollbotAuto extends CustomLinearOpMode {
             //return true
         //else
             //return false
+            \.l"?..Æ""">
         return true;
     } */
 
@@ -80,13 +121,15 @@ public class TrollbotAuto extends CustomLinearOpMode {
             stop();
         }
 
-        moveToDistance(40);
+        SummerTest1();
 
-        knockFirstBlock();
-
-        goToSecondBlocks();
-
-        knockSecondBlock();
+//        moveToDistance(40);
+////
+////        knockFirstBlock();
+////
+////        goToSecondBlocks();
+////
+////        knockSecondBlock();
 
 
         /*blockLocation = getBlockLocation();
