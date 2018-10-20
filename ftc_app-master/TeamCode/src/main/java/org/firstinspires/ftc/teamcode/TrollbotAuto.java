@@ -20,15 +20,15 @@ public class TrollbotAuto extends CustomLinearOpMode {
 
     public void SummerTest1 ()
     {
-        goForward(20);
+        moveToDistance(//??);
         // hit marker
         turn(-90);
-        goForward(35);
+        moveToDistance(//??);
         turn(135);
-        goForward(40);
+        moveToDistance(//??);
         // deposit marker
         turn(-155);
-        goForward(75);
+        moveToDistance(//??);
         stopAllMotors();
     }
 
@@ -36,15 +36,15 @@ public class TrollbotAuto extends CustomLinearOpMode {
 
     public void SummerTest2()
     {
-        goForward(20);
+        moveToDistance(//??);
         // hit marker
         turn(-90);
-        goForward(35);
+        moveToDistance(//??);
         turn(-35);
-        goForward(50);
+        moveToDistance(//??);
         turn(155);
-        goForward(80);
-        stopAllMotors();
+        moveToDistance(//??)
+        // stopAllMotors();
     }
 
 
