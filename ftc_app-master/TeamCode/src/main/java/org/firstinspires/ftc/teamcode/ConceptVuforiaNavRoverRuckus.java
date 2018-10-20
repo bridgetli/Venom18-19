@@ -29,9 +29,14 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.os.Environment;
+
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.vuforia.Image;
 import com.vuforia.PIXEL_FORMAT;
 import com.vuforia.Vuforia;
@@ -45,6 +50,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,7 +104,6 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
  */
 
 @TeleOp(name="Concept: Vuforia Rover Nav", group ="Concept")
-@Disabled
 public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
 
     /*
@@ -121,7 +128,7 @@ public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
 
     // Select which camera you want use.  The FRONT camera is the one on the same side as the screen.
     // Valid choices are:  BACK or FRONT
-    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
+    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = FRONT;
 
     private OpenGLMatrix lastLocation = null;
     private boolean targetVisible = false;
@@ -132,7 +139,7 @@ public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
      */
     VuforiaLocalizer vuforia;
 
-    @Override public void runOpMode() {
+    @Override public void runOpMode() throws InterruptedException{
         /*
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
          * We can pass Vuforia the handle to a camera preview resource (on the RC phone);
@@ -263,6 +270,7 @@ public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES,
                         CAMERA_CHOICE == FRONT ? 90 : -90, 0, 0));
 
+
         /**  Let all the trackable listeners know where the phone is.  */
         for (VuforiaTrackable trackable : allTrackables)
         {
@@ -276,20 +284,54 @@ public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
 
         byte[] frameBuffer = null;
         VuforiaLocalizer.CloseableFrame frame;
-        Vuforia.setFrameFormat(PIXEL_FORMAT.RGB888, true);
+        Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
         vuforia.setFrameQueueCapacity(1);
 
+        File dir = Environment.getExternalStorageDirectory();
+        File[] files = dir.listFiles();
+        int highestFileNum = -1;
+        for (File f : files) {
+            if (f.getName().contains("net_pic_")) {
+                highestFileNum = Math.max(highestFileNum, Integer.parseInt(f.getName().replaceAll("\\D", "")));
+            }
+        }
+        int currFileNum = highestFileNum + 1;
+        ElapsedTime time = new ElapsedTime();
+        double lastTime = 0;
         /** Start tracking the data sets we care about. */
-        targetsRoverRuckus.activate();
+        //targetsRoverRuckus.activate();
         while (opModeIsActive()) {
 
-            frame = vuforia.getFrameQueue().poll();
+            frame = vuforia.getFrameQueue().take();
 
-            if (frame != null) {
+            telemetry.addData("Num images in frame", "" + frame.getNumImages());
+            telemetry.update();
+            //for (int i = 0; i < frame.getNumImages() && opModeIsActive(); i++) {
                 Image image = frame.getImage(0);
-                if (image.getFormat() == PIXEL_FORMAT.RGB888) {
+                if (image.getFormat() == PIXEL_FORMAT.RGB565 && time.seconds() > lastTime + 1) {
+                    lastTime = time.seconds();
                     int imageWidth = image.getWidth(), imageHeight = image.getHeight();
-                    ByteBuffer byteBuffer = image.getPixels();
+                    Bitmap bmp = Bitmap.createBitmap(imageWidth, imageHeight, Bitmap.Config.RGB_565);
+                    bmp.copyPixelsFromBuffer(image.getPixels());
+                    try {
+                        File sdCard = Environment.getExternalStorageDirectory();
+                        telemetry.addLine(sdCard.getAbsolutePath());
+                        telemetry.update();
+                        //File dir = new File(sdCard.getAbsolutePath() + "/dir1");
+                        //dir.mkdirs();
+
+                        File file = new File(sdCard, "net_pic_" + currFileNum++);
+
+                        FileOutputStream fos = new FileOutputStream(file);
+
+                        bmp = getResizedBitmap(bmp, 78, 59);
+                        bmp.compress(Bitmap.CompressFormat.PNG, 100, fos);
+
+                    } catch (FileNotFoundException ex) {
+                        telemetry.addLine(ex.toString());
+                        telemetry.update();
+                    }
+                    //ByteBuffer byteBuffer = image.getPixels();
                     /*if (frameBuffer == null) {
                         frameBuffer = new byte[byteBuffer.capacity()];
                     }
@@ -311,8 +353,9 @@ public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
 
                     onFrame(this.frame, vuforiaFrame.getTimeStamp());*/
                 }
-            }
+                //}
 
+            /*
             // check all the trackable target to see which one (if any) is visible.
             targetVisible = false;
             for (VuforiaTrackable trackable : allTrackables) {
@@ -345,6 +388,24 @@ public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
                 telemetry.addData("Visible Target", "none");
             }
             telemetry.update();
+            */
         }
+    }
+
+    public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        float scaleWidth = ((float) newWidth) / width;
+        float scaleHeight = ((float) newHeight) / height;
+        // CREATE A MATRIX FOR THE MANIPULATION
+        Matrix matrix = new Matrix();
+        // RESIZE THE BIT MAP
+        matrix.postScale(scaleWidth, scaleHeight);
+
+        // "RECREATE" THE NEW BITMAP
+        Bitmap resizedBitmap = Bitmap.createBitmap(
+                bm, 0, 0, width, height, matrix, false);
+        bm.recycle();
+        return resizedBitmap;
     }
 }
