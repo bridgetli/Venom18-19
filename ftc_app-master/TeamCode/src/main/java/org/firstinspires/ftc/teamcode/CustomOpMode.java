@@ -24,8 +24,7 @@ public class CustomOpMode extends OpMode{
     //winch motors???
     //DcMotor motorWinchUp;
     //DcMotor motorWinchDown;
-    DistanceSensor distSensorB;
-    DistanceSensor distSensorF;
+    ModernRoboticsI2cRangeSensor rangeSensor;
 
     final double winchDownPower = .5;
     final double winchUpPower = .5;
@@ -92,8 +91,7 @@ public class CustomOpMode extends OpMode{
 
         telemetry.addData("IMU Initialization Complete", "");
 
-        distSensorF = hardwareMap.get(DistanceSensor.class, "distSensorF");
-        distSensorB = hardwareMap.get(DistanceSensor.class, "distSensorB");
+        rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensor");;
 
         telemetry.addData("Initialization Complete", "");
 
@@ -158,6 +156,6 @@ public class CustomOpMode extends OpMode{
         else return joyStickVal;
     }
     public double getDist() {
-        return distSensorF.getDistance(DistanceUnit.INCH);
+        return rangeSensor.getDistance(DistanceUnit.INCH);
     }
 }

@@ -32,8 +32,9 @@ public class CustomLinearOpMode extends LinearOpMode {
     //DcMotor motorWinchUp;
     //DcMotor motorWinchDown;
 
-    DistanceSensor distSensorB;
-    DistanceSensor distSensorF;
+
+    ModernRoboticsI2cRangeSensor rangeSensor;
+
 
 
     final double winchDownPower = .5;
@@ -86,8 +87,8 @@ public class CustomLinearOpMode extends LinearOpMode {
 
         telemetry.addData("Motor Initialization Complete", "");
 
-        distSensorF = hardwareMap.get(DistanceSensor.class, "distSensorF");
-        distSensorB = hardwareMap.get(DistanceSensor.class, "distSensorB");
+        rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensor");
+
 
         servoMarker = hardwareMap.servo.get("servoMarker");
         servoMarker.setPosition(0);
@@ -263,9 +264,9 @@ public class CustomLinearOpMode extends LinearOpMode {
         stopDriveMotors();
     }
     public double getDist() {
-        double dist = distSensorF.getDistance(DistanceUnit.INCH);
+        double dist = rangeSensor.getDistance(DistanceUnit.INCH);
         while ((dist > 55 || Double.isNaN(dist)) && opModeIsActive()) {
-            dist = distSensorF.getDistance(DistanceUnit.INCH);
+            dist = rangeSensor.getDistance(DistanceUnit.INCH);
         }
         return dist;
     }
