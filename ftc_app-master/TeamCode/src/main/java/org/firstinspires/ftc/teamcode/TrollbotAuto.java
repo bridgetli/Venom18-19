@@ -14,8 +14,6 @@ public class TrollbotAuto extends CustomLinearOpMode {
     ModernRoboticsI2cRangeSensor rangeSensor;
 
 
-
-
     // if starting in position 1
 
     public void SummerTest1 ()
