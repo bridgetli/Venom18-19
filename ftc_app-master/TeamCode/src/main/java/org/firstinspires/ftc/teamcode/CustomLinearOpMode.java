@@ -7,6 +7,7 @@ import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -31,7 +32,8 @@ public class CustomLinearOpMode extends LinearOpMode {
     //DcMotor motorWinchUp;
     //DcMotor motorWinchDown;
 
-    ModernRoboticsI2cRangeSensor rangeSensor;
+    DistanceSensor distSensorB;
+    DistanceSensor distSensorF;
 
 
     final double winchDownPower = .5;
@@ -84,7 +86,8 @@ public class CustomLinearOpMode extends LinearOpMode {
 
         telemetry.addData("Motor Initialization Complete", "");
 
-        rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensor");
+        distSensorF = hardwareMap.get(DistanceSensor.class, "distSensorF");
+        distSensorB = hardwareMap.get(DistanceSensor.class, "distSensorB");
 
         servoMarker = hardwareMap.servo.get("servoMarker");
         servoMarker.setPosition(0);
@@ -97,6 +100,8 @@ public class CustomLinearOpMode extends LinearOpMode {
         telemetry.addData("IMU Initialization Complete", "");
 
         telemetry.addData("Initialization Complete", "");
+
+        //waitForStart();
     }
 
     //˯˯ Sets motor power to zero
@@ -148,6 +153,7 @@ public class CustomLinearOpMode extends LinearOpMode {
                 turnLeft();
             }
         }
+        stopDriveMotors();
     }
 
     public void driveForward (){
@@ -244,16 +250,26 @@ public class CustomLinearOpMode extends LinearOpMode {
     }
 
     public void goForward(double distance){
-        // goes foward a certain distance after we add the sensor in
+        // goes forward a certain distance after we add the sensor in
         // distance is in inches
+
+        double oldDist = getDist();
+        double newDist = getDist();
+        while(Math.abs(oldDist - newDist) < distance && opModeIsActive()) {
+            driveForward();
+            newDist = getDist();
+            telemetry.addData("Stuck in the loop", "");
+        }
+        stopDriveMotors();
     }
     public double getDist() {
-        double dist = rangeSensor.getDistance(DistanceUnit.INCH);
-        while (dist > 1000 || Double.isNaN(dist) && opModeIsActive()) {
-            dist = rangeSensor.getDistance(DistanceUnit.INCH);
+        double dist = distSensorF.getDistance(DistanceUnit.INCH);
+        while ((dist > 55 || Double.isNaN(dist)) && opModeIsActive()) {
+            dist = distSensorF.getDistance(DistanceUnit.INCH);
         }
         return dist;
     }
+
     public void moveToDistance(double dist) {
         while(getDist() > dist && opModeIsActive()) {
             driveForward();

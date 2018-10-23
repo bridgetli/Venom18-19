@@ -5,9 +5,11 @@ import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcontroller.external.samples.SensorREV2mDistance;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class CustomOpMode extends OpMode{
@@ -17,10 +19,13 @@ public class CustomOpMode extends OpMode{
     DcMotor motorBR;
     DcMotor motorBL;
 
+    IMU imu;
+
     //winch motors???
     //DcMotor motorWinchUp;
     //DcMotor motorWinchDown;
-    ModernRoboticsI2cRangeSensor rangeSensor;
+    DistanceSensor distSensorB;
+    DistanceSensor distSensorF;
 
     final double winchDownPower = .5;
     final double winchUpPower = .5;
@@ -75,16 +80,24 @@ public class CustomOpMode extends OpMode{
         //servoMarker = hardwareMap.servo.get("servoMarker");
         //servoMarker.setPosition(0);
 
-        rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensor");
+
+
 
         telemetry.addData("Servo Initialization Complete", "");
 
-        //imu = new IMU(hardwareMap.get(BNO055IMU.class, "imu"));
-        //imu.IMUinit(hardwareMap);
+
+
+        imu = new IMU(hardwareMap.get(BNO055IMU.class, "imu"));
+        imu.IMUinit(hardwareMap);
 
         telemetry.addData("IMU Initialization Complete", "");
 
+        distSensorF = hardwareMap.get(DistanceSensor.class, "distSensorF");
+        distSensorB = hardwareMap.get(DistanceSensor.class, "distSensorB");
+
         telemetry.addData("Initialization Complete", "");
+
+
     }
 
     public void stopDriveMotors() {
@@ -125,7 +138,7 @@ public class CustomOpMode extends OpMode{
         /*if (Math.abs(joyStickVal - motorBL.getPower()) < 1) {
             return joyStickVal;
         }*/
-        double c = .2;
+        double c = .25;
         if (joyStickVal >= motorBR.getPower()) {
             return Range.clip(motorBR.getPower() + c, -1, joyStickVal);
         }
@@ -135,7 +148,7 @@ public class CustomOpMode extends OpMode{
         else return joyStickVal;
     }
     public double leftABSMotorVal(double joyStickVal) {
-        double c = .2;
+        double c = .25;
         if (joyStickVal >= motorBL.getPower()) {
             return Range.clip(motorBL.getPower() + c, -1, joyStickVal);
         }
@@ -145,6 +158,6 @@ public class CustomOpMode extends OpMode{
         else return joyStickVal;
     }
     public double getDist() {
-        return rangeSensor.getDistance(DistanceUnit.INCH);
+        return distSensorF.getDistance(DistanceUnit.INCH);
     }
 }
