@@ -51,7 +51,7 @@ public class CustomLinearOpMode extends LinearOpMode {
 
 
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
 
     }
 
@@ -265,7 +265,7 @@ public class CustomLinearOpMode extends LinearOpMode {
     }
     public double getDist() {
         double dist = rangeSensor.getDistance(DistanceUnit.INCH);
-        while ((dist > 55 || Double.isNaN(dist)) && opModeIsActive()) {
+        while ((dist > 200 || Double.isNaN(dist)) && opModeIsActive()) {
             dist = rangeSensor.getDistance(DistanceUnit.INCH);
         }
         return dist;

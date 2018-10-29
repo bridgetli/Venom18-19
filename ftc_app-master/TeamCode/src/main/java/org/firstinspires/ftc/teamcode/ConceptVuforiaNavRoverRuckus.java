@@ -302,13 +302,14 @@ public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
         //targetsRoverRuckus.activate();
         while (opModeIsActive()) {
 
-            frame = vuforia.getFrameQueue().take();
+                //if (image.getFormat() == PIXEL_FORMAT.RGB565 && time.seconds() > lastTime + 1) { for auto shutter
+                if (gamepad1.right_bumper && time.seconds() - lastTime > .35) { //manual shutter with right bumper
+                    frame = vuforia.getFrameQueue().take();
 
-            telemetry.addData("Num images in frame", "" + frame.getNumImages());
-            telemetry.update();
-            //for (int i = 0; i < frame.getNumImages() && opModeIsActive(); i++) {
-                Image image = frame.getImage(0);
-                if (image.getFormat() == PIXEL_FORMAT.RGB565 && time.seconds() > lastTime + 1) {
+                    telemetry.addData("Num images in frame", "" + frame.getNumImages());
+                    telemetry.update();
+                    //for (int i = 0; i < frame.getNumImages() && opModeIsActive(); i++) {
+                    Image image = frame.getImage(0);
                     lastTime = time.seconds();
                     int imageWidth = image.getWidth(), imageHeight = image.getHeight();
                     Bitmap bmp = Bitmap.createBitmap(imageWidth, imageHeight, Bitmap.Config.RGB_565);
@@ -320,7 +321,7 @@ public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
                         //File dir = new File(sdCard.getAbsolutePath() + "/dir1");
                         //dir.mkdirs();
 
-                        File file = new File(sdCard, "net_pic_" + currFileNum++);
+                        File file = new File(sdCard, "net_pic_" + currFileNum++ + ".png");
 
                         FileOutputStream fos = new FileOutputStream(file);
 
