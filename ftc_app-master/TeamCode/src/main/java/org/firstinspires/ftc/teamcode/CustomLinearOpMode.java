@@ -12,13 +12,29 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 
 //import for_camera_opmodes.LinearOpModeCamera;
 
 import static android.graphics.Color.blue;
 import static android.graphics.Color.red;
+import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.FRONT;
 
 public class CustomLinearOpMode extends LinearOpMode {
+
+    protected static final String VUFORIA_KEY = "AXb/g5n/////AAAAGSUed2rh5Us1jESA1cUn5r5KDUqTfwO2woh7MxjiLKSUyDslqBAgwCi0Qmc6lVczErnF5TIw7vG5R4TJ2igvrDVp+dP+3i2o7UUCRRj/PtyVgb4ZfNrDzHE80/6TUHifpKu4QCM04eRWYZocWNWhuRfytVeWy6NSTWefM9xadqG8FFrFk3XnvqDvk/6ZAgerNBdq5SsJ90eDdoAhgYEee40WxasoUUM9YVMvkWOqZgHSuraV2IyIUjkW/u0O+EkFtTNRUWP+aZwn1qO1H4Lk07AJYe21eqioBLMdzY7A8YqR1TeQ//0WJg8SFdXjuGbF6uHykBe2FF5UeyaehA0iTqfPS+59FLm8y1TuUt57eImq";
+
+    protected static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = FRONT;
+
+
+
+    /**
+     * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
+     * localization engine.
+     */
+    VuforiaLocalizer vuforia;
+
+
     //drive motors
     DcMotor motorFR;
     DcMotor motorFL;
@@ -157,7 +173,7 @@ public class CustomLinearOpMode extends LinearOpMode {
         stopDriveMotors();
     }
 
-    public void driveForward (){
+    public void driveForward () {
         motorFL.setPower(speed);
         motorFR.setPower(speed);
         motorBL.setPower(speed);
