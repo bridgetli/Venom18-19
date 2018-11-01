@@ -29,8 +29,8 @@ import java.io.FileOutputStream;
 @Autonomous (name = "BoTest", group = "Autonomous")
 public class BoTest extends CustomLinearOpMode {    //test for red double depot side
 
-    ElapsedTime time = new ElapsedTime();
-    char blockPos = '?';
+    private ElapsedTime time = new ElapsedTime();
+    private char blockPos = 'C';
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -45,15 +45,16 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
 
-
         Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
         vuforia.setFrameQueueCapacity(1);
 
         initizialize();
-        telemetry.addLine("initialization complete");
+        telemetry.addLine("Vuforia initialization complete");
+
         waitForStart();
-            //ByteBuffer byteBuffer = image.getPixels();
-                /*if (frameBuffer == null) {
+
+        /*ByteBuffer byteBuffer = image.getPixels();
+                if (frameBuffer == null) {
                     frameBuffer = new byte[byteBuffer.capacity()];
                 }
                 byteBuffer.get(frameBuffer);
@@ -111,7 +112,10 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
             */
 
         getBlock();
+        telemetry.addData("Block Pos", blockPos);
+        telemetry.update();
 
+        /*
         moveToDistP(40, 0);
         if (blockPos == 'R' || blockPos == '?') {
             Pturn(45);
@@ -120,11 +124,8 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         } else {
             Pturn(-45);
         }
-
+        */
         // At this point, front of robot should align with corner of lander
-
-
-
     }
 
     private void Pturn(double angle) {
@@ -139,7 +140,6 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
             motorFR.setPower(-PIDchange);
         }
     }
-
 
     public void moveTime(double msTime, double leftPow, double rightPow) throws InterruptedException {
         time.reset();
@@ -177,42 +177,65 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         stopMotors();
     }
 
-    public void getBlock() {
-        blockPos = 'C';
-        /* basic brute force counter
-
+    public void getBlock() throws InterruptedException {
+        //blockPos = 'C';
+        //basic brute force counter
         Bitmap bitmap = takePic();
 
-        BoundingBox left = new BoundingBox();    //look at images taken from consistent
-        BoundingBox center = new BoundingBox();  //spot in auto and get pixel range
-        BoundingBox right = new BoundingBox();   //of left center and right
+        int startRow = 500;
+        int endRow = 700;
 
+        BoundingBox left = new BoundingBox(startRow, 200, endRow, 600);    //look at images taken from consistent
+        BoundingBox center = new BoundingBox(startRow, 600, endRow, 1000);  //spot in auto and get pixel range
+        BoundingBox right = new BoundingBox(startRow, 1000, endRow, 1400);   //of left center and right
 
-
-
-        if (yellowValOfBox(bitmap, left) > yellowValOfBox(bitmap, center) {
+        if (yellowValOfBox(bitmap, left) > yellowValOfBox(bitmap, center)) {
             blockPos = 'L';
             if (yellowValOfBox(bitmap, right) > yellowValOfBox(bitmap, left))
                 blockPos = 'R';
-        } else if (yellowValOfBox(bitmap, right) > yellowValOfBox(bitmap, center)) {
-            blockPos = 'R';
         }
+        else if (yellowValOfBox(bitmap, right) > yellowValOfBox(bitmap, center))
+            blockPos = 'R';
 
-        if (blockPos = 'L')
+        if (blockPos == 'L')
             saveBox(bitmap, left);
-        else if (blockPos = 'C')
+        else if (blockPos == 'C')
             saveBox(bitmap, center);
         else
             saveBox(bitmap, right);
-        */
 
-        /* multi location pixel scanner (better but much slower)
+        // multi location pixel scanner (better but much slower)
 
-        int N = 4; // the approx height and width of an object
+        /*int N = 4; // the approx height and width of an object
 
-        for (int r = 0; r < 
+        for (int r = 0; r < */
+    }
 
-         */
+    public int yellowValOfBox(Bitmap bmp, BoundingBox bb) {
+        int ySum = 0;
+
+        //scans bounding box
+        for (int r = bb.startRow; r < bb.endRow; r++) {
+            for (int c = bb.startCol;  c < bb.endCol; c++) {
+                int color = bmp.getPixel(c, r);
+                int R = (color >> 16) & 0xff;
+                int G = (color >>  8) & 0xff;
+                int yellow = Math.min(R, G);
+                ySum += yellow;
+            }
+        }
+
+        //scans entire bitmap
+        /*or (int r = 0; r < bmp.getHeight(); r++) {
+            for (int c = 0;  c < bmp.getWidth(); c++) {
+                int color = bmp.getPixel(c, r);
+                int R = (color >> 16) & 0xff;
+                int G = (color >>  8) & 0xff;
+                int yellow = Math.min(R, G);
+                ySum += yellow;
+            }
+        }*/
+        return ySum;
     }
 
     private class BoundingBox {
@@ -228,21 +251,6 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
             this.endCol = endCol;
         }
     }
-
-    public int yellowValOfBox(Bitmap bmp, BoundingBox bb) {
-        int ySum = 0;
-        for (int r = 0; r < bmp.getHeight(); r++) {
-            for (int c = 0;  c < bmp.getWidth(); c++) {
-                int color = bmp.getPixel(c, r);
-                int R = (color >> 16) & 0xff;
-                int G = (color >>  8) & 0xff;
-                int yellow = Math.min(R, G);
-                ySum += yellow;
-            }
-        }
-        return ySum;
-    }
-
 
     public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
         int width = bm.getWidth();
@@ -323,8 +331,6 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
                     onFrame(this.frame, vuforiaFrame.getTimeStamp());*/
         return bmp;
     }
-
-
 
     public Bitmap saveBox(Bitmap bmp, BoundingBox bb) throws InterruptedException{
         File dir = Environment.getExternalStorageDirectory();
