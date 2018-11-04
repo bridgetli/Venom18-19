@@ -18,6 +18,8 @@ public class CustomOpMode extends OpMode{
     DcMotor motorFL;
     DcMotor motorBR;
     DcMotor motorBL;
+    DcMotor motorWL; //carabiner
+    DcMotor motorWR; //release
 
     IMU imu;
 
@@ -51,6 +53,8 @@ public class CustomOpMode extends OpMode{
         motorFL = hardwareMap.dcMotor.get("motorFL");
         motorBR = hardwareMap.dcMotor.get("motorBR");
         motorBL = hardwareMap.dcMotor.get("motorBL");
+        motorWL = hardwareMap.dcMotor.get("motorWL");
+        motorWR = hardwareMap.dcMotor.get("motorWR");
 
        // motorWinchUp = hardwareMap.dcMotor.get("motorWinchUp");
         //motorWinchDown = hardwareMap.dcMotor.get("motorWinchDown");

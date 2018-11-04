@@ -179,9 +179,11 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
 
     public void getBlock() throws InterruptedException {
         //blockPos = 'C';
-        //basic brute force counter
+
         Bitmap bitmap = takePic();
 
+
+        // basic brute force counter
         int startRow = 500;
         int endRow = 700;
 
@@ -211,6 +213,63 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         for (int r = 0; r < */
     }
 
+    public void getBlockAcc() throws InterruptedException {
+        Bitmap bitmap = takePic();
+
+        int N = 4;
+        BoundingBox block = null;
+        BoundingBox ball1 = null;
+        BoundingBox ball2 = null;
+        int yellow = -1;
+        int white = -1;
+        int white2 = -1;
+        for (int r = 0; r < bitmap.getHeight() - N; r++) {
+            for (int c = 0; c < bitmap.getWidth() - N; c++) {
+                BoundingBox testBox = new BoundingBox(r, c, r+4, c+4);
+                int testYellow = yellowValOfBox(bitmap, testBox);
+                int testWhite = whiteValOfBox(bitmap, testBox);
+                if (testYellow > yellow) {
+                    yellow = testYellow;
+                    block = testBox;
+                }
+                if (testWhite > white) {
+                    white = testWhite;
+                    ball1 = testBox;
+                }
+                else if (testWhite > white2 && Math.abs(testBox.startCol - ball1.startCol) > 10) {
+                    white2 = testWhite;
+                    ball2 = testBox;
+                }
+            }
+        }
+
+        if (block.startCol < ball1.startCol && block.startCol < ball2.startCol)
+            blockPos = 'L';
+        else if (block.startCol > ball1.startCol && block.startCol > ball2.startCol)
+            blockPos = 'R';
+        else
+            blockPos = 'C';
+
+
+    }
+
+    public int whiteValOfBox(Bitmap bmp, BoundingBox bb) {
+        int whiteSum = 0;
+
+        for (int r = bb.startRow; r < bb.endRow; r++) {
+            for (int c = bb.startCol;  c < bb.endCol; c++) {
+                int color = bmp.getPixel(c, r);
+                int R = (color >> 16) & 0xff;
+                int G = (color >>  8) & 0xff;
+                int B = color & 0xff;
+                int white = Math.min(R, Math.min(G, B));
+                whiteSum += white;
+            }
+        }
+
+        return whiteSum;
+    }
+
     public int yellowValOfBox(Bitmap bmp, BoundingBox bb) {
         int ySum = 0;
 
@@ -220,7 +279,8 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
                 int color = bmp.getPixel(c, r);
                 int R = (color >> 16) & 0xff;
                 int G = (color >>  8) & 0xff;
-                int yellow = Math.min(R, G);
+                int B = color & 0xff;
+                int yellow = Math.min(R, G) - B / 2;
                 ySum += yellow;
             }
         }

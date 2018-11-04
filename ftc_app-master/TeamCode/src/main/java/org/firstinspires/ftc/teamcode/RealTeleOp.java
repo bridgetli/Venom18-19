@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name="RealTeleOp", group="Mr. Krabs")
+@TeleOp(name="NotRealTeleOp", group="TeleOp")
 public class RealTeleOp extends CustomOpMode{
     public void init() {
         initizialize();

@@ -11,6 +11,8 @@ public class mainTele extends CustomOpMode {
 
         double yL = -gamepad1.left_stick_y;
         double yR = -gamepad1.right_stick_y;
+
+
         double motorScale = 1;
 
         if (Math.abs(yL) > .2) {
@@ -26,6 +28,22 @@ public class mainTele extends CustomOpMode {
         } else {
             motorBR.setPower(0);
             motorFR.setPower(0);
+        }
+
+        if (gamepad1.dpad_down) {
+            motorWR.setPower(-1);
+        } else if (gamepad1.dpad_up){
+            motorWR.setPower(1);
+        } else {
+            motorWR.setPower(0);
+        }
+
+        if(gamepad1.y) {
+            motorWL.setPower(-1);
+        } else if (gamepad1.a) {
+            motorWL.setPower(1);
+        } else {
+            motorWL.setPower(0);
         }
         telemetry.addData("Right motor speeds", yR);
         telemetry.addData("Left motor speed", yL);
