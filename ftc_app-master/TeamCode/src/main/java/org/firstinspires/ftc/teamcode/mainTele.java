@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name="mainTele", group="TeleOp")
 public class mainTele extends CustomOpMode {
@@ -45,10 +46,20 @@ public class mainTele extends CustomOpMode {
         } else {
             motorWL.setPower(0);
         }
+
+        if(gamepad2.a) {
+            //servoWinchArm.setPosition(Range.clip(servoWinchArm.getPosition() + .1, 0, 1));
+            servoWinchArm.setPosition(servoWinchArmUpPos);
+        }
+        if(gamepad2.b) {
+            //servoWinchArm.setPosition(Range.clip(servoWinchArm.getPosition() - .1, 0, 1));
+            servoWinchArm.setPosition(servoWinchArmDownPos);
+        }
         telemetry.addData("Right motor speeds", yR);
         telemetry.addData("Left motor speed", yL);
         telemetry.addData("Distance:", getDist());
         telemetry.addLine("Init complete");
+        telemetry.addData("Servo Winch Arm Pos", servoWinchArm.getPosition());
         telemetry.update();
     }
 }

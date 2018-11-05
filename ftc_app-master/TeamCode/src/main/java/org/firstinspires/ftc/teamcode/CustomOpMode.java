@@ -31,6 +31,11 @@ public class CustomOpMode extends OpMode{
     final double winchDownPower = .5;
     final double winchUpPower = .5;
 
+    Servo servoWinchArm;
+
+    final double servoWinchArmDownPos = 0.2;
+    final double servoWinchArmUpPos = .4;
+
     //Servo servoMarker;
 
     final double servoMarkerStartPos = 1;
@@ -83,7 +88,7 @@ public class CustomOpMode extends OpMode{
         //servoMarker = hardwareMap.servo.get("servoMarker");
         //servoMarker.setPosition(0);
 
-
+        servoWinchArm = hardwareMap.servo.get("servoWinchArm");
 
 
         telemetry.addData("Servo Initialization Complete", "");
@@ -162,4 +167,6 @@ public class CustomOpMode extends OpMode{
     public double getDist() {
         return rangeSensor.getDistance(DistanceUnit.INCH);
     }
+
+
 }
