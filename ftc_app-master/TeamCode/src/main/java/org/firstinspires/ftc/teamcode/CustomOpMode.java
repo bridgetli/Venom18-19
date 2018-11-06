@@ -33,8 +33,8 @@ public class CustomOpMode extends OpMode{
 
     Servo servoWinchArm;
 
-    final double servoWinchArmDownPos = 0.2;
-    final double servoWinchArmUpPos = .4;
+    final double servoWinchArmDownPos = .2;
+    final double servoWinchArmUpPos = .38;
 
     //Servo servoMarker;
 
@@ -89,6 +89,7 @@ public class CustomOpMode extends OpMode{
         //servoMarker.setPosition(0);
 
         servoWinchArm = hardwareMap.servo.get("servoWinchArm");
+        servoWinchArm.setPosition(servoWinchArmDownPos);
 
 
         telemetry.addData("Servo Initialization Complete", "");

@@ -31,35 +31,41 @@ public class mainTele extends CustomOpMode {
             motorFR.setPower(0);
         }
 
-        if (gamepad1.dpad_down) {
-            motorWR.setPower(-1);
-        } else if (gamepad1.dpad_up){
-            motorWR.setPower(1);
-        } else {
-            motorWR.setPower(0);
-        }
-
-        if(gamepad1.y) {
-            motorWL.setPower(-1);
-        } else if (gamepad1.a) {
+        if (gamepad2.dpad_down) {
             motorWL.setPower(1);
+        } else if (gamepad2.dpad_up){
+            motorWL.setPower(-1);
         } else {
             motorWL.setPower(0);
         }
 
-        if(gamepad2.a) {
+        /*if(gamepad2.a) {
+            motorWL.setPower(-1);
+        } else if (gamepad2.y) {
+            motorWL.setPower(1);
+        } else {
+            motorWL.setPower(0);
+        }*/
+
+        if(gamepad2.b) {
             //servoWinchArm.setPosition(Range.clip(servoWinchArm.getPosition() + .1, 0, 1));
             servoWinchArm.setPosition(servoWinchArmUpPos);
         }
-        if(gamepad2.b) {
+        else if(gamepad2.a) {
             //servoWinchArm.setPosition(Range.clip(servoWinchArm.getPosition() - .1, 0, 1));
             servoWinchArm.setPosition(servoWinchArmDownPos);
+        } else if (gamepad2.y) {
+            servoWinchArm.setPosition(.8);
         }
         telemetry.addData("Right motor speeds", yR);
         telemetry.addData("Left motor speed", yL);
         telemetry.addData("Distance:", getDist());
         telemetry.addLine("Init complete");
         telemetry.addData("Servo Winch Arm Pos", servoWinchArm.getPosition());
+        telemetry.addData("motorFL: ", motorFL.getCurrentPosition());
+        telemetry.addData("motorBL: ", motorBL.getCurrentPosition());
+        telemetry.addData("motorFR: ", motorFR.getCurrentPosition());
+        telemetry.addData("motorBR: ", motorBR.getCurrentPosition());
         telemetry.update();
     }
 }

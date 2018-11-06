@@ -9,6 +9,7 @@ import android.os.Environment;
 import android.widget.ImageView;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import com.vuforia.Image;
@@ -115,16 +116,18 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         telemetry.addData("Block Pos", blockPos);
         telemetry.update();
 
-        /*
-        moveToDistP(40, 0);
+        sleep(1000);
+
+        moveToDistP(8, 0);
         if (blockPos == 'R' || blockPos == '?') {
             Pturn(45);
         } else if (blockPos == 'C') {
-            moveToDistP(32, 0);
+            moveToDistP(27, 0);
+
         } else {
             Pturn(-45);
         }
-        */
+
         // At this point, front of robot should align with corner of lander
     }
 
@@ -159,7 +162,7 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
     }
 
     public void moveToDistP(double inches, double angle) {
-        double kPdist = .15;
+        double kPdist = .015;
         double kPangle = .25/90;
         while ((Math.abs(getDist() - inches) > .25 || imu.getTrueDiff(angle) > .5) && opModeIsActive()) {
 
@@ -177,6 +180,22 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         stopMotors();
     }
 
+    public void moveToEncoder(double encoder, double power, double angle) {
+        motorBL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        idle();
+        motorBL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        double kPangle = .25/90;
+
+        motorBL.setPower(power);
+        motorBR.setPower(power);
+        motorFL.setPower(power);
+        motorFR.setPower(power);
+        while (motorBL.getCurrentPosition() < encoder) {
+
+        }
+        stopMotors();
+    }
+
     public void getBlock() throws InterruptedException {
         //blockPos = 'C';
 
@@ -184,12 +203,18 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
 
 
         // basic brute force counter
-        int startRow = 500;
-        int endRow = 700;
+        int startRow = 16;
+        int endRow = 20;
+        int leftSrow = 13;
+        int leftErow = 17;
+        int centerSrow = 35;
+        int centerErow = 39;
+        int rightSrow = 55;
+        int rightErow = 59;
 
-        BoundingBox left = new BoundingBox(startRow, 200, endRow, 600);    //look at images taken from consistent
-        BoundingBox center = new BoundingBox(startRow, 600, endRow, 1000);  //spot in auto and get pixel range
-        BoundingBox right = new BoundingBox(startRow, 1000, endRow, 1400);   //of left center and right
+        BoundingBox left = new BoundingBox(startRow, leftSrow, endRow, leftErow);    //look at images taken from consistent
+        BoundingBox center = new BoundingBox(startRow, centerSrow, endRow, centerErow);  //spot in auto and get pixel range
+        BoundingBox right = new BoundingBox(startRow, rightSrow, endRow, rightErow);   //of left center and right
 
         if (yellowValOfBox(bitmap, left) > yellowValOfBox(bitmap, center)) {
             blockPos = 'L';
@@ -280,7 +305,7 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
                 int R = (color >> 16) & 0xff;
                 int G = (color >>  8) & 0xff;
                 int B = color & 0xff;
-                int yellow = Math.min(R, G) - B / 2;
+                int yellow = Math.min(R, G) - B / 2 > 0 ? Math.min(R, G) - B / 2 : 0;
                 ySum += yellow;
             }
         }
