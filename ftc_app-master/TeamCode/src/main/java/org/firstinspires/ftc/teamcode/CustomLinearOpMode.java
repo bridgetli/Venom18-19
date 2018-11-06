@@ -51,12 +51,14 @@ public class CustomLinearOpMode extends LinearOpMode {
 
     ModernRoboticsI2cRangeSensor rangeSensor;
 
-
+    Servo servoWinchArm;
+    final double servoWinchArmInitPos = .2;
+    final double servoWinchArmDepositPos = .8;
 
     final double winchDownPower = .5;
     final double winchUpPower = .5;
 
-    Servo servoMarker;
+    //Servo servoMarker;
 
     final double servoMarkerStartPos = 1;
     final double servoMarkerEndPos = 0;
@@ -99,6 +101,8 @@ public class CustomLinearOpMode extends LinearOpMode {
         //motorWinchUp.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         //motorWinchDown.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        servoWinchArm = hardwareMap.servo.get("servoWinchArm");
+
         stopAllMotors();
 
         telemetry.addData("Motor Initialization Complete", "");
@@ -106,8 +110,7 @@ public class CustomLinearOpMode extends LinearOpMode {
         rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensor");
 
 
-        servoMarker = hardwareMap.servo.get("servoMarker");
-        servoMarker.setPosition(0);
+        servoWinchArm.setPosition(servoWinchArmInitPos);
 
         telemetry.addData("Servo Initialization Complete", "");
 
@@ -117,6 +120,7 @@ public class CustomLinearOpMode extends LinearOpMode {
         telemetry.addData("IMU Initialization Complete", "");
 
         telemetry.addData("Initialization Complete", "");
+        telemetry.update();
 
         //waitForStart();
     }

@@ -118,14 +118,17 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
 
         sleep(1000);
 
-        moveToDistP(8, 0);
+        moveToEncoder(1000, .2, 0);
+        sleep(1000);
         if (blockPos == 'R' || blockPos == '?') {
             Pturn(45);
+            moveToDistP(18, 45);
         } else if (blockPos == 'C') {
             moveToDistP(27, 0);
-
+            servoWinchArm.setPosition(servoWinchArmDepositPos);
         } else {
             Pturn(-45);
+            moveToDistP(18, 45);
         }
 
         // At this point, front of robot should align with corner of lander
@@ -172,10 +175,10 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
             double angleError = imu.getTrueDiff(angle);
             double PIDchangeAngle = kPangle * angleError;
 
-            motorBL.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -1, 1));
-            motorFL.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -1, 1));
-            motorBR.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -1, 1));
-            motorFR.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -1, 1));
+            motorBL.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -1, 1));
+            motorFL.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -1, 1));
+            motorBR.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -1, 1));
+            motorFR.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -1, 1));
         }
         stopMotors();
     }
@@ -186,12 +189,16 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         motorBL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         double kPangle = .25/90;
 
-        motorBL.setPower(power);
-        motorBR.setPower(power);
-        motorFL.setPower(power);
-        motorFR.setPower(power);
+
         while (motorBL.getCurrentPosition() < encoder) {
 
+            double angleError = imu.getTrueDiff(angle);
+            double PIDchangeAngle = kPangle * angleError;
+
+            motorBL.setPower(Range.clip(power - PIDchangeAngle, 0, 1));
+            motorFL.setPower(Range.clip(power - PIDchangeAngle, 0, 1));
+            motorBR.setPower(Range.clip(power + PIDchangeAngle, 0, 1));
+            motorFR.setPower(Range.clip(power + PIDchangeAngle, 0, 1));
         }
         stopMotors();
     }

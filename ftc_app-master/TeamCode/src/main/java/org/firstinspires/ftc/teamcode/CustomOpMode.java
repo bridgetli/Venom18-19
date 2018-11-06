@@ -78,8 +78,8 @@ public class CustomOpMode extends OpMode{
         //motorWinchUp.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         //motorWinchDown.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        motorFL.setDirection(DcMotorSimple.Direction.REVERSE);
-        motorBL.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorFR.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorBR.setDirection(DcMotorSimple.Direction.REVERSE);
 
         stopAllMotors();
 
