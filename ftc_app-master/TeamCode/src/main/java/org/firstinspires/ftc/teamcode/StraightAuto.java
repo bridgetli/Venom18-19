@@ -27,8 +27,8 @@ import java.io.FileOutputStream;
  * Created by bodeng on 10/19/18.
  */
 
-@Autonomous (name = "BoTest", group = "Autonomous")
-public class BoTest extends CustomLinearOpMode {    //test for red double depot side
+@Autonomous (name = "StraightAuto", group = "Autonomous")
+public class StraightAuto extends CustomLinearOpMode {    //test for red double depot side
 
     private ElapsedTime time = new ElapsedTime();
     private char blockPos = 'C';
@@ -124,19 +124,19 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         if (blockPos == 'R' || blockPos == '?') {
             Pturn(45, 3000);
             sleep(1000);
-            moveToDistP(18, 45);
+            moveToDistP(5, 45);
             sleep(1000);
-            Pturn(-45, 3000);
-            sleep(1000);
-            moveToDistP(12, -45);
+            //Pturn(-45, 3000);
+            //sleep(1000);
+            //moveToDistP(12, -45);
         } else if (blockPos == 'C') {
-            moveToDistP(20, 0);
+            moveToDistP(12, 0);
             servoWinchArm.setPosition(servoWinchArmDepositPos);
         } else {
             Pturn(-45, 3000);
-            moveToDistP(18, 45);
-            Pturn(45, 3000);
-            moveToDistP(12, 45);
+            moveToDistP(5, 45);
+            //Pturn(45, 3000);
+            //moveToDistP(12, 45);
         }
 
         // At this point, front of robot should align with corner of lander
@@ -480,7 +480,7 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
             //File dir = new File(sdCard.getAbsolutePath() + "/dir1");
             //dir.mkdirs();
 
-            File file = new File(sdCard, "pixel_match_" + currFileNum++ + ".png");
+            File file = new File(sdCard, "pixel_match" + currFileNum++ + ".png");
 
             FileOutputStream fos = new FileOutputStream(file);
 
