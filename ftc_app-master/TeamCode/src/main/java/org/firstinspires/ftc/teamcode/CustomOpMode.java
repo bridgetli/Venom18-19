@@ -34,7 +34,7 @@ public class CustomOpMode extends OpMode{
     Servo servoWinchArm;
 
     final double servoWinchArmDownPos = .2;
-    final double servoWinchArmUpPos = .38;
+    final double servoWinchArmUpPos = .42;
 
     //Servo servoMarker;
 
@@ -78,8 +78,8 @@ public class CustomOpMode extends OpMode{
         //motorWinchUp.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         //motorWinchDown.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        motorFR.setDirection(DcMotorSimple.Direction.REVERSE);
-        motorBR.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorFL.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorBL.setDirection(DcMotorSimple.Direction.REVERSE);
 
         stopAllMotors();
 

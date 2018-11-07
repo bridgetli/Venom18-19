@@ -10,33 +10,33 @@ public class mainTele extends CustomOpMode {
     }
     public void loop() {
 
-        double yL = -gamepad1.left_stick_y;
-        double yR = -gamepad1.right_stick_y;
+        double yL = gamepad1.left_stick_y;
+        double yR = gamepad1.right_stick_y;
 
 
         double motorScale = 1;
 
-        if (Math.abs(yL) > .2) {
-            motorBL.setPower(leftABSMotorVal(yL) * motorScale);
-            motorFL.setPower(leftABSMotorVal(yL) * motorScale);
+        if (Math.abs(yR) > .2) {
+            motorBL.setPower(leftABSMotorVal(yR) * motorScale);
+            motorFL.setPower(leftABSMotorVal(yR) * motorScale);
         } else {
             motorBL.setPower(0);
             motorFL.setPower(0);
         }
-        if(Math.abs(yR) > .2) {
-            motorBR.setPower(rightABSMotorVal(yR) * motorScale);
-            motorFR.setPower(rightABSMotorVal(yR) * motorScale);
+        if(Math.abs(yL) > .2) {
+            motorBR.setPower(rightABSMotorVal(yL) * motorScale);
+            motorFR.setPower(rightABSMotorVal(yL) * motorScale);
         } else {
             motorBR.setPower(0);
             motorFR.setPower(0);
         }
 
         if (gamepad2.dpad_down) {
-            motorWL.setPower(1);
+            motorWR.setPower(-1);
         } else if (gamepad2.dpad_up){
-            motorWL.setPower(-1);
+            motorWR.setPower(1);
         } else {
-            motorWL.setPower(0);
+            motorWR.setPower(0);
         }
 
         /*if(gamepad2.a) {
@@ -66,6 +66,8 @@ public class mainTele extends CustomOpMode {
         telemetry.addData("motorBL: ", motorBL.getCurrentPosition());
         telemetry.addData("motorFR: ", motorFR.getCurrentPosition());
         telemetry.addData("motorBR: ", motorBR.getCurrentPosition());
+        telemetry.addData("imuYaw: ", imu.getYaw());
+        telemetry.addData("angle error from 45: ", imu.getTrueDiff(45));
         telemetry.update();
     }
 }
