@@ -27,8 +27,8 @@ import java.io.FileOutputStream;
  * Created by bodeng on 10/19/18.
  */
 
-@Autonomous (name = "BoTest", group = "Autonomous")
-public class BoTest extends CustomLinearOpMode {    //test for red double depot side
+@Autonomous (name = "moveTests", group = "Autonomous")
+public class moveTests extends CustomLinearOpMode {    //test for red double depot side
 
     private ElapsedTime time = new ElapsedTime();
     private char blockPos = 'C';
@@ -54,145 +54,21 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
 
         waitForStart();
 
-        /*ByteBuffer byteBuffer = image.getPixels();
-                if (frameBuffer == null) {
-                    frameBuffer = new byte[byteBuffer.capacity()];
-                }
-                byteBuffer.get(frameBuffer);
-                if (this.frame == null) {
-                    this.frame = new Mat(imageHeight, imageWidth, CvType.CV_8UC3);
-
-                    if (overlayView != null) {
-                        overlayView.setImageSize(imageWidth, imageHeight);
-                    }
-                }
-                this.frame.put(0, 0, frameBuffer);
-
-                Imgproc.cvtColor(this.frame, this.frame, Imgproc.COLOR_RGB2BGR);
-
-                if (parameters.cameraDirection == VuforiaLocalizer.CameraDirection.FRONT) {
-                    Core.flip(this.frame, this.frame, 1);
-                }
-
-                onFrame(this.frame, vuforiaFrame.getTimeStamp());
-            }
+        moveToEncoder(2000, .2, 0);
+        Pturn(180, 3000);
+        moveToDistP(18, 180, 5000);
 
 
-            // check all the trackable target to see which one (if any) is visible.
-            targetVisible = false;
-            for (VuforiaTrackable trackable : allTrackables) {
-                if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
-                    telemetry.addData("Visible Target", trackable.getName());
-                    targetVisible = true;
-
-                    // getUpdatedRobotLocation() will return null if no new information is available since
-                    // the last time that call was made, or if the trackable is not currently visible.
-                    OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
-                    if (robotLocationTransform != null) {
-                        lastLocation = robotLocationTransform;
-                    }
-                    break;
-                }
-            }
-
-            // Provide feedback as to where the robot is located (if we know).
-            if (targetVisible) {
-                // express position (translation) of robot in inches.
-                VectorF translation = lastLocation.getTranslation();
-                telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
-                        translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
-
-                // express the rotation of the robot in degrees.
-                Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
-                telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
-            }
-            else {
-                telemetry.addData("Visible Target", "none");
-            }
-            telemetry.update();
-            */
-
-        getBlock();
-
-
-        blockPos = 'L';
-
-
-        telemetry.addData("Block Pos", blockPos);
-        telemetry.update();
-
-        sleep(1000);
-
-        moveToEncoder(700, .2, 0);
-        stopAllMotors();
-        sleep(1000);
-        if (blockPos == 'R' || blockPos == '?') {
-            Pturn(45, 3000);
-            sleep(1000);
-            moveToEncoder(1400, .25, 45);
-            sleep(1000);
-            Pturn(-45, 3000);
-            sleep(1000);
-            moveToDistP(19, -45, 5000);
-            //deposit marker
-            Pturn(135, 3000);
-            servoWinchArm.setPosition(servoWinchArmDepositPos);
-            sleep(1500);
-            servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveToEncoder(500, .25, 120);
-        } else if (blockPos == 'C') {
-            moveToEncoder(1250, .25, 0);
-            sleep(500);
-            moveToEncoder(800, .25, 45);
-            sleep(1000);
-            Pturn(120, 3000);
-            stopMotors();
-            servoWinchArm.setPosition(servoWinchArmDepositPos);
-            sleep(1500);
-            servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveToEncoder(500, .25, 120);
-        } else {
-            Pturn(-45, 3000);
-            sleep(1000);
-            moveToEncoder(1400, .25, -45);
-            sleep(1000);
-            Pturn(45, 3000);
-            sleep(1000);
-            moveToDistP(3, 45, 2000);
-            //deposit marker
-            Pturn(135, 3000);
-            moveToEncoder(500, .25, 135);
-            servoWinchArm.setPosition(servoWinchArmDepositPos);
-            sleep(1500);
-            servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveToEncoder(500, .25, 120);
-        }
-
-        moveToDistP(36, 135, 3000);
-        Pturn(180, 2000);
-        moveToDistP(33.936, 180, 5000);
-
-        if (blockPos == 'L') {
-            Pturn(45, 2000);
-            moveToEncoder(1500, .4, 45);
-        } else if (blockPos == 'C') {
-            Pturn(90, 2000);
-            moveToEncoder(1250, .4, 90);
-        } else {
-            Pturn(135, 2000);
-            moveToEncoder(1500, .4, 135);
-        }
+        // At this point, front of robot should align with corner of lander
     }
 
     private void Pturn(double angle, int msTimeout) {
         double kP = .5/90;
-        double minSpeed = .2;
-        double maxSpeed = .6;
         time.reset();
 
         while (Math.abs(imu.getTrueDiff(angle)) > .5 && time.milliseconds() < msTimeout && opModeIsActive()) {
             double angleError = imu.getTrueDiff(angle);
-
+            double minSpeed = .2;
 
             double PIDchange = kP * angleError;
 
@@ -201,10 +77,10 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
             else if (PIDchange < 0 && PIDchange > -minSpeed)
                 PIDchange = -minSpeed;
 
-            motorBL.setPower(Range.clip(-PIDchange, -maxSpeed, maxSpeed));
-            motorFL.setPower(Range.clip(-PIDchange, -maxSpeed, maxSpeed));
-            motorBR.setPower(Range.clip(PIDchange, -maxSpeed, maxSpeed));
-            motorFR.setPower(Range.clip(PIDchange, -maxSpeed, maxSpeed));
+            motorBL.setPower(-PIDchange);
+            motorFL.setPower(-PIDchange);
+            motorBR.setPower(PIDchange);
+            motorFR.setPower(PIDchange);
 
             telemetry.addData("angleError: ", angleError);
             telemetry.addData("PIDCHANGE: ", PIDchange);
@@ -232,9 +108,9 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
 
     public void moveToDistP(double inches, double angle, double timeout) {
         double kPdist = .03;
-        double kPangle = 2.1/90;
+        double kPangle = 2.5/90;
 
-        double minDrive = .15;
+        double minDrive = .1;
         double maxDrive = .5;
 
         while ((Math.abs(getDist() - inches) > .25 || imu.getTrueDiff(angle) > .5) && opModeIsActive()) {
@@ -263,7 +139,8 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         idle();
         motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        double kPangle = 2.1/90;
+        double kPangle = 2.5/90;
+        telemetry.addData("motorFL: ", motorFL.getCurrentPosition());
 
         if (encoder > 0) {
             while (motorFL.getCurrentPosition() < encoder && opModeIsActive()) {
@@ -287,6 +164,8 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
                 motorFL.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
                 motorBR.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
                 motorFR.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
+                telemetry.addData("motorBL: ", motorFL.getCurrentPosition());
+                telemetry.update();
             }
         }
         stopMotors();
