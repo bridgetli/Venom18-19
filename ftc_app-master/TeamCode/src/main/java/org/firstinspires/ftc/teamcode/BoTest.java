@@ -115,7 +115,7 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         getBlock();
 
 
-        blockPos = 'L';
+        blockPos = 'R';
 
 
         telemetry.addData("Block Pos", blockPos);
@@ -129,24 +129,24 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         if (blockPos == 'R' || blockPos == '?') {
             Pturn(45, 3000);
             sleep(1000);
-            moveToEncoder(1400, .25, 45);
+            moveToEncoder(1500, .25, 45);
             sleep(1000);
-            Pturn(-45, 3000);
-            sleep(1000);
-            moveToDistP(19, -45, 5000);
-            //deposit marker
             Pturn(135, 3000);
+            sleep(3000);
+            moveTimeP(2000, -.4, 135);
+            moveToEncoder(1000, .25, 135);
             servoWinchArm.setPosition(servoWinchArmDepositPos);
             sleep(1500);
             servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveToEncoder(500, .25, 120);
+            moveToEncoder(1500, .25, 135);
         } else if (blockPos == 'C') {
             moveToEncoder(1250, .25, 0);
             sleep(500);
-            moveToEncoder(800, .25, 45);
-            sleep(1000);
-            Pturn(120, 3000);
+            moveToEncoder(1000, .25, 45);
+            sleep(500);
+            Pturn(135, 3000);
             stopMotors();
+            moveToEncoder(500, .4, 135);
             servoWinchArm.setPosition(servoWinchArmDepositPos);
             sleep(1500);
             servoWinchArm.setPosition(servoWinchArmInitPos);
@@ -154,23 +154,23 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         } else {
             Pturn(-45, 3000);
             sleep(1000);
-            moveToEncoder(1400, .25, -45);
+            moveToEncoder(1400, .35, -45);
             sleep(1000);
             Pturn(45, 3000);
-            sleep(1000);
-            moveToDistP(3, 45, 2000);
+            moveToDistP(3, 45, 3000);
             //deposit marker
             Pturn(135, 3000);
-            moveToEncoder(500, .25, 135);
+            moveToEncoder(500, .35, 135);
             servoWinchArm.setPosition(servoWinchArmDepositPos);
             sleep(1500);
             servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveToEncoder(500, .25, 120);
+            moveToEncoder(500, .35, 120);
         }
 
-        moveToDistP(36, 135, 3000);
+        //moveToDistP(27, 135, 3000);
         Pturn(180, 2000);
-        moveToDistP(33.936, 180, 5000);
+        sleep(1000);
+        moveToDistP(33.936, 180, 3000);
 
         if (blockPos == 'L') {
             Pturn(45, 2000);
@@ -193,7 +193,6 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         while (Math.abs(imu.getTrueDiff(angle)) > .5 && time.milliseconds() < msTimeout && opModeIsActive()) {
             double angleError = imu.getTrueDiff(angle);
 
-
             double PIDchange = kP * angleError;
 
             if (PIDchange > 0 && PIDchange < minSpeed)
@@ -213,13 +212,27 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         stopMotors();
     }
 
-    public void moveTime(double msTime, double leftPow, double rightPow) throws InterruptedException {
+    public void moveTimeP(double msTime, double power, double angle) throws InterruptedException {
         time.reset();
-        motorBL.setPower(leftPow);
-        motorFL.setPower(leftPow);
-        motorBR.setPower(rightPow);
-        motorFR.setPower(rightPow);
-        while (time.milliseconds() < msTime) {}
+
+        double kPangle = 2.1/90.0;
+
+        while (time.milliseconds() < msTime) {
+            double angleError = imu.getTrueDiff(angle);
+            double PIDchangeAngle = kPangle * angleError;
+
+            //if (power > 0) {
+                motorBL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
+                motorFL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
+                motorBR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
+                motorFR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
+            //} else if (power < 0) {
+              //  motorBL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
+               // motorFL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
+                //motorBR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
+                //motorFR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
+            //}
+        }
         stopMotors();
     }
 
@@ -232,15 +245,16 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
 
     public void moveToDistP(double inches, double angle, double timeout) {
         double kPdist = .03;
-        double kPangle = 2.1/90;
+        double kPangle = .9/90.0;
 
         double minDrive = .15;
         double maxDrive = .5;
 
-        while ((Math.abs(getDist() - inches) > .25 || imu.getTrueDiff(angle) > .5) && opModeIsActive()) {
+        time.reset();
+        while ((Math.abs(getDist() - inches) > .25 || imu.getTrueDiff(angle) > .5) && opModeIsActive() && time.milliseconds() < timeout) {
 
             double distError = inches - getDist();
-            double PIDchangeDist = -kPdist * distError;
+            double PIDchangeDist = Range.clip(-kPdist * distError, -maxDrive, maxDrive);
 
             if (PIDchangeDist < minDrive && PIDchangeDist > 0) {
                 PIDchangeDist = minDrive;
@@ -251,10 +265,10 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
             double angleError = imu.getTrueDiff(angle);
             double PIDchangeAngle = kPangle * angleError;
 
-            motorBL.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -maxDrive, maxDrive));
-            motorFL.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -maxDrive, maxDrive));
-            motorBR.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -maxDrive, maxDrive));
-            motorFR.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -maxDrive, maxDrive));
+            motorBL.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -1, 1));
+            motorFL.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -1, 1));
+            motorBR.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -1, 1));
+            motorFR.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -1, 1));
         }
         stopMotors();
     }
@@ -263,13 +277,14 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         idle();
         motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        double kPangle = 2.1/90;
+        double kPangle = 2.1/90.0;
 
         if (encoder > 0) {
             while (motorFL.getCurrentPosition() < encoder && opModeIsActive()) {
 
                 double angleError = imu.getTrueDiff(angle);
                 double PIDchangeAngle = kPangle * angleError;
+
 
                 motorBL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
                 motorFL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
@@ -282,6 +297,7 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
 
                 double angleError = imu.getTrueDiff(angle);
                 double PIDchangeAngle = kPangle * angleError;
+
 
                 motorBL.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
                 motorFL.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
