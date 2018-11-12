@@ -318,16 +318,21 @@ public class CustomLinearOpMode extends LinearOpMode {
         stopDriveMotors();
     }
 
-    //TODO add this method to the auto
+    /*TODO add this method to the auto
+    pos = the position of the gold mineral
+    -1 = initial value, means no minerals were detected (it should never return this value, if it does, you probably fucked something up)
+    0 = left
+    1 = center
+    2 = right
+     */
     public int getGoldCubePos() {
         int pos = -1;
-        int rep = 0;
 
         if (tfod != null) {
             tfod.activate();
         }
 
-        while (pos == -1 || rep == 11) {
+        while (pos == -1) {
             if (tfod != null) {
                 List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                 if (updatedRecognitions != null) {
@@ -360,11 +365,9 @@ public class CustomLinearOpMode extends LinearOpMode {
                     telemetry.update();
                 }
             }
-            rep++;
         }
         if (tfod != null)
             tfod.shutdown();
-        if (pos == -1) pos = 0;
         return pos;
     }
 }
