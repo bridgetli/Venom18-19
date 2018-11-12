@@ -37,17 +37,16 @@ public class TFInferenceTest extends CustomLinearOpMode {
             frame = vuforia.getFrameQueue().poll();
             if (frame != null) {
                 Image image = frame.getImage(0);
-                ByteBuffer byteBuffer = image.getPixels();
-                runNeuralNet(byteBuffer);
+                runNeuralNet(image.getPixels());
             }
         }
     }
 
     private void runNeuralNet(ByteBuffer img) {
         ImageUtils imageUtils = new ImageUtils();
-        String inputLayer = "conv2d_1_input";
-        String outputLayer = "activation_1/Softmax";
-        float[] input, output;
+        String input_name = "conv2d_1_input";
+        String output_name = "activation_1/Softmax";
+        float[] image_float, predictions;
 
         try {
             //load model and image
@@ -56,16 +55,16 @@ public class TFInferenceTest extends CustomLinearOpMode {
             InputStream inputStream = hardwareMap.appContext.getAssets().open("fashion-mnist-sprite.png");
             Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
             //Bitmap bitmap = BitmapFactory.decodeByteArray(img.array(), img.arrayOffset(), img.array().length);
-            Bitmap resized = imageUtils.processBitmap(bitmap, 28);
-            input = imageUtils.normalizeBitmap(resized, 28, 0f, 1f);
-            output = new float[(int) tfii.graphOperation(outputLayer).output(0).shape().size(1)];
+            //bitmap = imageUtils.processBitmap(bitmap, 28);
+            image_float = imageUtils.normalizeBitmap(bitmap, 28, 14.0f, 1.0f); //TODO set this value
+            predictions = new float[(int) tfii.graphOperation(output_name).output(0).shape().size(1)];
 
             //inference
-            tfii.feed(inputLayer, input, 28, 28, 1, 1);
-            tfii.run(new String[]{outputLayer});
-            tfii.fetch(outputLayer, output);
+            tfii.feed(input_name, image_float, 28, 28, 1, 1);
+            tfii.run(new String[]{output_name});
+            tfii.fetch(output_name, predictions);
 
-            telemetry.addData("Results", Arrays.toString(output));
+            telemetry.addData("Results", Arrays.toString(predictions));
             telemetry.update();
 
             tfii.close();
