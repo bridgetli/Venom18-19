@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name="mainTele", group="TeleOp")
 public class mainTele extends CustomOpMode {
+    double motorScale = 1;
     public void init() {
         initizialize();
     }
@@ -14,7 +15,7 @@ public class mainTele extends CustomOpMode {
         double yR = gamepad1.right_stick_y;
 
 
-        double motorScale = 1;
+
 
         if (Math.abs(yR) > .2) {
             motorBL.setPower(leftABSMotorVal(yR) * motorScale);
@@ -39,6 +40,9 @@ public class mainTele extends CustomOpMode {
             motorWR.setPower(0);
         }
 
+        if (gamepad1.back)
+            motorScale = motorScale == 1 ? .25 : 1;
+
         /*if(gamepad2.a) {
             motorWL.setPower(-1);
         } else if (gamepad2.y) {
@@ -60,7 +64,7 @@ public class mainTele extends CustomOpMode {
         telemetry.addData("Right motor speeds", yR);
         telemetry.addData("Left motor speed", yL);
         telemetry.addData("Distance:", getDist());
-        telemetry.addLine("Init complete");
+        telemetry.addData("motorScale: ", motorScale);
         telemetry.addData("Servo Winch Arm Pos", servoWinchArm.getPosition());
         telemetry.addData("motorFL: ", motorFL.getCurrentPosition());
         telemetry.addData("motorBL: ", motorBL.getCurrentPosition());

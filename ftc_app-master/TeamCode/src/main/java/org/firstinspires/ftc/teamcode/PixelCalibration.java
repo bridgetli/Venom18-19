@@ -27,8 +27,8 @@ import java.io.FileOutputStream;
  * Created by bodeng on 10/19/18.
  */
 
-@Autonomous (name = "BoTest", group = "Autonomous")
-public class BoTest extends CustomLinearOpMode {    //test for red double depot side
+@Autonomous (name = "PixelCalibration", group = "Autonomous")
+public class PixelCalibration extends CustomLinearOpMode {    //test for red double depot side
 
     private ElapsedTime time = new ElapsedTime();
     private char blockPos = 'C';
@@ -41,7 +41,7 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection   = CAMERA_CHOICE;
+        parameters.cameraDirection = CAMERA_CHOICE;
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
@@ -49,272 +49,10 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
         vuforia.setFrameQueueCapacity(1);
 
-        initizialize();
+        //initizialize();
         telemetry.addLine("Vuforia initialization complete");
 
         waitForStart();
-
-        /*ByteBuffer byteBuffer = image.getPixels();
-                if (frameBuffer == null) {
-                    frameBuffer = new byte[byteBuffer.capacity()];
-                }
-                byteBuffer.get(frameBuffer);
-                if (this.frame == null) {
-                    this.frame = new Mat(imageHeight, imageWidth, CvType.CV_8UC3);
-
-                    if (overlayView != null) {
-                        overlayView.setImageSize(imageWidth, imageHeight);
-                    }
-                }
-                this.frame.put(0, 0, frameBuffer);
-
-                Imgproc.cvtColor(this.frame, this.frame, Imgproc.COLOR_RGB2BGR);
-
-                if (parameters.cameraDirection == VuforiaLocalizer.CameraDirection.FRONT) {
-                    Core.flip(this.frame, this.frame, 1);
-                }
-
-                onFrame(this.frame, vuforiaFrame.getTimeStamp());
-            }
-
-
-            // check all the trackable target to see which one (if any) is visible.
-            targetVisible = false;
-            for (VuforiaTrackable trackable : allTrackables) {
-                if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
-                    telemetry.addData("Visible Target", trackable.getName());
-                    targetVisible = true;
-
-                    // getUpdatedRobotLocation() will return null if no new information is available since
-                    // the last time that call was made, or if the trackable is not currently visible.
-                    OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
-                    if (robotLocationTransform != null) {
-                        lastLocation = robotLocationTransform;
-                    }
-                    break;
-                }
-            }
-
-            // Provide feedback as to where the robot is located (if we know).
-            if (targetVisible) {
-                // express position (translation) of robot in inches.
-                VectorF translation = lastLocation.getTranslation();
-                telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
-                        translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
-
-                // express the rotation of the robot in degrees.
-                Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
-                telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
-            }
-            else {
-                telemetry.addData("Visible Target", "none");
-            }
-            telemetry.update();
-            */
-
-        getBlock();
-
-
-        blockPos = 'C';
-
-
-        telemetry.addData("Block Pos", blockPos);
-        telemetry.update();
-
-        sleep(100);
-
-        moveToEncoder(700, .2, 0);
-        stopAllMotors();
-        sleep(1000);
-        if (blockPos == 'R' || blockPos == '?') {
-            Pturn(45, 3000);
-            sleep(1000);
-            moveToEncoder(1500, .25, 45);
-            sleep(1000);
-            Pturn(135, 3000);
-            sleep(3000);
-            moveTimeP(2000, -.4, 135);
-            moveToEncoder(1000, .25, 135);
-            servoWinchArm.setPosition(servoWinchArmDepositPos);
-            sleep(1500);
-            servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveToEncoder(1500, .25, 135);
-        } else if (blockPos == 'C') {
-            moveToEncoder(1500, .25, 0);
-            sleep(500);
-            Pturn(-45, 500);
-            Pturn(45, 2000);
-            moveToEncoder(1000, .35, 45);
-            sleep(500);
-            Pturn(135, 2500);
-            moveTimeP(800, -.4, 135);
-            moveToEncoder(1000, .25, 135);
-            servoWinchArm.setPosition(servoWinchArmDepositPos);
-            sleep(1500);
-            servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveToEncoder(1500, .25, 135);
-        } else {
-            Pturn(-45, 3000);
-            sleep(1000);
-            moveToEncoder(1400, .35, -45);
-            sleep(1000);
-            Pturn(45, 3000);
-            moveTimeP(3000, .4, 45);
-            //deposit marker
-            Pturn(135, 3000);
-            moveTimeP(1000, -.4, 135);
-            servoWinchArm.setPosition(servoWinchArmDepositPos);
-            sleep(1500);
-            servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveToEncoder(1500, .25, 120);
-        }
-
-        //moveToDistP(27, 135, 3000);
-        Pturn(180, 2000);
-        sleep(500);
-        moveToEncoder(1750, .4, 180);
-
-        if (blockPos == 'L') {
-            Pturn(45, 2000);
-            moveToEncoder(1500, .4, 45);
-        } else if (blockPos == 'C') {
-            Pturn(90, 2000);
-            moveToEncoder(1250, .4, 90);
-        } else {
-            Pturn(135, 2000);
-            moveToEncoder(1500, .4, 135);
-        }
-    }
-
-    private void Pturn(double angle, int msTimeout) {
-        double kP = .5/90;
-        double minSpeed = .2;
-        double maxSpeed = .6;
-        time.reset();
-
-        while (Math.abs(imu.getTrueDiff(angle)) > .5 && time.milliseconds() < msTimeout && opModeIsActive()) {
-            double angleError = imu.getTrueDiff(angle);
-
-            double PIDchange = kP * angleError;
-
-            if (PIDchange > 0 && PIDchange < minSpeed)
-                PIDchange = minSpeed;
-            else if (PIDchange < 0 && PIDchange > -minSpeed)
-                PIDchange = -minSpeed;
-
-            motorBL.setPower(Range.clip(-PIDchange, -maxSpeed, maxSpeed));
-            motorFL.setPower(Range.clip(-PIDchange, -maxSpeed, maxSpeed));
-            motorBR.setPower(Range.clip(PIDchange, -maxSpeed, maxSpeed));
-            motorFR.setPower(Range.clip(PIDchange, -maxSpeed, maxSpeed));
-
-            telemetry.addData("angleError: ", angleError);
-            telemetry.addData("PIDCHANGE: ", PIDchange);
-            telemetry.update();
-        }
-        stopMotors();
-    }
-
-    public void moveTimeP(double msTime, double power, double angle) throws InterruptedException {
-        time.reset();
-
-        double kPangle = 2.1/90.0;
-
-        while (time.milliseconds() < msTime) {
-            double angleError = imu.getTrueDiff(angle);
-            double PIDchangeAngle = kPangle * angleError;
-
-            //if (power > 0) {
-                motorBL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
-                motorFL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
-                motorBR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
-                motorFR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
-            //} else if (power < 0) {
-              //  motorBL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
-               // motorFL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
-                //motorBR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
-                //motorFR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
-            //}
-        }
-        stopMotors();
-    }
-
-    public void stopMotors() {
-        motorBL.setPower(0);
-        motorFL.setPower(0);
-        motorBR.setPower(0);
-        motorFR.setPower(0);
-    }
-
-    public void moveToDistP(double inches, double angle, double timeout) {
-        double kPdist = .03;
-        double kPangle = .9/90.0;
-
-        double minDrive = .15;
-        double maxDrive = .5;
-
-        time.reset();
-        while ((Math.abs(getDist() - inches) > .25 || imu.getTrueDiff(angle) > .5) && opModeIsActive() && time.milliseconds() < timeout) {
-
-            double distError = inches - getDist();
-            double PIDchangeDist = Range.clip(-kPdist * distError, -maxDrive, maxDrive);
-
-            if (PIDchangeDist < minDrive && PIDchangeDist > 0) {
-                PIDchangeDist = minDrive;
-            } else if (PIDchangeDist > -minDrive && PIDchangeDist < 0) {
-                PIDchangeDist = -minDrive;
-            }
-
-            double angleError = imu.getTrueDiff(angle);
-            double PIDchangeAngle = kPangle * angleError;
-
-            motorBL.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -1, 1));
-            motorFL.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -1, 1));
-            motorBR.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -1, 1));
-            motorFR.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -1, 1));
-        }
-        stopMotors();
-    }
-
-    public void moveToEncoder(double encoder, double power, double angle) {
-        motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        idle();
-        motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        double kPangle = 2.1/90.0;
-
-        if (encoder > 0) {
-            while (motorFL.getCurrentPosition() < encoder && opModeIsActive()) {
-
-                double angleError = imu.getTrueDiff(angle);
-                double PIDchangeAngle = kPangle * angleError;
-
-
-                motorBL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
-                motorFL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
-                motorBR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
-                motorFR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
-            }
-        }
-        else {
-            while (motorFL.getCurrentPosition() > encoder && opModeIsActive()) {
-
-                double angleError = imu.getTrueDiff(angle);
-                double PIDchangeAngle = kPangle * angleError;
-
-
-                motorBL.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
-                motorFL.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
-                motorBR.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
-                motorFR.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
-            }
-        }
-        stopMotors();
-    }
-
-    public void getBlock() throws InterruptedException {
-        blockPos = 'C';
-
-        Bitmap bitmap = takePic();
-
 
         // basic brute force counter
         int startRow = 13;
@@ -325,6 +63,36 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         int centerErow = 41;
         int rightSrow = 55;
         int rightErow = 61;
+
+        Bitmap bitmap0 = takePic();
+        BoundingBox left = new BoundingBox(startRow, leftSrow, endRow, leftErow);    //look at images taken from consistent
+        saveBox(bitmap0, left);
+
+        Bitmap bitmap1 = takePic();
+        BoundingBox center = new BoundingBox(startRow, centerSrow, endRow, centerErow);  //spot in auto and get pixel range
+        saveBox(bitmap1, center);
+
+        Bitmap bitmap2 = takePic();
+        BoundingBox right = new BoundingBox(startRow, rightSrow, endRow, rightErow);   //of left center and right
+        saveBox(bitmap2, right);
+
+    }
+
+    /*public void getBlock() throws InterruptedException {
+        //blockPos = 'C';
+
+        Bitmap bitmap = takePic();
+
+
+        // basic brute force counter
+        int startRow = 30;
+        int endRow = 36;
+        int leftSrow = 20;
+        int leftErow = 27;
+        int centerSrow = 45;
+        int centerErow = 51;
+        int rightSrow = 70;
+        int rightErow = 76;
 
         BoundingBox left = new BoundingBox(startRow, leftSrow, endRow, leftErow);    //look at images taken from consistent
         BoundingBox center = new BoundingBox(startRow, centerSrow, endRow, centerErow);  //spot in auto and get pixel range
@@ -338,16 +106,16 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         else if (yellowValOfBox(bitmap, right) > yellowValOfBox(bitmap, center))
             blockPos = 'R';
 
-        //saveBox(bitmap, left);
+        saveBox(bitmap, left);
         //saveBox(bitmap.copy(Bitmap.Config.RGB_565, true), center);
         //saveBox(bitmap.copy(Bitmap.Config.RGB_565, true), right);
 
         // multi location pixel scanner (better but much slower)
 
-        /*int N = 4; // the approx height and width of an object
+        int N = 4; // the approx height and width of an object
 
-        for (int r = 0; r < */
-    }
+        for (int r = 0; r <
+    }*/
 
     public void getBlockAcc() throws InterruptedException {
         Bitmap bitmap = takePic();
