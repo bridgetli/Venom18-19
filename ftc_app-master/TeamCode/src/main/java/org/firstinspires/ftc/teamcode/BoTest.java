@@ -115,15 +115,13 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         getBlock();
 
 
-        blockPos = 'C';
-
 
         telemetry.addData("Block Pos", blockPos);
         telemetry.update();
 
         sleep(100);
 
-        moveToEncoder(700, .2, 0);
+        moveToEncoder(650, .2, 0);
         stopAllMotors();
         sleep(1000);
         if (blockPos == 'R' || blockPos == '?') {
@@ -132,58 +130,63 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
             moveToEncoder(1500, .25, 45);
             sleep(1000);
             Pturn(135, 3000);
-            sleep(3000);
+            sleep(1000);
             moveTimeP(2000, -.4, 135);
-            moveToEncoder(1000, .25, 135);
+            moveToEncoder(1000, .25, 130);
             servoWinchArm.setPosition(servoWinchArmDepositPos);
             sleep(1500);
             servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveToEncoder(1500, .25, 135);
+            moveToEncoder(1350, .25, 135);
         } else if (blockPos == 'C') {
             moveToEncoder(1500, .25, 0);
             sleep(500);
-            Pturn(-45, 500);
+            //Pturn(-90, 700);
             Pturn(45, 2000);
-            moveToEncoder(1000, .35, 45);
+            moveToEncoder(800, .35, 45);
             sleep(500);
             Pturn(135, 2500);
             moveTimeP(800, -.4, 135);
-            moveToEncoder(1000, .25, 135);
+            moveToEncoder(1000, .25, 130);
             servoWinchArm.setPosition(servoWinchArmDepositPos);
             sleep(1500);
             servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveToEncoder(1500, .25, 135);
+            moveToEncoder(1350, .25, 135);
         } else {
             Pturn(-45, 3000);
-            sleep(1000);
+            sleep(500);
             moveToEncoder(1400, .35, -45);
-            sleep(1000);
+            sleep(500);
             Pturn(45, 3000);
-            moveTimeP(3000, .4, 45);
+            moveTimeP(1250, .4, 45);
             //deposit marker
             Pturn(135, 3000);
             moveTimeP(1000, -.4, 135);
+            moveToEncoder(1000, .25, 130);
             servoWinchArm.setPosition(servoWinchArmDepositPos);
             sleep(1500);
             servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveToEncoder(1500, .25, 120);
+            moveToEncoder(1350, .25, 135);
         }
 
         //moveToDistP(27, 135, 3000);
+
         Pturn(180, 2000);
         sleep(500);
-        moveToEncoder(1750, .4, 180);
+        moveToEncoder(1700, .35, 180);
 
         if (blockPos == 'L') {
             Pturn(45, 2000);
-            moveToEncoder(1500, .4, 45);
+            moveTimeP(1250, .4, 35);
+            moveTimeP(750, .4, 55);
         } else if (blockPos == 'C') {
             Pturn(90, 2000);
-            moveToEncoder(1250, .4, 90);
+            moveTimeP(1000, .4, 90);
         } else {
             Pturn(135, 2000);
-            moveToEncoder(1500, .4, 135);
+            moveTimeP(1250, .4, 155);
+            moveTimeP(750, .4, 125);
         }
+        //moveTimeP(2500, .3, 135);
     }
 
     private void Pturn(double angle, int msTimeout) {
@@ -392,8 +395,8 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
     public int whiteValOfBox(Bitmap bmp, BoundingBox bb) {
         int whiteSum = 0;
 
-        for (int r = bb.startRow; r < bb.endRow; r++) {
-            for (int c = bb.startCol;  c < bb.endCol; c++) {
+        for (int r = bb.startRow; r < bb.endRow && opModeIsActive(); r++) {
+            for (int c = bb.startCol;  c < bb.endCol && opModeIsActive(); c++) {
                 int color = bmp.getPixel(c, r);
                 int R = (color >> 16) & 0xff;
                 int G = (color >>  8) & 0xff;
@@ -410,8 +413,8 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         int ySum = 0;
 
         //scans bounding box
-        for (int r = bb.startRow; r < bb.endRow; r++) {
-            for (int c = bb.startCol;  c < bb.endCol; c++) {
+        for (int r = bb.startRow; r < bb.endRow && opModeIsActive(); r++) {
+            for (int c = bb.startCol;  c < bb.endCol && opModeIsActive(); c++) {
                 int color = bmp.getPixel(c, r);
                 int R = (color >> 16) & 0xff;
                 int G = (color >>  8) & 0xff;
