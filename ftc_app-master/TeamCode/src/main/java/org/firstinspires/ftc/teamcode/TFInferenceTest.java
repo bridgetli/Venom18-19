@@ -49,19 +49,22 @@ public class TFInferenceTest extends CustomLinearOpMode {
         float[] image_float, predictions;
 
         try {
-            //load model and image
+            //load model
             TensorFlowInferenceInterface tfii = new TensorFlowInferenceInterface(hardwareMap.appContext.getAssets().open("roboModel.pb"));
 
+            //load image
             InputStream inputStream = hardwareMap.appContext.getAssets().open("fashion-mnist-sprite.png");
             Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+
+            //Using the vuforia image doesnt work on the test model because the input size is incorrect
             //Bitmap bitmap = BitmapFactory.decodeByteArray(img.array(), img.arrayOffset(), img.array().length);
-            //bitmap = imageUtils.processBitmap(bitmap, 28);
-            image_float = imageUtils.normalizeBitmap(bitmap, 28, 14.0f, 1.0f); //TODO set this value
+            bitmap = imageUtils.processBitmap(bitmap, 28);
+            image_float = imageUtils.normalizeBitmap(bitmap, 28, 0.0f, 1.0f); //TODO set this value?
             predictions = new float[(int) tfii.graphOperation(output_name).output(0).shape().size(1)];
 
             //inference
-            tfii.feed(input_name, image_float, 28, 28, 1, 1);
-            tfii.run(new String[]{output_name});
+            tfii.feed(input_name, image_float, 1, 28, 28, 3);
+            tfii.run(new String[]{output_name}); //TODO error pops up here: "generic conv implementation doesn't support grouped conv for now"
             tfii.fetch(output_name, predictions);
 
             telemetry.addData("Results", Arrays.toString(predictions));
