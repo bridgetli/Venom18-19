@@ -52,7 +52,7 @@ public class CustomLinearOpMode extends LinearOpMode {
     ModernRoboticsI2cRangeSensor rangeSensor;
 
     Servo servoWinchArm;
-    final double servoWinchArmInitPos = .2;
+    final double servoWinchArmInitPos = .15;
     final double servoWinchArmDepositPos = .8;
 
     final double winchDownPower = .5;
