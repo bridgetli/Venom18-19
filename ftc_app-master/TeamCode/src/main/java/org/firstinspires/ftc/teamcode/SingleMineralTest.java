@@ -1,14 +1,21 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.graphics.Bitmap;
+import android.os.Environment;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.vuforia.Image;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.List;
 
-@Autonomous(name = "TFTest", group = "test")
-public class TFTest extends CustomLinearOpMode {
+@Autonomous(name = "Mineral Location Test", group = "test")
+public class SingleMineralTest extends CustomLinearOpMode {
 
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
@@ -18,7 +25,7 @@ public class TFTest extends CustomLinearOpMode {
     private TFObjectDetector tfod;
 
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
         // The TFObjectDetector uses the camera frames from the VuforiaLocalizer, so we create that
         // first.
         initVuforia();
@@ -42,33 +49,32 @@ public class TFTest extends CustomLinearOpMode {
 
             while (opModeIsActive()) {
                 if (tfod != null) {
-                    // getUpdatedRecognitions() will return null if no new information is available since
-                    // the last time that call was made.
                     List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                     if (updatedRecognitions != null) {
                         telemetry.addData("# of Objects Detected", updatedRecognitions.size());
-                        if (updatedRecognitions.size() == 3) {
-                            int goldMineralX = -1;
-                            int silverMineral1X = -1;
-                            int silverMineral2X = -1;
+                        if (updatedRecognitions.size() > 0) {
                             for (Recognition recognition : updatedRecognitions) {
                                 if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                                    goldMineralX = (int) recognition.getLeft();
-                                } else if (silverMineral1X == -1) {
-                                    silverMineral1X = (int) recognition.getLeft();
-                                } else {
-                                    silverMineral2X = (int) recognition.getLeft();
+                                    System.out.println("I see a gold mineral");
+                                    telemetry.addLine("I see a gold mineral");
                                 }
-                            }
-                            if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
-                                if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
-                                    telemetry.addData("Gold Mineral Position", "Left");
-                                } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
-                                    telemetry.addData("Gold Mineral Position", "Right");
-                                } else {
-                                    telemetry.addData("Gold Mineral Position", "Center");
+                                else {
+                                    System.out.println("I see a white mineral");
+                                    telemetry.addLine("I see a white mineral");
                                 }
+                                System.out.println("Left:" + recognition.getLeft());
+                                System.out.println("Right:" + recognition.getRight());
+                                System.out.println("Bottom:" + recognition.getBottom());
+                                System.out.println("Top:" + recognition.getTop());
+                                System.out.println("Degrees to Object:" + recognition.estimateAngleToObject(AngleUnit.DEGREES));
+                                System.out.println("\n\n");
+                                telemetry.addData("Left", recognition.getLeft());
+                                telemetry.addData("Right", recognition.getRight());
+                                telemetry.addData("Bottom", recognition.getBottom());
+                                telemetry.addData("Top", recognition.getTop());
+                                telemetry.addData("Degrees to Object",  recognition.estimateAngleToObject(AngleUnit.DEGREES));
                             }
+                            //takePic();
                         }
                         telemetry.update();
                     }
@@ -85,9 +91,7 @@ public class TFTest extends CustomLinearOpMode {
      * Initialize the Vuforia localization engine.
      */
     private void initVuforia() {
-        /*
-         * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
-         */
+        //Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
@@ -95,8 +99,6 @@ public class TFTest extends CustomLinearOpMode {
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
-
-        // Loading trackables is not necessary for the Tensor Flow Object Detection engine.
     }
 
     /**
@@ -108,5 +110,45 @@ public class TFTest extends CustomLinearOpMode {
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
+    }
+
+    private Bitmap takePic() throws InterruptedException {
+        File dir = Environment.getExternalStorageDirectory();
+        File[] files = dir.listFiles();
+        int highestFileNum = -1;
+        for (File f : files) {
+            if (f.getName().contains("Mineral_Location_pic_")) {
+                highestFileNum = Math.max(highestFileNum, Integer.parseInt(f.getName().replaceAll("\\D", "")));
+            }
+        }
+        int currFileNum = highestFileNum + 1;
+
+        VuforiaLocalizer.CloseableFrame frame = vuforia.getFrameQueue().take();
+
+        telemetry.addData("Num images in frame", "" + frame.getNumImages());
+        telemetry.update();
+
+        Image image = frame.getImage(0);
+
+        int imageWidth = image.getWidth(), imageHeight = image.getHeight();
+        Bitmap bmp = Bitmap.createBitmap(imageWidth, imageHeight, Bitmap.Config.RGB_565);
+        bmp.copyPixelsFromBuffer(image.getPixels());
+        try {
+            File sdCard = Environment.getExternalStorageDirectory();
+            telemetry.addLine(sdCard.getAbsolutePath());
+            telemetry.update();
+
+            File file = new File(sdCard, "Mineral_Location_pic_" + currFileNum++ + ".png");
+
+            FileOutputStream fos = new FileOutputStream(file);
+
+            bmp.compress(Bitmap.CompressFormat.PNG, 100, fos);
+
+        } catch (FileNotFoundException ex) {
+            telemetry.addLine(ex.toString());
+            telemetry.update();
+        }
+
+        return bmp;
     }
 }
