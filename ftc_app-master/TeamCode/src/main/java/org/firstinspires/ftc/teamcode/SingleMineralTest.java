@@ -19,8 +19,8 @@ public class SingleMineralTest extends CustomLinearOpMode {
     private TFObjectDetector tfod;
 
     @Override
-    public void runOpMode() {
-        //initizialize(); once you can test this on the phones
+    public void runOpMode() throws InterruptedException {
+        //initizialize(); once you can test this on the robot
 
         initVuforia();
         initTfod();
@@ -49,31 +49,46 @@ public class SingleMineralTest extends CustomLinearOpMode {
                                     System.out.println("I see a white mineral");
                                     telemetry.addLine("I see a white mineral");
                                 }
+                                //all values based on phone sitting upright (camera up)
                                 telemetry.addData("Top", recognition.getTop());
                                 telemetry.addData("Left", recognition.getLeft());
-                                //telemetry.addData("Right", recognition.getRight());
-                                //telemetry.addData("Bottom", recognition.getBottom());
                                 telemetry.addData("Degrees to Object",  recognition.estimateAngleToObject(AngleUnit.DEGREES));
                                 telemetry.addLine("");
 
-                                /*move to mineral?
+                                //move to mineral?
                                 if (updatedRecognitions.size() == 1 && recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
                                     boolean centered = false;
                                     float top;
-                                    while (!centered) {
-                                        top = recognition.getTop();
-                                        if (top > 450 && top < 600) {
+                                    double degrees;
+                                    while (!centered && updatedRecognitions.size() == 1 && opModeIsActive()) {
+                                        degrees = recognition.estimateAngleToObject(AngleUnit.DEGREES);
+                                        if (degrees < 5 && degrees > -5) {
                                             centered = true;
-                                        } else if (top < 450) {
-                                            //move right or turn right (if only we could strafe...)
-                                            turn(45);
+                                        } else if (degrees > 5) {
+                                            //turn left
+                                            turn(2.5);
                                         } else {
-                                            //move left or turn left
-                                            turn(-45);
+                                            //turn right
+                                            turn(-2.5);
                                         }
+                                        wait(100);
+                                    }
+                                    centered = false;
+                                    while (!centered && updatedRecognitions.size() == 1 && opModeIsActive()) {
+                                        top = recognition.getTop();
+                                        if (top < 600 && top > 450) {
+                                            centered = true;
+                                        } else if (top > 600) {
+                                            //back up
+                                            moveToDistance(-2.5);
+                                        } else {
+                                            //move forward
+                                            moveToDistance(2.5);
+                                        }
+                                        wait(100);
                                     }
                                 }
-                                */
+                                //*/
                             }
                         }
                         telemetry.update();
