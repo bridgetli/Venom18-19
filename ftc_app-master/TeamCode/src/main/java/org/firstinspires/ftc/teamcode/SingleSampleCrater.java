@@ -27,8 +27,8 @@ import java.io.FileOutputStream;
  * Created by bodeng on 10/19/18.
  */
 
-@Autonomous (name = "BoTest", group = "Autonomous")
-public class BoTest extends CustomLinearOpMode {    //test for red double depot side
+@Autonomous (name = "SingleSampleCrater", group = "Autonomous")
+public class SingleSampleCrater extends CustomLinearOpMode {    //test for red double depot side
 
     private ElapsedTime time = new ElapsedTime();
     private char blockPos = 'C';
@@ -113,102 +113,54 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
             */
 
         getBlock();
-
-
-
         telemetry.addData("Block Pos", blockPos);
         telemetry.update();
 
-        sleep(100);
+        sleep(1000);
 
-        moveToEncoder(650, .2, 0);
+        moveToEncoder(800, .2, 0);
         stopAllMotors();
         sleep(1000);
         if (blockPos == 'R' || blockPos == '?') {
             Pturn(45, 3000);
             sleep(1000);
-            moveToEncoder(1500, .25, 45);
+            moveToDistP(5, 45);
             sleep(1000);
-            Pturn(135, 3000);
-            sleep(1000);
-            moveTimeP(2000, -.4, 135);
-            moveToEncoder(1000, .25, 130);
-            servoWinchArm.setPosition(servoWinchArmDepositPos);
-            sleep(1500);
-            servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveToEncoder(1350, .25, 135);
+            //Pturn(-45, 3000);
+            //sleep(1000);
+            //moveToDistP(12, -45);
         } else if (blockPos == 'C') {
-            moveToEncoder(1500, .25, 0);
-            sleep(500);
-            //Pturn(-90, 700);
-            Pturn(45, 2000);
-            moveToEncoder(800, .35, 45);
-            sleep(500);
-            Pturn(135, 2500);
-            moveTimeP(800, -.4, 135);
-            moveToEncoder(1000, .25, 130);
+            moveToDistP(12, 0);
             servoWinchArm.setPosition(servoWinchArmDepositPos);
-            sleep(1500);
-            servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveToEncoder(1350, .25, 135);
         } else {
             Pturn(-45, 3000);
-            sleep(500);
-            moveToEncoder(1400, .35, -45);
-            sleep(500);
-            Pturn(45, 3000);
-            moveTimeP(1250, .4, 45);
-            //deposit marker
-            Pturn(135, 3000);
-            moveTimeP(1000, -.4, 135);
-            moveToEncoder(1000, .25, 130);
-            servoWinchArm.setPosition(servoWinchArmDepositPos);
-            sleep(1500);
-            servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveToEncoder(1350, .25, 135);
+            moveToDistP(5, 45);
+            //Pturn(45, 3000);
+            //moveToDistP(12, 45);
         }
 
-        //moveToDistP(27, 135, 3000);
-
-        Pturn(180, 2000);
-        sleep(500);
-        moveToEncoder(1700, .35, 180);
-
-        if (blockPos == 'L') {
-            Pturn(45, 2000);
-            moveTimeP(1250, .4, 35);
-            moveTimeP(750, .4, 55);
-        } else if (blockPos == 'C') {
-            Pturn(90, 2000);
-            moveTimeP(1000, .4, 90);
-        } else {
-            Pturn(135, 2000);
-            moveTimeP(1250, .4, 155);
-            moveTimeP(750, .4, 125);
-        }
-        //moveTimeP(2500, .3, 135);
+        // At this point, front of robot should align with corner of lander
     }
 
     private void Pturn(double angle, int msTimeout) {
-        double kP = .5/90;
-        double minSpeed = .2;
-        double maxSpeed = .6;
+        double kP = .75/90;
         time.reset();
 
         while (Math.abs(imu.getTrueDiff(angle)) > .5 && time.milliseconds() < msTimeout && opModeIsActive()) {
             double angleError = imu.getTrueDiff(angle);
+            double minSpeed = .25;
 
             double PIDchange = kP * angleError;
 
-            if (PIDchange > 0 && PIDchange < minSpeed)
-                PIDchange = minSpeed;
-            else if (PIDchange < 0 && PIDchange > -minSpeed)
-                PIDchange = -minSpeed;
+            if (PIDchange > 0 && PIDchange < .25)
+                PIDchange = .25;
+            else if (PIDchange < 0 && PIDchange > -.25)
+                PIDchange = -.25;
 
-            motorBL.setPower(Range.clip(-PIDchange, -maxSpeed, maxSpeed));
-            motorFL.setPower(Range.clip(-PIDchange, -maxSpeed, maxSpeed));
-            motorBR.setPower(Range.clip(PIDchange, -maxSpeed, maxSpeed));
-            motorFR.setPower(Range.clip(PIDchange, -maxSpeed, maxSpeed));
+            motorBL.setPower(-PIDchange);
+            motorFL.setPower(-PIDchange);
+            motorBR.setPower(PIDchange);
+            motorFR.setPower(PIDchange);
 
             telemetry.addData("angleError: ", angleError);
             telemetry.addData("PIDCHANGE: ", PIDchange);
@@ -217,27 +169,13 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         stopMotors();
     }
 
-    public void moveTimeP(double msTime, double power, double angle) throws InterruptedException {
+    public void moveTime(double msTime, double leftPow, double rightPow) throws InterruptedException {
         time.reset();
-
-        double kPangle = 2.1/90.0;
-
-        while (time.milliseconds() < msTime) {
-            double angleError = imu.getTrueDiff(angle);
-            double PIDchangeAngle = kPangle * angleError;
-
-            //if (power > 0) {
-                motorBL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
-                motorFL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
-                motorBR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
-                motorFR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
-            //} else if (power < 0) {
-              //  motorBL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
-               // motorFL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
-                //motorBR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
-                //motorFR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
-            //}
-        }
+        motorBL.setPower(leftPow);
+        motorFL.setPower(leftPow);
+        motorBR.setPower(rightPow);
+        motorFR.setPower(rightPow);
+        while (time.milliseconds() < msTime) {}
         stopMotors();
     }
 
@@ -248,32 +186,21 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         motorFR.setPower(0);
     }
 
-    public void moveToDistP(double inches, double angle, double timeout) {
+    public void moveToDistP(double inches, double angle) {
         double kPdist = .03;
-        double kPangle = .9/90.0;
-
-        double minDrive = .15;
-        double maxDrive = .5;
-
-        time.reset();
-        while ((Math.abs(getDist() - inches) > .25 || imu.getTrueDiff(angle) > .5) && opModeIsActive() && time.milliseconds() < timeout) {
+        double kPangle = 5/90;
+        while ((Math.abs(getDist() - inches) > .25 || imu.getTrueDiff(angle) > .5) && opModeIsActive()) {
 
             double distError = inches - getDist();
-            double PIDchangeDist = Range.clip(-kPdist * distError, -maxDrive, maxDrive);
-
-            if (PIDchangeDist < minDrive && PIDchangeDist > 0) {
-                PIDchangeDist = minDrive;
-            } else if (PIDchangeDist > -minDrive && PIDchangeDist < 0) {
-                PIDchangeDist = -minDrive;
-            }
+            double PIDchangeDist = -kPdist * distError;
 
             double angleError = imu.getTrueDiff(angle);
             double PIDchangeAngle = kPangle * angleError;
 
-            motorBL.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -1, 1));
-            motorFL.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -1, 1));
-            motorBR.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -1, 1));
-            motorFR.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -1, 1));
+            motorBL.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -1, 1));
+            motorFL.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -1, 1));
+            motorBR.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -1, 1));
+            motorFR.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -1, 1));
         }
         stopMotors();
     }
@@ -282,14 +209,14 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         idle();
         motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        double kPangle = 2.1/90.0;
+        double kPangle = 5/90;
+        telemetry.addData("motorFL: ", motorFL.getCurrentPosition());
 
         if (encoder > 0) {
             while (motorFL.getCurrentPosition() < encoder && opModeIsActive()) {
 
                 double angleError = imu.getTrueDiff(angle);
                 double PIDchangeAngle = kPangle * angleError;
-
 
                 motorBL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
                 motorFL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
@@ -303,31 +230,32 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
                 double angleError = imu.getTrueDiff(angle);
                 double PIDchangeAngle = kPangle * angleError;
 
-
                 motorBL.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
                 motorFL.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
                 motorBR.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
                 motorFR.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
+                telemetry.addData("motorBL: ", motorFL.getCurrentPosition());
+                telemetry.update();
             }
         }
         stopMotors();
     }
 
     public void getBlock() throws InterruptedException {
-        blockPos = 'C';
+        //blockPos = 'C';
 
         Bitmap bitmap = takePic();
 
 
         // basic brute force counter
-        int startRow = 13;
-        int endRow = 20;
-        int leftSrow = 13;
-        int leftErow = 19;
-        int centerSrow = 35;
-        int centerErow = 41;
-        int rightSrow = 55;
-        int rightErow = 61;
+        int startRow = 12;
+        int endRow = 18;
+        int leftSrow = 11;
+        int leftErow = 17;
+        int centerSrow = 34;
+        int centerErow = 40;
+        int rightSrow = 54;
+        int rightErow = 60;
 
         BoundingBox left = new BoundingBox(startRow, leftSrow, endRow, leftErow);    //look at images taken from consistent
         BoundingBox center = new BoundingBox(startRow, centerSrow, endRow, centerErow);  //spot in auto and get pixel range
@@ -341,9 +269,12 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         else if (yellowValOfBox(bitmap, right) > yellowValOfBox(bitmap, center))
             blockPos = 'R';
 
-        //saveBox(bitmap, left);
-        //saveBox(bitmap.copy(Bitmap.Config.RGB_565, true), center);
-        //saveBox(bitmap.copy(Bitmap.Config.RGB_565, true), right);
+        if (blockPos == 'L')
+            saveBox(bitmap, left);
+        else if (blockPos == 'C')
+            saveBox(bitmap, center);
+        else
+            saveBox(bitmap, right);
 
         // multi location pixel scanner (better but much slower)
 
@@ -395,8 +326,8 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
     public int whiteValOfBox(Bitmap bmp, BoundingBox bb) {
         int whiteSum = 0;
 
-        for (int r = bb.startRow; r < bb.endRow && opModeIsActive(); r++) {
-            for (int c = bb.startCol;  c < bb.endCol && opModeIsActive(); c++) {
+        for (int r = bb.startRow; r < bb.endRow; r++) {
+            for (int c = bb.startCol;  c < bb.endCol; c++) {
                 int color = bmp.getPixel(c, r);
                 int R = (color >> 16) & 0xff;
                 int G = (color >>  8) & 0xff;
@@ -413,8 +344,8 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         int ySum = 0;
 
         //scans bounding box
-        for (int r = bb.startRow; r < bb.endRow && opModeIsActive(); r++) {
-            for (int c = bb.startCol;  c < bb.endCol && opModeIsActive(); c++) {
+        for (int r = bb.startRow; r < bb.endRow; r++) {
+            for (int c = bb.startCol;  c < bb.endCol; c++) {
                 int color = bmp.getPixel(c, r);
                 int R = (color >> 16) & 0xff;
                 int G = (color >>  8) & 0xff;
@@ -549,7 +480,7 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
             //File dir = new File(sdCard.getAbsolutePath() + "/dir1");
             //dir.mkdirs();
 
-            File file = new File(sdCard, "pixel_match_" + currFileNum++ + ".png");
+            File file = new File(sdCard, "pixel_match" + currFileNum++ + ".png");
 
             FileOutputStream fos = new FileOutputStream(file);
 
