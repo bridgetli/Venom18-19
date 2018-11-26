@@ -125,9 +125,12 @@ public class CustomLinearOpMode extends LinearOpMode {
 
         //Vuforia and Tensorflow init (This only works on the Motorola)
         initVuforia();
-        initTfod();
-
+        if (ClassFactory.getInstance().canCreateTFObjectDetector())
+            initTfod();
+        else
+            telemetry.addLine("Please use the Motorolas if you want to use Tensorflow");
         telemetry.addData("Vuforia and Tensorflow Initialization Complete", "");
+
 
         telemetry.addData("Initialization Complete", "");
         telemetry.update();
@@ -311,7 +314,7 @@ public class CustomLinearOpMode extends LinearOpMode {
         stopDriveMotors();
     }
 
-    /*TODO add this method to the auto
+    /*TODO: add this method to the auto
     pos = the position of the gold mineral
     -1 = initial value, means no minerals were detected (it should never return this value, if it does, you probably fucked something up)
     0 = left
@@ -320,12 +323,14 @@ public class CustomLinearOpMode extends LinearOpMode {
      */
     public int getGoldCubePos() {
         int pos = -1;
+        int numAttempts = 10; //TODO: change if necessary
+        int attempts = 0;
 
         if (tfod != null) {
             tfod.activate();
         }
 
-        while (pos == -1) {
+        while (pos == -1 && attempts < numAttempts) {
             if (tfod != null) {
                 List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                 if (updatedRecognitions != null) {
@@ -358,6 +363,7 @@ public class CustomLinearOpMode extends LinearOpMode {
                     telemetry.update();
                 }
             }
+            attempts++;
         }
         if (tfod != null)
             tfod.shutdown();

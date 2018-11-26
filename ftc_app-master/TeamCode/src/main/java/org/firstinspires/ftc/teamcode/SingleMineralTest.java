@@ -52,7 +52,7 @@ public class SingleMineralTest extends CustomLinearOpMode {
                             telemetry.addData("Degrees to Object",  recognition.estimateAngleToObject(AngleUnit.DEGREES));
                             telemetry.addLine("");
 
-                            //move to mineral? TODO
+                            //TODO: move to mineral?
                             if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
                                 float top;
                                 double degrees;
