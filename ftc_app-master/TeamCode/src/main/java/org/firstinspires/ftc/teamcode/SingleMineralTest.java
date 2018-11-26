@@ -34,62 +34,57 @@ public class SingleMineralTest extends CustomLinearOpMode {
                 tfod.activate();
             }
 
-            while (opModeIsActive()) {
+            boolean centered = false;
+            while (opModeIsActive() || !centered) {
                 if (tfod != null) {
                     List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                     if (updatedRecognitions != null) {
                         telemetry.addData("# of Objects Detected", updatedRecognitions.size());
                         if (updatedRecognitions.size() > 0) {
-                            for (Recognition recognition : updatedRecognitions) {
-                                if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                                    System.out.println("I see a gold mineral");
-                                    telemetry.addLine("I see a gold mineral");
-                                }
-                                else {
-                                    System.out.println("I see a white mineral");
-                                    telemetry.addLine("I see a white mineral");
-                                }
-                                //all values based on phone sitting upright (camera up)
-                                telemetry.addData("Top", recognition.getTop());
-                                telemetry.addData("Left", recognition.getLeft());
-                                telemetry.addData("Degrees to Object",  recognition.estimateAngleToObject(AngleUnit.DEGREES));
-                                telemetry.addLine("");
+                            Recognition recognition = updatedRecognitions.get(0);
+                            if (recognition.getLabel().equals(LABEL_GOLD_MINERAL))
+                                telemetry.addLine("I see a gold mineral");
+                            else
+                                telemetry.addLine("I see a white mineral");
+                            //all values based on phone sitting upright (camera up)
+                            telemetry.addData("Top", recognition.getTop());
+                            telemetry.addData("Left", recognition.getLeft());
+                            telemetry.addData("Degrees to Object",  recognition.estimateAngleToObject(AngleUnit.DEGREES));
+                            telemetry.addLine("");
 
-                                //move to mineral?
-                                if (updatedRecognitions.size() == 1 && recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                                    boolean centered = false;
-                                    float top;
-                                    double degrees;
-                                    while (!centered && updatedRecognitions.size() == 1 && opModeIsActive()) {
-                                        degrees = recognition.estimateAngleToObject(AngleUnit.DEGREES);
-                                        if (degrees < 5 && degrees > -5) {
-                                            centered = true;
-                                        } else if (degrees > 5) {
-                                            //turn left
-                                            turn(2.5);
-                                        } else {
-                                            //turn right
-                                            turn(-2.5);
-                                        }
-                                        wait(100);
+                            //move to mineral? TODO
+                            if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
+                                float top;
+                                double degrees;
+                                while (!centered && updatedRecognitions.size() == 1 && opModeIsActive()) {
+                                    degrees = recognition.estimateAngleToObject(AngleUnit.DEGREES);
+                                    if (degrees < 5 && degrees > -5) {
+                                        centered = true;
+                                    } else if (degrees > 5) {
+                                        //turn left
+                                        turn(2.5);
+                                    } else {
+                                        //turn right
+                                        turn(-2.5);
                                     }
-                                    centered = false;
-                                    while (!centered && updatedRecognitions.size() == 1 && opModeIsActive()) {
-                                        top = recognition.getTop();
-                                        if (top < 600 && top > 450) {
-                                            centered = true;
-                                        } else if (top > 600) {
-                                            //back up
-                                            moveToDistance(-2.5);
-                                        } else {
-                                            //move forward
-                                            moveToDistance(2.5);
-                                        }
-                                        wait(100);
-                                    }
+                                    wait(100);
                                 }
-                                //*/
+                                centered = false;
+                                while (!centered && updatedRecognitions.size() > 0 && opModeIsActive()) {
+                                    top = recognition.getTop();
+                                    if (top < 600 && top > 450) {
+                                        centered = true;
+                                    } else if (top > 600) {
+                                        //back up
+                                        moveToDistance(-2.5);
+                                    } else {
+                                        //move forward
+                                        moveToDistance(2.5);
+                                    }
+                                    wait(100);
+                                }
                             }
+                            //*/
                         }
                         telemetry.update();
                     }
