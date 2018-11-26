@@ -27,8 +27,8 @@ import java.io.FileOutputStream;
  * Created by bodeng on 10/19/18.
  */
 
-@Autonomous (name = "StraightAuto", group = "Autonomous")
-public class StraightAuto extends CustomLinearOpMode {    //test for red double depot side
+@Autonomous (name = "SingleSampleCrater", group = "Autonomous")
+public class SingleSampleCrater extends CustomLinearOpMode {    //test for red double depot side
 
     private ElapsedTime time = new ElapsedTime();
     private char blockPos = 'C';

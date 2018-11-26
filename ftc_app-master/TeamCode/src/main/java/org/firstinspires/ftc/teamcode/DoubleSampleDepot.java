@@ -27,8 +27,8 @@ import java.io.FileOutputStream;
  * Created by bodeng on 10/19/18.
  */
 
-@Autonomous (name = "BoTest", group = "Autonomous")
-public class BoTest extends CustomLinearOpMode {    //test for red double depot side
+@Autonomous (name = "DoubleSampleDepot", group = "Autonomous")
+public class DoubleSampleDepot extends CustomLinearOpMode {
 
     private ElapsedTime time = new ElapsedTime();
     private char blockPos = 'C';
@@ -113,7 +113,7 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
             */
 
         getBlock();
-
+        blockPos = 'L';
 
 
         telemetry.addData("Block Pos", blockPos);
@@ -175,9 +175,10 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         moveToEncoder(1700, .35, 180);
 
         if (blockPos == 'L') {
-            Pturn(45, 2000);
-            moveTimeP(1250, .4, 35);
-            moveTimeP(750, .4, 55);
+            //Pturn(45, 2000);
+            //moveToEncoder(200, .4, 45);
+            Pturn(90, 1000);
+            moveToEncoder(200, .4, 90);
         } else if (blockPos == 'C') {
             Pturn(90, 2000);
             moveTimeP(1000, .4, 90);
@@ -190,7 +191,7 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
     }
 
     private void Pturn(double angle, int msTimeout) {
-        double kP = .5/90;
+        double kP = .25/90;
         double minSpeed = .2;
         double maxSpeed = .6;
         time.reset();
@@ -220,7 +221,7 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
     public void moveTimeP(double msTime, double power, double angle) throws InterruptedException {
         time.reset();
 
-        double kPangle = 2.1/90.0;
+        double kPangle = 1.0/90.0;
 
         while (time.milliseconds() < msTime) {
             double angleError = imu.getTrueDiff(angle);
@@ -282,7 +283,7 @@ public class BoTest extends CustomLinearOpMode {    //test for red double depot 
         motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         idle();
         motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        double kPangle = 2.1/90.0;
+        double kPangle = 1.0/90.0;
 
         if (encoder > 0) {
             while (motorFL.getCurrentPosition() < encoder && opModeIsActive()) {
