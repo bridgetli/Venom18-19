@@ -257,10 +257,10 @@ public class DoubleSampleDepot extends CustomLinearOpMode {
         double maxDrive = .5;
 
         time.reset();
-        while ((Math.abs(getDist() - inches) > .25 || imu.getTrueDiff(angle) > .5) && opModeIsActive() && time.milliseconds() < timeout) {
+        while ((Math.abs(getDistB() - inches) > .25 || imu.getTrueDiff(angle) > .5) && opModeIsActive() && time.milliseconds() < timeout) {
 
-            double distError = inches - getDist();
-            double PIDchangeDist = Range.clip(-kPdist * distError, -maxDrive, maxDrive);
+            double distError = inches - getDistB();
+            double PIDchangeDist = -Range.clip(-kPdist * distError, -maxDrive, maxDrive);
 
             if (PIDchangeDist < minDrive && PIDchangeDist > 0) {
                 PIDchangeDist = minDrive;

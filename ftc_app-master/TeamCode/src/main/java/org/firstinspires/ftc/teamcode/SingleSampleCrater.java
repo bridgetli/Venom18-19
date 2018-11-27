@@ -131,9 +131,9 @@ public class SingleSampleCrater extends CustomLinearOpMode {    //test for red d
     public void moveToDistP(double inches, double angle) {
         double kPdist = .03;
         double kPangle = 5/90;
-        while ((Math.abs(getDist() - inches) > .25 || imu.getTrueDiff(angle) > .5) && opModeIsActive()) {
+        while ((Math.abs(getDistB() - inches) > .25 || imu.getTrueDiff(angle) > .5) && opModeIsActive()) {
 
-            double distError = inches - getDist();
+            double distError = inches - getDistB();
             double PIDchangeDist = -kPdist * distError;
 
             double angleError = imu.getTrueDiff(angle);
