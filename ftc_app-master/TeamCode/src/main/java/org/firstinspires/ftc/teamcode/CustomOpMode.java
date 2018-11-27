@@ -33,8 +33,8 @@ public class CustomOpMode extends OpMode{
 
     Servo servoWinchArm;
 
-    final double servoWinchArmDownPos = .15;
-    final double servoWinchArmUpPos = .42;
+    final double servoWinchArmDownPos = .1;
+    final double servoWinchArmUpPos = .40;
 
     //Servo servoMarker;
 
