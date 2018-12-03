@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
@@ -65,6 +66,7 @@ public class CustomLinearOpMode extends LinearOpMode {
     final double servoMarkerEndPos = 0;
 
     IMU imu;
+    ElapsedTime time = new ElapsedTime();
 
     //just had to put these to run the code dw about it
 
@@ -307,6 +309,37 @@ public class CustomLinearOpMode extends LinearOpMode {
         }
         while(getDistB() < dist && opModeIsActive()) {
             driveBackward();
+        }
+        stopDriveMotors();
+    }
+
+    public void moveToLineP(double yIntercept, double angle, double timeout) { //y-int is 64?
+        double kPdist = .03;
+        double kPangle = .9/90.0;
+
+        double minDrive = .15;
+        double maxDrive = .5;
+
+        time.reset();
+        while ((Math.abs(getDistB() - getDistL() - yIntercept) > .25 && opModeIsActive() && time.milliseconds() < timeout)) {
+
+
+            double distError = getDistB() - getDistL() - yIntercept;
+            double PIDchangeDist = Range.clip(-kPdist * distError, -maxDrive, maxDrive);
+
+            if (PIDchangeDist < minDrive && PIDchangeDist > 0) {
+                PIDchangeDist = minDrive;
+            } else if (PIDchangeDist > -minDrive && PIDchangeDist < 0) {
+                PIDchangeDist = -minDrive;
+            }
+
+            double angleError = imu.getTrueDiff(angle);
+            double PIDchangeAngle = kPangle * angleError;
+
+            motorBL.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -1, 1));
+            motorFL.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -1, 1));
+            motorBR.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -1, 1));
+            motorFR.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -1, 1));
         }
         stopDriveMotors();
     }

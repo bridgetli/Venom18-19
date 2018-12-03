@@ -60,25 +60,54 @@ public class SingleSampleCrater extends CustomLinearOpMode {    //test for red d
 
         sleep(1000);
 
-        moveToEncoder(800, .2, 0);
+        moveToEncoder(650, .2, 0);
         stopAllMotors();
         sleep(1000);
         if (blockPos == 'R' || blockPos == '?') {
             Pturn(45, 3000);
             sleep(1000);
-            moveToDistP(5, 45);
+            moveToEncoder(1000, .2, 45);
             sleep(1000);
-            //Pturn(-45, 3000);
-            //sleep(1000);
-            //moveToDistP(12, -45);
-        } else if (blockPos == 'C') {
-            moveToDistP(12, 0);
+            moveToEncoder(-1000, .2, 45);
+            Pturn(90, 2000);
+            moveToEncoder(-2000, .2, 45);
+            Pturn(135, 2000);
+            moveToEncoder(-2500, .35, 135);
+            moveToEncoder(1000, .35, 135);
             servoWinchArm.setPosition(servoWinchArmDepositPos);
+            sleep(1500);
+            servoWinchArm.setPosition(servoWinchArmInitPos);
+            moveToEncoder(2000, .35, 135);
+        } else if (blockPos == 'C') {
+            moveToEncoder(300, .2, 0);
+            moveToEncoder(-300, .2, 0);
+            Pturn(90, 2000);
+            moveToEncoder(-1000, .2, 45);
+            Pturn(90, 2000);
+            moveToEncoder(-2000, .2, 45);
+            Pturn(135, 2000);
+            moveToEncoder(-2500, .35, 135);
+            moveToEncoder(1000, .35, 135);
+            servoWinchArm.setPosition(servoWinchArmDepositPos);
+            sleep(1500);
+            servoWinchArm.setPosition(servoWinchArmInitPos);
+            moveToEncoder(2000, .35, 135);
         } else {
             Pturn(-45, 3000);
-            moveToDistP(5, 45);
-            //Pturn(45, 3000);
-            //moveToDistP(12, 45);
+            sleep(1000);
+            moveToEncoder(1000, .2, 45);
+            sleep(1000);
+            moveToEncoder(-1000, .2, 45);
+            Pturn(90, 2000);
+
+            moveToEncoder(-2000, .2, 45);
+            Pturn(135, 2000);
+            moveToEncoder(-2500, .35, 135);
+            moveToEncoder(1000, .35, 135);
+            servoWinchArm.setPosition(servoWinchArmDepositPos);
+            sleep(1500);
+            servoWinchArm.setPosition(servoWinchArmInitPos);
+            moveToEncoder(2000, .35, 135);
         }
 
         // At this point, front of robot should align with corner of lander

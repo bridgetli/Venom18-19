@@ -169,6 +169,7 @@ public class DoubleSampleDepot extends CustomLinearOpMode {
         }
 
         //moveToDistP(27, 135, 3000);
+        moveToLineP(64, 135, 3000);
 
         Pturn(180, 2000);
         sleep(500);
@@ -278,6 +279,7 @@ public class DoubleSampleDepot extends CustomLinearOpMode {
         }
         stopMotors();
     }
+
 
     public void moveToEncoder(double encoder, double power, double angle) {
         motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

@@ -75,7 +75,7 @@ public class SingleSampleDepot extends CustomLinearOpMode {
             servoWinchArm.setPosition(servoWinchArmDepositPos);
             sleep(1500);
             servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveToEncoder(1350, .25, 135);
+            moveToEncoder(2000, .25, 135);
         } else if (blockPos == 'C') {
             moveToEncoder(1500, .25, 0);
             sleep(500);
@@ -89,7 +89,7 @@ public class SingleSampleDepot extends CustomLinearOpMode {
             servoWinchArm.setPosition(servoWinchArmDepositPos);
             sleep(1500);
             servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveToEncoder(1350, .25, 135);
+            moveToEncoder(2000, .25, 135);
         } else {
             Pturn(-45, 2500);
             sleep(500);
@@ -104,29 +104,8 @@ public class SingleSampleDepot extends CustomLinearOpMode {
             servoWinchArm.setPosition(servoWinchArmDepositPos);
             sleep(1500);
             servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveToEncoder(1350, .25, 135);
+            moveToEncoder(2000, .25, 135);
         }
-
-        //moveToDistP(27, 135, 3000);
-        moveToLineP(64, 135, 3000);
-
-        Pturn(180, 2000);
-        sleep(500);
-        moveToEncoder(1700, .35, 180);  //def replace with range sensors
-
-        if (blockPos == 'L') {
-            Pturn(45, 2000);
-            moveTimeP(1250, .4, 35);
-            moveTimeP(750, .4, 55);
-        } else if (blockPos == 'C') {
-            Pturn(90, 2000);
-            moveTimeP(1000, .4, 90);
-        } else {
-            Pturn(135, 2000);
-            moveTimeP(1250, .4, 155);
-            moveTimeP(750, .4, 125);
-        }
-        //moveTimeP(2500, .3, 135);
     }
 
     private void Pturn(double angle, int msTimeout) {

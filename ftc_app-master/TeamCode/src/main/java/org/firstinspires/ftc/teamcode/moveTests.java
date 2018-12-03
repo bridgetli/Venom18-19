@@ -54,9 +54,7 @@ public class moveTests extends CustomLinearOpMode {    //test for red double dep
 
         waitForStart();
 
-        moveToEncoder(2000, .2, 0);
-        Pturn(180, 3000);
-        moveToDistP(18, 180, 5000);
+        moveToLineP(64, 0, 5000);
 
 
         // At this point, front of robot should align with corner of lander
@@ -113,9 +111,9 @@ public class moveTests extends CustomLinearOpMode {    //test for red double dep
         double minDrive = .1;
         double maxDrive = .5;
 
-        while ((Math.abs(getDist() - inches) > .25 || imu.getTrueDiff(angle) > .5) && opModeIsActive()) {
+        while ((Math.abs(getDistB() - inches) > .25 || imu.getTrueDiff(angle) > .5) && opModeIsActive()) {
 
-            double distError = inches - getDist();
+            double distError = inches - getDistB();
             double PIDchangeDist = -kPdist * distError;
 
             if (PIDchangeDist < minDrive && PIDchangeDist > 0) {
