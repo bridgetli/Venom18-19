@@ -4,6 +4,11 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.CustomLinearOpMode;
 import org.tensorflow.lite.Interpreter;
@@ -21,37 +26,28 @@ public class TFLiteSingleImageInference extends CustomLinearOpMode {
         float[][] probabilities = new float[1][10];
         Bitmap bmp;
         ByteBuffer buffer;
-        Interpreter tflite;
-        StringBuilder results;
-
-        try {
-            bmp = BitmapFactory.decodeStream(hardwareMap.appContext.getAssets().open("fashion-mnist-sprite.png"));
-            buffer = convertBitmapToByteBuffer(bmp);
-            tflite = new Interpreter(loadModelFile(hardwareMap.appContext)); //TODO test if this works as read-only buffer
-        } catch (Exception e) {
-            telemetry.addData("ERROR", e.toString());
-            return;
-        }
+        Interpreter tflite = null;
 
         telemetry.addData("Press Play to Start", "Tensorflow Inference");
         telemetry.update();
         waitForStart();
 
         while(opModeIsActive()) {
-            results = new StringBuilder();
             try {
-                tflite.run(buffer, probabilities);
-                for (int i = 0; i < 10; i++) {
-                    results.append("Label ").append(i).append(": ").append(probabilities[0][i]).append("\n");
-                }
+                bmp = BitmapFactory.decodeStream(hardwareMap.appContext.getAssets().open("fashion-mnist-sprite.png"));
+                buffer = convertBitmapToByteBuffer(bmp);
+                tflite = new Interpreter(loadModelFile(hardwareMap.appContext)); //TODO test if this works as read-only buffer
 
-                telemetry.addData("RESULTS", results.toString());
+                tflite.run(buffer, probabilities);
+                for (int i = 0; i < 10; i++)
+                    telemetry.addData("Label " + i, probabilities[0][i]);
             } catch (Exception e) {
                 telemetry.addData("ERROR", e.toString());
             }
             telemetry.update();
         }
-        tflite.close();
+        if (tflite != null)
+            tflite.close();
     }
 
     private MappedByteBuffer loadModelFile(Context activity) throws Exception {
@@ -71,10 +67,26 @@ public class TFLiteSingleImageInference extends CustomLinearOpMode {
     }
 
     private ByteBuffer convertBitmapToByteBuffer(Bitmap bitmap) {
+        //convert bitmap to grayscale
+        Bitmap bm = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.RGB_565);
+        Canvas c = new Canvas(bm);
+        Paint paint = new Paint();
+        ColorMatrix cm = new ColorMatrix();
+        cm.setSaturation(0);
+        ColorMatrixColorFilter f = new ColorMatrixColorFilter(cm);
+        paint.setColorFilter(f);
+        c.drawBitmap(bitmap, 0, 0, paint);
+        bitmap.recycle();
+
+        //create byte buffer
         ByteBuffer byteBuffer = ByteBuffer.allocateDirect(28 * 28 * 4);
+        byteBuffer.clear();
         byteBuffer.order(ByteOrder.nativeOrder());
         int[] intValues = new int[28 * 28];
-        bitmap.getPixels(intValues, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
+
+        //transfer data
+        byteBuffer.rewind();
+        bm.getPixels(intValues, 0, bm.getWidth(), 0, 0, bm.getWidth(), bm.getHeight());
         int pixel = 0;
         for (int i = 0; i < 28; ++i) {
             for (int j = 0; j < 28; ++j) {
@@ -86,4 +98,10 @@ public class TFLiteSingleImageInference extends CustomLinearOpMode {
         }
         return byteBuffer;
     }
+
+    /*
+    byteBuffer.put((byte) ((val >> 16) & 0xFF));
+    byteBuffer.put((byte) ((val >> 8) & 0xFF));
+    byteBuffer.put((byte) (val & 0xFF));
+    */
 }
