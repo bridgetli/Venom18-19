@@ -54,89 +54,60 @@ public class SingleSampleCrater extends CustomLinearOpMode {    //test for red d
 
         waitForStart();
 
-        /*ByteBuffer byteBuffer = image.getPixels();
-                if (frameBuffer == null) {
-                    frameBuffer = new byte[byteBuffer.capacity()];
-                }
-                byteBuffer.get(frameBuffer);
-                if (this.frame == null) {
-                    this.frame = new Mat(imageHeight, imageWidth, CvType.CV_8UC3);
-
-                    if (overlayView != null) {
-                        overlayView.setImageSize(imageWidth, imageHeight);
-                    }
-                }
-                this.frame.put(0, 0, frameBuffer);
-
-                Imgproc.cvtColor(this.frame, this.frame, Imgproc.COLOR_RGB2BGR);
-
-                if (parameters.cameraDirection == VuforiaLocalizer.CameraDirection.FRONT) {
-                    Core.flip(this.frame, this.frame, 1);
-                }
-
-                onFrame(this.frame, vuforiaFrame.getTimeStamp());
-            }
-
-
-            // check all the trackable target to see which one (if any) is visible.
-            targetVisible = false;
-            for (VuforiaTrackable trackable : allTrackables) {
-                if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
-                    telemetry.addData("Visible Target", trackable.getName());
-                    targetVisible = true;
-
-                    // getUpdatedRobotLocation() will return null if no new information is available since
-                    // the last time that call was made, or if the trackable is not currently visible.
-                    OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
-                    if (robotLocationTransform != null) {
-                        lastLocation = robotLocationTransform;
-                    }
-                    break;
-                }
-            }
-
-            // Provide feedback as to where the robot is located (if we know).
-            if (targetVisible) {
-                // express position (translation) of robot in inches.
-                VectorF translation = lastLocation.getTranslation();
-                telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
-                        translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
-
-                // express the rotation of the robot in degrees.
-                Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
-                telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
-            }
-            else {
-                telemetry.addData("Visible Target", "none");
-            }
-            telemetry.update();
-            */
-
         getBlock();
         telemetry.addData("Block Pos", blockPos);
         telemetry.update();
 
         sleep(1000);
 
-        moveToEncoder(800, .2, 0);
+        moveToEncoder(650, .2, 0);
         stopAllMotors();
         sleep(1000);
         if (blockPos == 'R' || blockPos == '?') {
             Pturn(45, 3000);
             sleep(1000);
-            moveToDistP(5, 45);
+            moveToEncoder(1000, .2, 45);
             sleep(1000);
-            //Pturn(-45, 3000);
-            //sleep(1000);
-            //moveToDistP(12, -45);
-        } else if (blockPos == 'C') {
-            moveToDistP(12, 0);
+            moveToEncoder(-1000, .2, 45);
+            Pturn(90, 2000);
+            moveToEncoder(-2000, .2, 45);
+            Pturn(135, 2000);
+            moveToEncoder(-2500, .35, 135);
+            moveToEncoder(1000, .35, 135);
             servoWinchArm.setPosition(servoWinchArmDepositPos);
+            sleep(1500);
+            servoWinchArm.setPosition(servoWinchArmInitPos);
+            moveToEncoder(2000, .35, 135);
+        } else if (blockPos == 'C') {
+            moveToEncoder(300, .2, 0);
+            moveToEncoder(-300, .2, 0);
+            Pturn(90, 2000);
+            moveToEncoder(-1000, .2, 45);
+            Pturn(90, 2000);
+            moveToEncoder(-2000, .2, 45);
+            Pturn(135, 2000);
+            moveToEncoder(-2500, .35, 135);
+            moveToEncoder(1000, .35, 135);
+            servoWinchArm.setPosition(servoWinchArmDepositPos);
+            sleep(1500);
+            servoWinchArm.setPosition(servoWinchArmInitPos);
+            moveToEncoder(2000, .35, 135);
         } else {
             Pturn(-45, 3000);
-            moveToDistP(5, 45);
-            //Pturn(45, 3000);
-            //moveToDistP(12, 45);
+            sleep(1000);
+            moveToEncoder(1000, .2, 45);
+            sleep(1000);
+            moveToEncoder(-1000, .2, 45);
+            Pturn(90, 2000);
+
+            moveToEncoder(-2000, .2, 45);
+            Pturn(135, 2000);
+            moveToEncoder(-2500, .35, 135);
+            moveToEncoder(1000, .35, 135);
+            servoWinchArm.setPosition(servoWinchArmDepositPos);
+            sleep(1500);
+            servoWinchArm.setPosition(servoWinchArmInitPos);
+            moveToEncoder(2000, .35, 135);
         }
 
         // At this point, front of robot should align with corner of lander
@@ -189,9 +160,9 @@ public class SingleSampleCrater extends CustomLinearOpMode {    //test for red d
     public void moveToDistP(double inches, double angle) {
         double kPdist = .03;
         double kPangle = 5/90;
-        while ((Math.abs(getDist() - inches) > .25 || imu.getTrueDiff(angle) > .5) && opModeIsActive()) {
+        while ((Math.abs(getDistB() - inches) > .25 || imu.getTrueDiff(angle) > .5) && opModeIsActive()) {
 
-            double distError = inches - getDist();
+            double distError = inches - getDistB();
             double PIDchangeDist = -kPdist * distError;
 
             double angleError = imu.getTrueDiff(angle);

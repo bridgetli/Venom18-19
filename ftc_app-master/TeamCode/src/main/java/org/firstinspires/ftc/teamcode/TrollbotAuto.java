@@ -310,14 +310,14 @@ public class TrollbotAuto extends CustomLinearOpMode {
     }
 
     public void goToSecondBlocks() {
-        while(getDist() < 96 && opModeIsActive()) {
+        while(getDistB() < 96 && opModeIsActive()) {
             driveBackward();
         }
 
         stopDriveMotors();
         turn(-90);
 
-        while(getDist() > 36) {
+        while(getDistB() > 36) {
             driveForward();
         }
         stopDriveMotors();
@@ -326,7 +326,7 @@ public class TrollbotAuto extends CustomLinearOpMode {
 
     public void knockSecondBlock() {
         if(blockLocation.equals("CENTER")) {
-            while (getDist() > 36 && opModeIsActive()) {
+            while (getDistB() > 36 && opModeIsActive()) {
                 driveForward();
             }
             stopDriveMotors();

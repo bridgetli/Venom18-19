@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -53,7 +54,8 @@ public class CustomLinearOpMode extends LinearOpMode {
     //DcMotor motorWinchDown;
 
 
-    ModernRoboticsI2cRangeSensor rangeSensor;
+    ModernRoboticsI2cRangeSensor rangeSensorB;
+    ModernRoboticsI2cRangeSensor rangeSensorL;
 
     Servo servoWinchArm;
     final double servoWinchArmInitPos = .1;
@@ -68,6 +70,7 @@ public class CustomLinearOpMode extends LinearOpMode {
     final double servoMarkerEndPos = 0;
 
     IMU imu;
+    ElapsedTime time = new ElapsedTime();
 
     //just had to put these to run the code dw about it
 
@@ -111,7 +114,8 @@ public class CustomLinearOpMode extends LinearOpMode {
 
         telemetry.addData("Motor Initialization Complete", "");
 
-        rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensor");
+        rangeSensorB = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensorB");
+        rangeSensorL = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensorL");
 
 
         servoWinchArm.setPosition(servoWinchArmInitPos);
@@ -183,14 +187,14 @@ public class CustomLinearOpMode extends LinearOpMode {
             }
         }
         else if (angle < yaw) {
-            while (yaw > angle && opModeIsActive()){
+            while (yaw > angle && opModeIsActive()) {
                 turnLeft();
             }
         }
         stopDriveMotors();
     }
 
-    public void driveForward () {
+    public void driveForward() {
         motorFL.setPower(speed);
         motorFR.setPower(speed);
         motorBL.setPower(speed);
@@ -287,28 +291,36 @@ public class CustomLinearOpMode extends LinearOpMode {
         // goes forward a certain distance after we add the sensor in
         // distance is in inches
 
-        double oldDist = getDist();
-        double newDist = getDist();
-        while(Math.abs(oldDist - newDist) < distance && opModeIsActive()) {
+        double oldDist = getDistB();
+        double newDist = getDistB();
+        while(Math.abs(oldDist - newDist) > distance && opModeIsActive()) {
             driveForward();
-            newDist = getDist();
+            newDist = getDistB();
             telemetry.addData("Stuck in the loop", "");
         }
         stopDriveMotors();
     }
-    public double getDist() {
-        double dist = rangeSensor.getDistance(DistanceUnit.INCH);
+    public double getDistB() {
+        double dist = rangeSensorB.getDistance(DistanceUnit.INCH);
         while ((dist > 200 || Double.isNaN(dist)) && opModeIsActive()) {
-            dist = rangeSensor.getDistance(DistanceUnit.INCH);
+            dist = rangeSensorB.getDistance(DistanceUnit.INCH);
+        }
+        return dist;
+    }
+
+    public double getDistL() {
+        double dist = rangeSensorL.getDistance(DistanceUnit.INCH);
+        while ((dist > 200 || Double.isNaN(dist)) && opModeIsActive()) {
+            dist = rangeSensorL.getDistance(DistanceUnit.INCH);
         }
         return dist;
     }
 
     public void moveToDistance(double dist) {
-        while(getDist() > dist && opModeIsActive()) {
+        while(getDistB() > dist && opModeIsActive()) {
             driveForward();
         }
-        while(getDist() < dist && opModeIsActive()) {
+        while(getDistB() < dist && opModeIsActive()) {
             driveBackward();
         }
         stopDriveMotors();
@@ -393,5 +405,36 @@ public class CustomLinearOpMode extends LinearOpMode {
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
+    }
+    
+    public void moveToLineP(double yIntercept, double angle, double timeout) { //y-int is 64?
+        double kPdist = .03;
+        double kPangle = .9/90.0;
+
+        double minDrive = .15;
+        double maxDrive = .5;
+
+        time.reset();
+        while ((Math.abs(getDistB() - getDistL() - yIntercept) > .25 && opModeIsActive() && time.milliseconds() < timeout)) {
+
+
+            double distError = getDistB() - getDistL() - yIntercept;
+            double PIDchangeDist = Range.clip(-kPdist * distError, -maxDrive, maxDrive);
+
+            if (PIDchangeDist < minDrive && PIDchangeDist > 0) {
+                PIDchangeDist = minDrive;
+            } else if (PIDchangeDist > -minDrive && PIDchangeDist < 0) {
+                PIDchangeDist = -minDrive;
+            }
+
+            double angleError = imu.getTrueDiff(angle);
+            double PIDchangeAngle = kPangle * angleError;
+
+            motorBL.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -1, 1));
+            motorFL.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -1, 1));
+            motorBR.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -1, 1));
+            motorFR.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -1, 1));
+        }
+        stopDriveMotors();
     }
 }

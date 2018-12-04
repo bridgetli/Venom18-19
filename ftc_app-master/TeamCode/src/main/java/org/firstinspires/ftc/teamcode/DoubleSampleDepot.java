@@ -169,6 +169,7 @@ public class DoubleSampleDepot extends CustomLinearOpMode {
         }
 
         //moveToDistP(27, 135, 3000);
+        moveToLineP(64, 135, 3000);
 
         Pturn(180, 2000);
         sleep(500);
@@ -257,10 +258,10 @@ public class DoubleSampleDepot extends CustomLinearOpMode {
         double maxDrive = .5;
 
         time.reset();
-        while ((Math.abs(getDist() - inches) > .25 || imu.getTrueDiff(angle) > .5) && opModeIsActive() && time.milliseconds() < timeout) {
+        while ((Math.abs(getDistB() - inches) > .25 || imu.getTrueDiff(angle) > .5) && opModeIsActive() && time.milliseconds() < timeout) {
 
-            double distError = inches - getDist();
-            double PIDchangeDist = Range.clip(-kPdist * distError, -maxDrive, maxDrive);
+            double distError = inches - getDistB();
+            double PIDchangeDist = -Range.clip(-kPdist * distError, -maxDrive, maxDrive);
 
             if (PIDchangeDist < minDrive && PIDchangeDist > 0) {
                 PIDchangeDist = minDrive;
@@ -278,6 +279,7 @@ public class DoubleSampleDepot extends CustomLinearOpMode {
         }
         stopMotors();
     }
+
 
     public void moveToEncoder(double encoder, double power, double angle) {
         motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
