@@ -4,11 +4,6 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Paint;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.CustomLinearOpMode;
 import org.tensorflow.lite.Interpreter;
@@ -34,7 +29,7 @@ public class TFLiteSingleImageInference extends CustomLinearOpMode {
 
         while(opModeIsActive()) {
             try {
-                bmp = BitmapFactory.decodeStream(hardwareMap.appContext.getAssets().open("fashion-mnist-sprite.png"));
+                bmp = BitmapFactory.decodeStream(hardwareMap.appContext.getAssets().open("fashion-mnist-sprite-GRAY.png"));
                 buffer = convertBitmapToByteBuffer(bmp);
                 tflite = new Interpreter(loadModelFile(hardwareMap.appContext)); //TODO test if this works as read-only buffer
 
@@ -66,24 +61,11 @@ public class TFLiteSingleImageInference extends CustomLinearOpMode {
         return model;
     }
 
-    private ByteBuffer convertBitmapToByteBuffer(Bitmap bitmap) {
-        //convert bitmap to grayscale
-        Bitmap bm = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.RGB_565);
-        Canvas c = new Canvas(bm);
-        Paint paint = new Paint();
-        ColorMatrix cm = new ColorMatrix();
-        cm.setSaturation(0);
-        ColorMatrixColorFilter f = new ColorMatrixColorFilter(cm);
-        paint.setColorFilter(f);
-        c.drawBitmap(bitmap, 0, 0, paint);
-        bitmap.recycle();
-
+    private ByteBuffer convertBitmapToByteBuffer(Bitmap bm) {
         //create byte buffer
         ByteBuffer byteBuffer = ByteBuffer.allocateDirect(28 * 28 * 4);
-        byteBuffer.clear();
         byteBuffer.order(ByteOrder.nativeOrder());
         int[] intValues = new int[28 * 28];
-
         //transfer data
         byteBuffer.rewind();
         bm.getPixels(intValues, 0, bm.getWidth(), 0, 0, bm.getWidth(), bm.getHeight());
