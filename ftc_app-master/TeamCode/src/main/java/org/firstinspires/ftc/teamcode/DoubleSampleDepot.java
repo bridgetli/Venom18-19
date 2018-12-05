@@ -113,7 +113,6 @@ public class DoubleSampleDepot extends CustomLinearOpMode {
             */
 
         getBlock();
-        blockPos = 'L';
 
 
         telemetry.addData("Block Pos", blockPos);
@@ -121,7 +120,7 @@ public class DoubleSampleDepot extends CustomLinearOpMode {
 
         sleep(100);
 
-        moveToEncoder(650, .2, 0);
+        moveToEncoder(600, .2, 0);
         stopAllMotors();
         sleep(1000);
         if (blockPos == 'R' || blockPos == '?') {
@@ -138,19 +137,19 @@ public class DoubleSampleDepot extends CustomLinearOpMode {
             servoWinchArm.setPosition(servoWinchArmInitPos);
             moveToEncoder(1350, .25, 135);
         } else if (blockPos == 'C') {
+
             moveToEncoder(1500, .25, 0);
             sleep(500);
-            //Pturn(-90, 700);
             Pturn(45, 2000);
-            moveToEncoder(800, .35, 45);
+            moveToEncoderT(300, .35, 45, 2000);
             sleep(500);
             Pturn(135, 2500);
             moveTimeP(800, -.4, 135);
-            moveToEncoder(1000, .25, 130);
+            moveToEncoder(1000, .25, 135);
             servoWinchArm.setPosition(servoWinchArmDepositPos);
             sleep(1500);
             servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveToEncoder(1350, .25, 135);
+            //moveToEncoder(1350, .25, 135);
         } else {
             Pturn(-45, 3000);
             sleep(500);
@@ -169,7 +168,7 @@ public class DoubleSampleDepot extends CustomLinearOpMode {
         }
 
         //moveToDistP(27, 135, 3000);
-        moveToLineP(64, 135, 3000);
+        moveToLineP(45, 135, 4500);
 
         Pturn(180, 2000);
         sleep(500);
@@ -178,13 +177,13 @@ public class DoubleSampleDepot extends CustomLinearOpMode {
         if (blockPos == 'L') {
             //Pturn(45, 2000);
             //moveToEncoder(200, .4, 45);
-            Pturn(90, 1000);
+            Pturn(70, 1000);
             moveToEncoder(200, .4, 90);
         } else if (blockPos == 'C') {
             Pturn(90, 2000);
             moveTimeP(1000, .4, 90);
         } else {
-            Pturn(135, 2000);
+            Pturn(155, 2000);
             moveTimeP(1250, .4, 155);
             moveTimeP(750, .4, 125);
         }
@@ -316,6 +315,41 @@ public class DoubleSampleDepot extends CustomLinearOpMode {
         stopMotors();
     }
 
+    public void moveToEncoderT(double encoder, double power, double angle, double msTimeout) {
+        motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        idle();
+        motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        double kPangle = 1.0/90.0;
+        time.reset();
+        if (encoder > 0) {
+            while (motorFL.getCurrentPosition() < encoder && opModeIsActive() && time.milliseconds() < msTimeout) {
+
+                double angleError = imu.getTrueDiff(angle);
+                double PIDchangeAngle = kPangle * angleError;
+
+
+                motorBL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
+                motorFL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
+                motorBR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
+                motorFR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
+            }
+        }
+        else {
+            while (motorFL.getCurrentPosition() > encoder && opModeIsActive() && time.milliseconds() < msTimeout) {
+
+                double angleError = imu.getTrueDiff(angle);
+                double PIDchangeAngle = kPangle * angleError;
+
+
+                motorBL.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
+                motorFL.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
+                motorBR.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
+                motorFR.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
+            }
+        }
+        stopMotors();
+    }
+
     public void getBlock() throws InterruptedException {
         blockPos = 'C';
 
@@ -323,14 +357,14 @@ public class DoubleSampleDepot extends CustomLinearOpMode {
 
 
         // basic brute force counter
-        int startRow = 13;
-        int endRow = 20;
+        int startRow = 14;
+        int endRow = 23;
         int leftSrow = 13;
-        int leftErow = 19;
+        int leftErow = 22;
         int centerSrow = 35;
-        int centerErow = 41;
-        int rightSrow = 55;
-        int rightErow = 61;
+        int centerErow = 44;
+        int rightSrow = 56;
+        int rightErow = 65;
 
         BoundingBox left = new BoundingBox(startRow, leftSrow, endRow, leftErow);    //look at images taken from consistent
         BoundingBox center = new BoundingBox(startRow, centerSrow, endRow, centerErow);  //spot in auto and get pixel range

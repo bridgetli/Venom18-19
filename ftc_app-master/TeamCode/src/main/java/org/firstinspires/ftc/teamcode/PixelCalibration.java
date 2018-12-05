@@ -55,14 +55,14 @@ public class PixelCalibration extends CustomLinearOpMode {    //test for red dou
         waitForStart();
 
         // basic brute force counter
-        int startRow = 13;
-        int endRow = 20;
+        int startRow = 14;
+        int endRow = 23;
         int leftSrow = 13;
-        int leftErow = 19;
+        int leftErow = 22;
         int centerSrow = 35;
-        int centerErow = 41;
-        int rightSrow = 55;
-        int rightErow = 61;
+        int centerErow = 44;
+        int rightSrow = 56;
+        int rightErow = 65;
 
         Bitmap bitmap0 = takePic();
         BoundingBox left = new BoundingBox(startRow, leftSrow, endRow, leftErow);    //look at images taken from consistent

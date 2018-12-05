@@ -54,7 +54,7 @@ public class moveTests extends CustomLinearOpMode {    //test for red double dep
 
         waitForStart();
 
-        moveToLineP(64, 0, 5000);
+        moveToLineP(45, 0, 5000);
 
 
         // At this point, front of robot should align with corner of lander

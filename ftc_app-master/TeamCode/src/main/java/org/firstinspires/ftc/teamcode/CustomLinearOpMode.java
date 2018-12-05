@@ -314,19 +314,22 @@ public class CustomLinearOpMode extends LinearOpMode {
     }
 
     public void moveToLineP(double yIntercept, double angle, double timeout) { //y-int is 64?
-        double kPdist = .03;
+        double kPdist = .0105;
         double kPangle = .9/90.0;
 
-        double minDrive = .15;
+        double minDrive = .135;
         double maxDrive = .5;
 
         time.reset();
-        while ((Math.abs(getDistB() - getDistL() - yIntercept) > .25 && opModeIsActive() && time.milliseconds() < timeout)) {
 
+        while ((Math.abs(getDistB() - getDistL() - yIntercept) > .25 && opModeIsActive() && time.milliseconds() < timeout)) { // lol xd
 
             double distError = getDistB() - getDistL() - yIntercept;
             double PIDchangeDist = Range.clip(-kPdist * distError, -maxDrive, maxDrive);
 
+            telemetry.addData("distError: ", distError);
+            telemetry.addData("PIDchangeDist: ", PIDchangeDist);
+            telemetry.update();
             if (PIDchangeDist < minDrive && PIDchangeDist > 0) {
                 PIDchangeDist = minDrive;
             } else if (PIDchangeDist > -minDrive && PIDchangeDist < 0) {

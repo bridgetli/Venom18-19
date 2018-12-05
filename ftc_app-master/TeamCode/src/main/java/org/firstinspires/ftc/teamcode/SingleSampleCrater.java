@@ -219,14 +219,14 @@ public class SingleSampleCrater extends CustomLinearOpMode {    //test for red d
 
 
         // basic brute force counter
-        int startRow = 12;
-        int endRow = 18;
-        int leftSrow = 11;
-        int leftErow = 17;
-        int centerSrow = 34;
-        int centerErow = 40;
-        int rightSrow = 54;
-        int rightErow = 60;
+        int startRow = 14;
+        int endRow = 23;
+        int leftSrow = 13;
+        int leftErow = 22;
+        int centerSrow = 35;
+        int centerErow = 44;
+        int rightSrow = 56;
+        int rightErow = 65;
 
         BoundingBox left = new BoundingBox(startRow, leftSrow, endRow, leftErow);    //look at images taken from consistent
         BoundingBox center = new BoundingBox(startRow, centerSrow, endRow, centerErow);  //spot in auto and get pixel range

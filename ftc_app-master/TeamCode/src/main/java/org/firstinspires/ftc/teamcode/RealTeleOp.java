@@ -41,7 +41,7 @@ public class RealTeleOp extends CustomOpMode{
         }
         telemetry.addData("Right motor speeds", yR);
         telemetry.addData("Left motor speed", yL);
-        telemetry.addData("Distance:", getDist());
+        telemetry.addData("Distance:", getDistB());
         telemetry.addLine("Init complete");
         telemetry.update();
     }
