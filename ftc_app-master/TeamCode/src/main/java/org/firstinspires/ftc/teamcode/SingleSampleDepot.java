@@ -122,43 +122,44 @@ public class SingleSampleDepot extends CustomLinearOpMode {
 
         moveToEncoder(560, .2, 0);
         stopAllMotors();
-        sleep(1000);
-        if (blockPos == 'R' || blockPos == '?') {
+        sleep(250); //1000
+        //TODO: optimize all of these paths; averages 17 sec currently; maybe get to 15 or less
+        if (blockPos == 'R' || blockPos == '?') { //also, default path should be center, as it is slightly faster
             Pturn(45, 2500);
             sleep(500);
             moveToEncoder(1500, .35, 45);
             sleep(500);
-            Pturn(135, 2500);
+            Pturn(135, 2500); //replace this; instead, move straight through the block?
             sleep(500);
             moveToEncoderT(-1500, .35, 135, 2000);
-            Pturn(-135, 2500);
+            Pturn(-135, 2500); //turn to depot, and everything else is the same
             moveToEncoderT(700, .35, -135, 2000);
             servoWinchArm.setPosition(servoWinchArmDepositPos);
-            sleep(750);
+            sleep(750); //maybe decrease these sleep statements if we're desperate
             servoWinchArm.setPosition((servoWinchArmDepositPos+servoWinchArmInitPos) / 1.5);
             sleep(750);
             servoWinchArm.setPosition(servoWinchArmInitPos);
             moveTimeP(2000, .8, -134);
-        } else if (blockPos == 'C') {
-            moveToEncoder(1500, .25, 0);
+        } else if (blockPos == 'C') { //why do we not just drive straight through??
+            moveToEncoder(1500, .25, 0); //all the way to depot
             sleep(500);
-            Pturn(-45, 2000);
-            moveToEncoderT(400, .35, -45, 2000);
-            Pturn(-135, 2500);
+            Pturn(-45, 2000); //turn towards crater
+            moveToEncoderT(400, .35, -45, 2000); //move a little forward while turning to align with wall
+            Pturn(-135, 2500); //drop marker
             moveToEncoderT(300, .35, -135, 2000);
             servoWinchArm.setPosition(servoWinchArmDepositPos);
             sleep(750);
             servoWinchArm.setPosition((servoWinchArmDepositPos+servoWinchArmInitPos) / 1.5);
             sleep(750);
             servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveTimeP(2000, .8, -134);
+            moveTimeP(2000, .8, -134); //drive to crater
         } else {
             Pturn(-45, 2500);
             sleep(500);
             moveToEncoder(1300, .35, -45);
             sleep(500);
-            Pturn(-135, 2500);
-            moveTimeP(400, -.35, -135);
+            Pturn(-135, 2500); //remove, just drive straight to wall?
+            moveTimeP(400, -.35, -135); //turn towards crater, and rest is the same
             //moveToEncoderT(1000, .35, -135, 2000);
             servoWinchArm.setPosition(servoWinchArmDepositPos);
             sleep(750);
@@ -167,8 +168,6 @@ public class SingleSampleDepot extends CustomLinearOpMode {
             servoWinchArm.setPosition(servoWinchArmInitPos);
             moveTimeP(2000, .8, -134);
         }
-
-
     }
 
     private void Pturn(double angle, int msTimeout) {

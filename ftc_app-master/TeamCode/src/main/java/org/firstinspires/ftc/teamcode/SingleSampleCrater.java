@@ -122,7 +122,8 @@ public class SingleSampleCrater extends CustomLinearOpMode {
 
         moveToEncoder(560, .2, 0);
         stopAllMotors();
-        sleep(500);
+        sleep(250); //500
+        //TODO: optimize paths, worry about this later, focus on depot side first; averages 18 sec currently
         if (blockPos == 'R' || blockPos == '?') {
             Pturn(45, 2500);
             sleep(500);
