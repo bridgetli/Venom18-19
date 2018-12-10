@@ -17,7 +17,6 @@ import com.vuforia.PIXEL_FORMAT;
 import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 
 import java.io.File;
@@ -55,61 +54,124 @@ public class SingleSampleDepot extends CustomLinearOpMode {
 
         waitForStart();
 
+        /*ByteBuffer byteBuffer = image.getPixels();
+                if (frameBuffer == null) {
+                    frameBuffer = new byte[byteBuffer.capacity()];
+                }
+                byteBuffer.get(frameBuffer);
+                if (this.frame == null) {
+                    this.frame = new Mat(imageHeight, imageWidth, CvType.CV_8UC3);
+
+                    if (overlayView != null) {
+                        overlayView.setImageSize(imageWidth, imageHeight);
+                    }
+                }
+                this.frame.put(0, 0, frameBuffer);
+
+                Imgproc.cvtColor(this.frame, this.frame, Imgproc.COLOR_RGB2BGR);
+
+                if (parameters.cameraDirection == VuforiaLocalizer.CameraDirection.FRONT) {
+                    Core.flip(this.frame, this.frame, 1);
+                }
+
+                onFrame(this.frame, vuforiaFrame.getTimeStamp());
+            }
+
+
+            // check all the trackable target to see which one (if any) is visible.
+            targetVisible = false;
+            for (VuforiaTrackable trackable : allTrackables) {
+                if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
+                    telemetry.addData("Visible Target", trackable.getName());
+                    targetVisible = true;
+
+                    // getUpdatedRobotLocation() will return null if no new information is available since
+                    // the last time that call was made, or if the trackable is not currently visible.
+                    OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
+                    if (robotLocationTransform != null) {
+                        lastLocation = robotLocationTransform;
+                    }
+                    break;
+                }
+            }
+
+            // Provide feedback as to where the robot is located (if we know).
+            if (targetVisible) {
+                // express position (translation) of robot in inches.
+                VectorF translation = lastLocation.getTranslation();
+                telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+                        translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+
+                // express the rotation of the robot in degrees.
+                Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
+                telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+            }
+            else {
+                telemetry.addData("Visible Target", "none");
+            }
+            telemetry.update();
+            */
+
         getBlock();
+
 
         telemetry.addData("Block Pos", blockPos);
         telemetry.update();
 
-        moveToEncoder(650, .2, 0);
+        sleep(100);
+
+        moveToEncoder(560, .2, 0);
         stopAllMotors();
-        sleep(1000);
-        if (blockPos == 'R' || blockPos == '?') {
+        sleep(250); //1000
+        //TODO: optimize all of these paths; averages 17 sec currently; maybe get to 15 or less
+        if (blockPos == 'R' || blockPos == '?') { //also, default path should be center, as it is slightly faster
             Pturn(45, 2500);
             sleep(500);
-            moveToEncoder(1500, .25, 45);
+            moveToEncoder(1500, .35, 45);
             sleep(500);
-            Pturn(135, 2500);
+            Pturn(135, 2500); //replace this; instead, move straight through the block?
             sleep(500);
-            moveTimeP(2000, -.4, 135);
-            moveToEncoder(1000, .25, 130);
+            moveToEncoderT(-1500, .35, 135, 2000);
+            Pturn(-135, 2500); //turn to depot, and everything else is the same
+            moveToEncoderT(700, .35, -135, 2000);
             servoWinchArm.setPosition(servoWinchArmDepositPos);
-            sleep(1500);
+            sleep(750); //maybe decrease these sleep statements if we're desperate
+            servoWinchArm.setPosition((servoWinchArmDepositPos+servoWinchArmInitPos) / 1.5);
+            sleep(750);
             servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveToEncoder(2000, .25, 135);
-        } else if (blockPos == 'C') {
-            moveToEncoder(1500, .25, 0);
+            moveTimeP(2000, .8, -134);
+        } else if (blockPos == 'C') { //why do we not just drive straight through??
+            moveToEncoder(1500, .25, 0); //all the way to depot
             sleep(500);
-            //Pturn(-90, 700);
-            Pturn(45, 2000);
-            moveToEncoder(800, .35, 45);
-            sleep(500);
-            Pturn(135, 2500);
-            moveTimeP(800, -.4, 135);
-            moveToEncoder(1000, .25, 130);
+            Pturn(-45, 2000); //turn towards crater
+            moveToEncoderT(400, .35, -45, 2000); //move a little forward while turning to align with wall
+            Pturn(-135, 2500); //drop marker
+            moveToEncoderT(300, .35, -135, 2000);
             servoWinchArm.setPosition(servoWinchArmDepositPos);
-            sleep(1500);
+            sleep(750);
+            servoWinchArm.setPosition((servoWinchArmDepositPos+servoWinchArmInitPos) / 1.5);
+            sleep(750);
             servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveToEncoder(2000, .25, 135);
+            moveTimeP(2000, .8, -134); //drive to crater
         } else {
             Pturn(-45, 2500);
             sleep(500);
-            moveToEncoder(1400, .35, -45);
+            moveToEncoder(1300, .35, -45);
             sleep(500);
-            Pturn(45, 2500);
-            moveTimeP(1250, .4, 45);
-            //deposit marker
-            Pturn(135, 2500);
-            moveTimeP(1000, -.4, 135);
-            moveToEncoder(1000, .25, 130);
+            Pturn(-135, 2500); //remove, just drive straight to wall?
+            moveTimeP(400, -.35, -135); //turn towards crater, and rest is the same
+            //moveToEncoderT(1000, .35, -135, 2000);
             servoWinchArm.setPosition(servoWinchArmDepositPos);
-            sleep(1500);
+            sleep(750);
+            servoWinchArm.setPosition((servoWinchArmDepositPos+servoWinchArmInitPos) / 1.5);
+            sleep(750);
             servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveToEncoder(2000, .25, 135);
+            moveTimeP(2000, .8, -134);
         }
     }
 
     private void Pturn(double angle, int msTimeout) {
-        double kP = .5/90;
+        double kP = .35/90;
         double minSpeed = .2;
         double maxSpeed = .6;
         time.reset();
@@ -139,7 +201,7 @@ public class SingleSampleDepot extends CustomLinearOpMode {
     public void moveTimeP(double msTime, double power, double angle) throws InterruptedException {
         time.reset();
 
-        double kPangle = 2.1/90.0;
+        double kPangle = 1.0/90.0;
 
         while (time.milliseconds() < msTime) {
             double angleError = imu.getTrueDiff(angle);
@@ -178,38 +240,7 @@ public class SingleSampleDepot extends CustomLinearOpMode {
         while ((Math.abs(getDistB() - inches) > .25 || imu.getTrueDiff(angle) > .5) && opModeIsActive() && time.milliseconds() < timeout) {
 
             double distError = inches - getDistB();
-            double PIDchangeDist = Range.clip(-kPdist * distError, -maxDrive, maxDrive);
-
-            if (PIDchangeDist < minDrive && PIDchangeDist > 0) {
-                PIDchangeDist = -minDrive;  //not sure if correct now with back range sensor
-            } else if (PIDchangeDist > -minDrive && PIDchangeDist < 0) {
-                PIDchangeDist = minDrive;
-            }
-
-            double angleError = imu.getTrueDiff(angle);
-            double PIDchangeAngle = kPangle * angleError;
-
-            motorBL.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -1, 1));
-            motorFL.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -1, 1));
-            motorBR.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -1, 1));
-            motorFR.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -1, 1));
-        }
-        stopMotors();
-    }
-
-    public void moveToLineP(double yIntercept, double angle, double timeout) { //y-int is 64?
-        double kPdist = .03;
-        double kPangle = .9/90.0;
-
-        double minDrive = .15;
-        double maxDrive = .5;
-
-        time.reset();
-        while ((Math.abs(getDistB() - getDistL() - yIntercept) > .25 && opModeIsActive() && time.milliseconds() < timeout)) {
-
-
-            double distError = getDistB() - getDistL() - yIntercept;
-            double PIDchangeDist = Range.clip(-kPdist * distError, -maxDrive, maxDrive);
+            double PIDchangeDist = -Range.clip(-kPdist * distError, -maxDrive, maxDrive);
 
             if (PIDchangeDist < minDrive && PIDchangeDist > 0) {
                 PIDchangeDist = minDrive;
@@ -232,7 +263,7 @@ public class SingleSampleDepot extends CustomLinearOpMode {
         motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         idle();
         motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        double kPangle = 2.1/90.0;
+        double kPangle = 1.0/90.0;
 
         if (encoder > 0) {
             while (motorFL.getCurrentPosition() < encoder && opModeIsActive()) {
@@ -254,10 +285,45 @@ public class SingleSampleDepot extends CustomLinearOpMode {
                 double PIDchangeAngle = kPangle * angleError;
 
 
-                motorBL.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
-                motorFL.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
-                motorBR.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
-                motorFR.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
+                motorBL.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
+                motorFL.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
+                motorBR.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
+                motorFR.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
+            }
+        }
+        stopMotors();
+    }
+
+    public void moveToEncoderT(double encoder, double power, double angle, double msTimeout) {
+        motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        idle();
+        motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        double kPangle = 1.0/90.0;
+        time.reset();
+        if (encoder > 0) {
+            while (motorFL.getCurrentPosition() < encoder && opModeIsActive() && time.milliseconds() < msTimeout) {
+
+                double angleError = imu.getTrueDiff(angle);
+                double PIDchangeAngle = kPangle * angleError;
+
+
+                motorBL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
+                motorFL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
+                motorBR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
+                motorFR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
+            }
+        }
+        else {
+            while (motorFL.getCurrentPosition() > encoder && opModeIsActive() && time.milliseconds() < msTimeout) {
+
+                double angleError = imu.getTrueDiff(angle);
+                double PIDchangeAngle = kPangle * angleError;
+
+
+                motorBL.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
+                motorFL.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
+                motorBR.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
+                motorFR.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
             }
         }
         stopMotors();
@@ -270,14 +336,14 @@ public class SingleSampleDepot extends CustomLinearOpMode {
 
 
         // basic brute force counter
-        int startRow = 13;
-        int endRow = 20;
+        int startRow = 14;
+        int endRow = 23;
         int leftSrow = 13;
-        int leftErow = 19;
+        int leftErow = 22;
         int centerSrow = 35;
-        int centerErow = 41;
-        int rightSrow = 55;
-        int rightErow = 61;
+        int centerErow = 44;
+        int rightSrow = 56;
+        int rightErow = 65;
 
         BoundingBox left = new BoundingBox(startRow, leftSrow, endRow, leftErow);    //look at images taken from consistent
         BoundingBox center = new BoundingBox(startRow, centerSrow, endRow, centerErow);  //spot in auto and get pixel range
@@ -369,7 +435,7 @@ public class SingleSampleDepot extends CustomLinearOpMode {
                 int R = (color >> 16) & 0xff;
                 int G = (color >>  8) & 0xff;
                 int B = color & 0xff;
-                int yellow = Math.min(R, G) - B / 2 > 0 ? Math.min(R, G) - B / 2 : 0;
+                int yellow = Math.min(R, G) - B > 0 ? Math.min(R, G) - B : 0;
                 ySum += yellow;
             }
         }
@@ -480,8 +546,6 @@ public class SingleSampleDepot extends CustomLinearOpMode {
                     onFrame(this.frame, vuforiaFrame.getTimeStamp());*/
         return bmp;
     }
-
-
 
     public Bitmap saveBox(Bitmap bmp, BoundingBox bb) throws InterruptedException{
         File dir = Environment.getExternalStorageDirectory();

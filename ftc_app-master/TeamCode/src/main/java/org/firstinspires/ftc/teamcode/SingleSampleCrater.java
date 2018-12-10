@@ -28,7 +28,7 @@ import java.io.FileOutputStream;
  */
 
 @Autonomous (name = "SingleSampleCrater", group = "Autonomous")
-public class SingleSampleCrater extends CustomLinearOpMode {    //test for red double depot side
+public class SingleSampleCrater extends CustomLinearOpMode {
 
     private ElapsedTime time = new ElapsedTime();
     private char blockPos = 'C';
@@ -54,84 +54,133 @@ public class SingleSampleCrater extends CustomLinearOpMode {    //test for red d
 
         waitForStart();
 
+        /*ByteBuffer byteBuffer = image.getPixels();
+                if (frameBuffer == null) {
+                    frameBuffer = new byte[byteBuffer.capacity()];
+                }
+                byteBuffer.get(frameBuffer);
+                if (this.frame == null) {
+                    this.frame = new Mat(imageHeight, imageWidth, CvType.CV_8UC3);
+
+                    if (overlayView != null) {
+                        overlayView.setImageSize(imageWidth, imageHeight);
+                    }
+                }
+                this.frame.put(0, 0, frameBuffer);
+
+                Imgproc.cvtColor(this.frame, this.frame, Imgproc.COLOR_RGB2BGR);
+
+                if (parameters.cameraDirection == VuforiaLocalizer.CameraDirection.FRONT) {
+                    Core.flip(this.frame, this.frame, 1);
+                }
+
+                onFrame(this.frame, vuforiaFrame.getTimeStamp());
+            }
+
+
+            // check all the trackable target to see which one (if any) is visible.
+            targetVisible = false;
+            for (VuforiaTrackable trackable : allTrackables) {
+                if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
+                    telemetry.addData("Visible Target", trackable.getName());
+                    targetVisible = true;
+
+                    // getUpdatedRobotLocation() will return null if no new information is available since
+                    // the last time that call was made, or if the trackable is not currently visible.
+                    OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
+                    if (robotLocationTransform != null) {
+                        lastLocation = robotLocationTransform;
+                    }
+                    break;
+                }
+            }
+
+            // Provide feedback as to where the robot is located (if we know).
+            if (targetVisible) {
+                // express position (translation) of robot in inches.
+                VectorF translation = lastLocation.getTranslation();
+                telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+                        translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+
+                // express the rotation of the robot in degrees.
+                Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
+                telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+            }
+            else {
+                telemetry.addData("Visible Target", "none");
+            }
+            telemetry.update();
+            */
+
         getBlock();
+
+
         telemetry.addData("Block Pos", blockPos);
         telemetry.update();
 
-        sleep(1000);
+        sleep(100);
 
-        moveToEncoder(650, .2, 0);
+        moveToEncoder(560, .2, 0);
         stopAllMotors();
-        sleep(1000);
+        sleep(250); //500
+        //TODO: optimize paths, worry about this later, focus on depot side first; averages 18 sec currently
         if (blockPos == 'R' || blockPos == '?') {
-            Pturn(45, 3000);
-            sleep(1000);
-            moveToEncoder(1000, .2, 45);
-            sleep(1000);
-            moveToEncoder(-1000, .2, 45);
-            Pturn(90, 2000);
-            moveToEncoder(-2000, .2, 45);
-            Pturn(135, 2000);
-            moveToEncoder(-2500, .35, 135);
-            moveToEncoder(1000, .35, 135);
-            servoWinchArm.setPosition(servoWinchArmDepositPos);
-            sleep(1500);
-            servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveToEncoder(2000, .35, 135);
+            Pturn(45, 2500);
+            sleep(500);
+            moveToEncoder(500, .35, 45);
+            sleep(200);
+            moveToEncoder(-480, .35, 45);
+            Pturn(-90, 2500);
         } else if (blockPos == 'C') {
-            moveToEncoder(300, .2, 0);
-            moveToEncoder(-300, .2, 0);
-            Pturn(90, 2000);
-            moveToEncoder(-1000, .2, 45);
-            Pturn(90, 2000);
-            moveToEncoder(-2000, .2, 45);
-            Pturn(135, 2000);
-            moveToEncoder(-2500, .35, 135);
-            moveToEncoder(1000, .35, 135);
-            servoWinchArm.setPosition(servoWinchArmDepositPos);
-            sleep(1500);
-            servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveToEncoder(2000, .35, 135);
+            //Pturn(45, 2500);
+            //sleep(500);
+            moveToEncoder(330, .35, 0);
+            sleep(200);
+            moveToEncoder(-320, .35, 0);
+            Pturn(-90, 2500);
         } else {
-            Pturn(-45, 3000);
-            sleep(1000);
-            moveToEncoder(1000, .2, 45);
-            sleep(1000);
-            moveToEncoder(-1000, .2, 45);
-            Pturn(90, 2000);
-
-            moveToEncoder(-2000, .2, 45);
-            Pturn(135, 2000);
-            moveToEncoder(-2500, .35, 135);
-            moveToEncoder(1000, .35, 135);
-            servoWinchArm.setPosition(servoWinchArmDepositPos);
-            sleep(1500);
-            servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveToEncoder(2000, .35, 135);
+            Pturn(-45, 2500);
+            sleep(500);
+            moveToEncoder(500, .35, -45);
+            sleep(200);
+            moveToEncoder(-480, .35, -45);
+            Pturn(-90, 2500);
         }
 
-        // At this point, front of robot should align with corner of lander
+        moveToEncoderT(2100, .3, -90, 4000);
+        sleep(500);
+        Pturn(45, 2500);
+        moveToEncoderT(-1200, .3,46, 4000);
+
+        servoWinchArm.setPosition(servoWinchArmDepositPos);
+        sleep(750);
+        servoWinchArm.setPosition((servoWinchArmDepositPos+servoWinchArmInitPos) / 1.6);
+        sleep(750);
+        servoWinchArm.setPosition(servoWinchArmInitPos);
+
+        moveTimeP(1450, .6, 43);
     }
 
     private void Pturn(double angle, int msTimeout) {
-        double kP = .75/90;
+        double kP = .35/90;
+        double minSpeed = .2;
+        double maxSpeed = .6;
         time.reset();
 
         while (Math.abs(imu.getTrueDiff(angle)) > .5 && time.milliseconds() < msTimeout && opModeIsActive()) {
             double angleError = imu.getTrueDiff(angle);
-            double minSpeed = .25;
 
             double PIDchange = kP * angleError;
 
-            if (PIDchange > 0 && PIDchange < .25)
-                PIDchange = .25;
-            else if (PIDchange < 0 && PIDchange > -.25)
-                PIDchange = -.25;
+            if (PIDchange > 0 && PIDchange < minSpeed)
+                PIDchange = minSpeed;
+            else if (PIDchange < 0 && PIDchange > -minSpeed)
+                PIDchange = -minSpeed;
 
-            motorBL.setPower(-PIDchange);
-            motorFL.setPower(-PIDchange);
-            motorBR.setPower(PIDchange);
-            motorFR.setPower(PIDchange);
+            motorBL.setPower(Range.clip(-PIDchange, -maxSpeed, maxSpeed));
+            motorFL.setPower(Range.clip(-PIDchange, -maxSpeed, maxSpeed));
+            motorBR.setPower(Range.clip(PIDchange, -maxSpeed, maxSpeed));
+            motorFR.setPower(Range.clip(PIDchange, -maxSpeed, maxSpeed));
 
             telemetry.addData("angleError: ", angleError);
             telemetry.addData("PIDCHANGE: ", PIDchange);
@@ -140,13 +189,27 @@ public class SingleSampleCrater extends CustomLinearOpMode {    //test for red d
         stopMotors();
     }
 
-    public void moveTime(double msTime, double leftPow, double rightPow) throws InterruptedException {
+    public void moveTimeP(double msTime, double power, double angle) throws InterruptedException {
         time.reset();
-        motorBL.setPower(leftPow);
-        motorFL.setPower(leftPow);
-        motorBR.setPower(rightPow);
-        motorFR.setPower(rightPow);
-        while (time.milliseconds() < msTime) {}
+
+        double kPangle = 1.0/90.0;
+
+        while (time.milliseconds() < msTime) {
+            double angleError = imu.getTrueDiff(angle);
+            double PIDchangeAngle = kPangle * angleError;
+
+            //if (power > 0) {
+            motorBL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
+            motorFL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
+            motorBR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
+            motorFR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
+            //} else if (power < 0) {
+            //  motorBL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
+            // motorFL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
+            //motorBR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
+            //motorFR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
+            //}
+        }
         stopMotors();
     }
 
@@ -157,37 +220,49 @@ public class SingleSampleCrater extends CustomLinearOpMode {    //test for red d
         motorFR.setPower(0);
     }
 
-    public void moveToDistP(double inches, double angle) {
+    public void moveToDistP(double inches, double angle, double timeout) {
         double kPdist = .03;
-        double kPangle = 5/90;
-        while ((Math.abs(getDistB() - inches) > .25 || imu.getTrueDiff(angle) > .5) && opModeIsActive()) {
+        double kPangle = .9/90.0;
+
+        double minDrive = .15;
+        double maxDrive = .5;
+
+        time.reset();
+        while ((Math.abs(getDistB() - inches) > .25 || imu.getTrueDiff(angle) > .5) && opModeIsActive() && time.milliseconds() < timeout) {
 
             double distError = inches - getDistB();
-            double PIDchangeDist = -kPdist * distError;
+            double PIDchangeDist = -Range.clip(-kPdist * distError, -maxDrive, maxDrive);
+
+            if (PIDchangeDist < minDrive && PIDchangeDist > 0) {
+                PIDchangeDist = minDrive;
+            } else if (PIDchangeDist > -minDrive && PIDchangeDist < 0) {
+                PIDchangeDist = -minDrive;
+            }
 
             double angleError = imu.getTrueDiff(angle);
             double PIDchangeAngle = kPangle * angleError;
 
-            motorBL.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -1, 1));
-            motorFL.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -1, 1));
-            motorBR.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -1, 1));
-            motorFR.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -1, 1));
+            motorBL.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -1, 1));
+            motorFL.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -1, 1));
+            motorBR.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -1, 1));
+            motorFR.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -1, 1));
         }
         stopMotors();
     }
+
 
     public void moveToEncoder(double encoder, double power, double angle) {
         motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         idle();
         motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        double kPangle = 5/90;
-        telemetry.addData("motorFL: ", motorFL.getCurrentPosition());
+        double kPangle = 1.0/90.0;
 
         if (encoder > 0) {
             while (motorFL.getCurrentPosition() < encoder && opModeIsActive()) {
 
                 double angleError = imu.getTrueDiff(angle);
                 double PIDchangeAngle = kPangle * angleError;
+
 
                 motorBL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
                 motorFL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
@@ -201,32 +276,66 @@ public class SingleSampleCrater extends CustomLinearOpMode {    //test for red d
                 double angleError = imu.getTrueDiff(angle);
                 double PIDchangeAngle = kPangle * angleError;
 
-                motorBL.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
-                motorFL.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
-                motorBR.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
-                motorFR.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
-                telemetry.addData("motorBL: ", motorFL.getCurrentPosition());
-                telemetry.update();
+
+                motorBL.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
+                motorFL.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
+                motorBR.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
+                motorFR.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
+            }
+        }
+        stopMotors();
+    }
+
+    public void moveToEncoderT(double encoder, double power, double angle, double msTimeout) {
+        motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        idle();
+        motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        double kPangle = 1.0/90.0;
+        time.reset();
+        if (encoder > 0) {
+            while (motorFL.getCurrentPosition() < encoder && opModeIsActive() && time.milliseconds() < msTimeout) {
+
+                double angleError = imu.getTrueDiff(angle);
+                double PIDchangeAngle = kPangle * angleError;
+
+
+                motorBL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
+                motorFL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
+                motorBR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
+                motorFR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
+            }
+        }
+        else {
+            while (motorFL.getCurrentPosition() > encoder && opModeIsActive() && time.milliseconds() < msTimeout) {
+
+                double angleError = imu.getTrueDiff(angle);
+                double PIDchangeAngle = kPangle * angleError;
+
+
+                motorBL.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
+                motorFL.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
+                motorBR.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
+                motorFR.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
             }
         }
         stopMotors();
     }
 
     public void getBlock() throws InterruptedException {
-        //blockPos = 'C';
+        blockPos = 'C';
 
         Bitmap bitmap = takePic();
 
 
         // basic brute force counter
-        int startRow = 12;
-        int endRow = 18;
-        int leftSrow = 11;
-        int leftErow = 17;
-        int centerSrow = 34;
-        int centerErow = 40;
-        int rightSrow = 54;
-        int rightErow = 60;
+        int startRow = 14;
+        int endRow = 23;
+        int leftSrow = 13;
+        int leftErow = 22;
+        int centerSrow = 35;
+        int centerErow = 44;
+        int rightSrow = 56;
+        int rightErow = 65;
 
         BoundingBox left = new BoundingBox(startRow, leftSrow, endRow, leftErow);    //look at images taken from consistent
         BoundingBox center = new BoundingBox(startRow, centerSrow, endRow, centerErow);  //spot in auto and get pixel range
@@ -240,12 +349,9 @@ public class SingleSampleCrater extends CustomLinearOpMode {    //test for red d
         else if (yellowValOfBox(bitmap, right) > yellowValOfBox(bitmap, center))
             blockPos = 'R';
 
-        if (blockPos == 'L')
-            saveBox(bitmap, left);
-        else if (blockPos == 'C')
-            saveBox(bitmap, center);
-        else
-            saveBox(bitmap, right);
+        //saveBox(bitmap, left);
+        //saveBox(bitmap.copy(Bitmap.Config.RGB_565, true), center);
+        //saveBox(bitmap.copy(Bitmap.Config.RGB_565, true), right);
 
         // multi location pixel scanner (better but much slower)
 
@@ -297,8 +403,8 @@ public class SingleSampleCrater extends CustomLinearOpMode {    //test for red d
     public int whiteValOfBox(Bitmap bmp, BoundingBox bb) {
         int whiteSum = 0;
 
-        for (int r = bb.startRow; r < bb.endRow; r++) {
-            for (int c = bb.startCol;  c < bb.endCol; c++) {
+        for (int r = bb.startRow; r < bb.endRow && opModeIsActive(); r++) {
+            for (int c = bb.startCol;  c < bb.endCol && opModeIsActive(); c++) {
                 int color = bmp.getPixel(c, r);
                 int R = (color >> 16) & 0xff;
                 int G = (color >>  8) & 0xff;
@@ -315,13 +421,13 @@ public class SingleSampleCrater extends CustomLinearOpMode {    //test for red d
         int ySum = 0;
 
         //scans bounding box
-        for (int r = bb.startRow; r < bb.endRow; r++) {
-            for (int c = bb.startCol;  c < bb.endCol; c++) {
+        for (int r = bb.startRow; r < bb.endRow && opModeIsActive(); r++) {
+            for (int c = bb.startCol;  c < bb.endCol && opModeIsActive(); c++) {
                 int color = bmp.getPixel(c, r);
                 int R = (color >> 16) & 0xff;
                 int G = (color >>  8) & 0xff;
                 int B = color & 0xff;
-                int yellow = Math.min(R, G) - B / 2 > 0 ? Math.min(R, G) - B / 2 : 0;
+                int yellow = Math.min(R, G) - B > 0 ? Math.min(R, G) - B : 0;
                 ySum += yellow;
             }
         }
@@ -451,7 +557,7 @@ public class SingleSampleCrater extends CustomLinearOpMode {    //test for red d
             //File dir = new File(sdCard.getAbsolutePath() + "/dir1");
             //dir.mkdirs();
 
-            File file = new File(sdCard, "pixel_match" + currFileNum++ + ".png");
+            File file = new File(sdCard, "pixel_match_" + currFileNum++ + ".png");
 
             FileOutputStream fos = new FileOutputStream(file);
 

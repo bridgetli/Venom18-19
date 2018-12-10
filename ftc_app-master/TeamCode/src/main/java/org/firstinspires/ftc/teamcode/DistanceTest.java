@@ -11,6 +11,6 @@ public class DistanceTest extends CustomOpMode {
         initizialize();
     }
     public void loop() {
-        telemetry.addData("Front Distance", getDist());
+        telemetry.addData("Front Distance", getDistB());
     }
 }

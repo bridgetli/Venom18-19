@@ -63,7 +63,6 @@ public class mainTele extends CustomOpMode {
         }
         telemetry.addData("Right motor speeds", yR);
         telemetry.addData("Left motor speed", yL);
-        telemetry.addData("Distance:", getDist());
         telemetry.addData("motorScale: ", motorScale);
         telemetry.addData("Servo Winch Arm Pos", servoWinchArm.getPosition());
         telemetry.addData("motorFL: ", motorFL.getCurrentPosition());
@@ -71,7 +70,10 @@ public class mainTele extends CustomOpMode {
         telemetry.addData("motorFR: ", motorFR.getCurrentPosition());
         telemetry.addData("motorBR: ", motorBR.getCurrentPosition());
         telemetry.addData("imuYaw: ", imu.getYaw());
-        telemetry.addData("angle error from 45: ", imu.getTrueDiff(45));
+        //telemetry.addData("angle error from 45: ", imu.getTrueDiff(45));
+        //telemetry.addData("rangeB: ", getDistB());
+        //telemetry.addData("rangeL: ", getDistL());
+        //telemetry.addData("totalDist: ", getDistB() - getDistL());
         telemetry.update();
     }
 }

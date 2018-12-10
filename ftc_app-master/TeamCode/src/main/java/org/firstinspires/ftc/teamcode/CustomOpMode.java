@@ -26,15 +26,16 @@ public class CustomOpMode extends OpMode{
     //winch motors???
     //DcMotor motorWinchUp;
     //DcMotor motorWinchDown;
-    ModernRoboticsI2cRangeSensor rangeSensor;
+    ModernRoboticsI2cRangeSensor rangeSensorB;
+    ModernRoboticsI2cRangeSensor rangeSensorL;
 
     final double winchDownPower = .5;
     final double winchUpPower = .5;
 
     Servo servoWinchArm;
 
-    final double servoWinchArmDownPos = .1;
-    final double servoWinchArmUpPos = .40;
+    final double servoWinchArmDownPos = .09;
+    final double servoWinchArmUpPos = .3;
 
     //Servo servoMarker;
 
@@ -60,6 +61,9 @@ public class CustomOpMode extends OpMode{
         motorBL = hardwareMap.dcMotor.get("motorBL");
         motorWL = hardwareMap.dcMotor.get("motorWL");
         motorWR = hardwareMap.dcMotor.get("motorWR");
+
+        rangeSensorB = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensorB");
+        rangeSensorL = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensorL");
 
        // motorWinchUp = hardwareMap.dcMotor.get("motorWinchUp");
         //motorWinchDown = hardwareMap.dcMotor.get("motorWinchDown");
@@ -100,8 +104,6 @@ public class CustomOpMode extends OpMode{
         imu.IMUinit(hardwareMap);
 
         telemetry.addData("IMU Initialization Complete", "");
-
-        rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensor");;
 
         telemetry.addData("Initialization Complete", "");
 
@@ -165,8 +167,21 @@ public class CustomOpMode extends OpMode{
         }
         else return joyStickVal;
     }
-    public double getDist() {
-        return rangeSensor.getDistance(DistanceUnit.INCH);
+
+    public double getDistB() {
+        double dist = rangeSensorB.getDistance(DistanceUnit.INCH);
+        while ((dist > 200 || Double.isNaN(dist))) {
+            dist = rangeSensorB.getDistance(DistanceUnit.INCH);
+        }
+        return dist;
+    }
+
+    public double getDistL() {
+        double dist = rangeSensorL.getDistance(DistanceUnit.INCH);
+        while ((dist > 200 || Double.isNaN(dist))) {
+            dist = rangeSensorL.getDistance(DistanceUnit.INCH);
+        }
+        return dist;
     }
 
 
