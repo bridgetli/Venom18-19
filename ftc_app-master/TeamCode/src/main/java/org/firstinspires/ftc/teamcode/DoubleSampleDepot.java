@@ -120,22 +120,21 @@ public class DoubleSampleDepot extends CustomLinearOpMode {
 
         sleep(100);
 
-        moveToEncoder(600, .2, 0);
+        moveToEncoder(580, .2, 0);
         stopAllMotors();
         sleep(1000);
         if (blockPos == 'R' || blockPos == '?') {
-            Pturn(45, 3000);
-            sleep(1000);
-            moveToEncoder(1500, .25, 45);
-            sleep(1000);
-            Pturn(135, 3000);
-            sleep(1000);
-            moveTimeP(2000, -.4, 135);
-            moveToEncoder(1000, .25, 130);
+            Pturn(45, 2500);
+            sleep(500);
+            moveToEncoder(1500, .35, 45);
+            sleep(500);
+            Pturn(135, 2500);
+            sleep(500);
+            moveTimeP(400, -.35, 135);
             servoWinchArm.setPosition(servoWinchArmDepositPos);
             sleep(1500);
             servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveToEncoder(1350, .25, 135);
+            //moveToEncoder(1350, .25, 135);
         } else if (blockPos == 'C') {
 
             moveToEncoder(1500, .25, 0);
@@ -151,47 +150,59 @@ public class DoubleSampleDepot extends CustomLinearOpMode {
             servoWinchArm.setPosition(servoWinchArmInitPos);
             //moveToEncoder(1350, .25, 135);
         } else {
-            Pturn(-45, 3000);
+            Pturn(-45, 2500);
             sleep(500);
-            moveToEncoder(1400, .35, -45);
+            moveToEncoder(1300, .35, -45);
             sleep(500);
-            Pturn(45, 3000);
-            moveTimeP(1250, .4, 45);
+            Pturn(45, 2500);
+            moveTimeP(1300, .4, 45);
             //deposit marker
-            Pturn(135, 3000);
-            moveTimeP(1000, -.4, 135);
-            moveToEncoder(1000, .25, 130);
+            Pturn(135, 2500);
+            //moveTimeP(1000, -.4, 135);
+            moveToEncoder(600, .25, 135);
             servoWinchArm.setPosition(servoWinchArmDepositPos);
             sleep(1500);
             servoWinchArm.setPosition(servoWinchArmInitPos);
-            moveToEncoder(1350, .25, 135);
+            //moveToEncoder(1350, .25, 135);
         }
 
         //moveToDistP(27, 135, 3000);
         moveToLineP(45, 135, 4500);
 
-        Pturn(180, 2000);
-        sleep(500);
-        moveToEncoder(1700, .35, 180);
+
+
 
         if (blockPos == 'L') {
             //Pturn(45, 2000);
             //moveToEncoder(200, .4, 45);
+            moveTimeP(1500, .3, 150);
             Pturn(70, 1000);
-            moveToEncoder(200, .4, 90);
+            moveTimeP(500, .4, 70);
+            stopMotors();
         } else if (blockPos == 'C') {
+
+
+            Pturn(180, 2000);
+            sleep(500);
+            moveToEncoder(1700, .35, 180);
+
             Pturn(90, 2000);
             moveTimeP(1000, .4, 90);
         } else {
-            Pturn(155, 2000);
-            moveTimeP(1250, .4, 155);
-            moveTimeP(750, .4, 125);
+
+
+            Pturn(180, 2000);
+            sleep(500);
+            moveToEncoder(2200, .35, 180);
+
+            Pturn(90, 2000);
+            moveTimeP(1000, .4, 90);
         }
         //moveTimeP(2500, .3, 135);
     }
 
     private void Pturn(double angle, int msTimeout) {
-        double kP = .25/90;
+        double kP = .35/90;
         double minSpeed = .2;
         double maxSpeed = .6;
         time.reset();

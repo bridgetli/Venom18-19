@@ -71,9 +71,9 @@ public class mainTele extends CustomOpMode {
         telemetry.addData("motorBR: ", motorBR.getCurrentPosition());
         telemetry.addData("imuYaw: ", imu.getYaw());
         //telemetry.addData("angle error from 45: ", imu.getTrueDiff(45));
-        telemetry.addData("rangeB: ", getDistB());
-        telemetry.addData("rangeL: ", getDistL());
-        telemetry.addData("totalDist: ", getDistB() - getDistL());
+        //telemetry.addData("rangeB: ", getDistB());
+        //telemetry.addData("rangeL: ", getDistL());
+        //telemetry.addData("totalDist: ", getDistB() - getDistL());
         telemetry.update();
     }
 }

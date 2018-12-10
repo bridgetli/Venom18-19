@@ -55,7 +55,7 @@ public class CustomLinearOpMode extends LinearOpMode {
 
     Servo servoWinchArm;
     final double servoWinchArmInitPos = .1;
-    final double servoWinchArmDepositPos = .75;
+    final double servoWinchArmDepositPos = .79;
 
     final double winchDownPower = .5;
     final double winchUpPower = .5;
