@@ -123,10 +123,10 @@ public class SingleSampleCrater extends CustomLinearOpMode {
         moveToEncoder(560, .2, 0);
         stopAllMotors();
         sleep(250); //500
-        //TODO: optimize paths, worry about this later, focus on depot side first; averages 18 sec currently
+        //TODO: optimize paths, focus on depot side first; averages 18 sec currently; goal 15 sec?
         if (blockPos == 'R' || blockPos == '?') {
             Pturn(45, 2500);
-            sleep(500);
+            sleep(200); //500
             moveToEncoder(500, .35, 45);
             sleep(200);
             moveToEncoder(-480, .35, 45);
@@ -140,7 +140,7 @@ public class SingleSampleCrater extends CustomLinearOpMode {
             Pturn(-90, 2500);
         } else {
             Pturn(-45, 2500);
-            sleep(500);
+            sleep(200); //500
             moveToEncoder(500, .35, -45);
             sleep(200);
             moveToEncoder(-480, .35, -45);
@@ -148,14 +148,14 @@ public class SingleSampleCrater extends CustomLinearOpMode {
         }
 
         moveToEncoderT(2100, .3, -90, 4000);
-        sleep(500);
+        sleep(250); //500
         Pturn(45, 2500);
         moveToEncoderT(-1200, .3,46, 4000);
 
         servoWinchArm.setPosition(servoWinchArmDepositPos);
         sleep(750);
         servoWinchArm.setPosition((servoWinchArmDepositPos+servoWinchArmInitPos) / 1.6);
-        sleep(750);
+        sleep(200); //750, shrink this wait on ALL autos
         servoWinchArm.setPosition(servoWinchArmInitPos);
 
         moveTimeP(1450, .6, 43);
