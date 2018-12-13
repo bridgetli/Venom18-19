@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
@@ -19,7 +18,7 @@ public class SingleMineralTest extends CustomLinearOpMode {
     private TFObjectDetector tfod;
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
         //initizialize(); once you can test this on the robot
 
         initVuforia();
@@ -30,65 +29,65 @@ public class SingleMineralTest extends CustomLinearOpMode {
         waitForStart();
 
         if (opModeIsActive()) {
-            if (tfod != null) {
+            if (tfod != null)
                 tfod.activate();
-            }
 
-            boolean centered = false;
-            while (opModeIsActive() || !centered) {
+            float top;
+            float left;
+
+            //TODO: adjust these as needed; make sure to retest on phone mount when possible
+            int topBounds = 550;
+            int bottomBounds = 350;
+            int leftBounds = 250;
+            int rightBounds = 150;
+
+            while (opModeIsActive() /*|| !centered*/) {
                 if (tfod != null) {
                     List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                     if (updatedRecognitions != null) {
                         telemetry.addData("# of Objects Detected", updatedRecognitions.size());
-                        if (updatedRecognitions.size() > 0) {
+                        if (updatedRecognitions.size() == 1) {
                             Recognition recognition = updatedRecognitions.get(0);
                             if (recognition.getLabel().equals(LABEL_GOLD_MINERAL))
                                 telemetry.addLine("I see a gold mineral");
                             else
                                 telemetry.addLine("I see a white mineral");
-                            //all values based on phone sitting upright (camera up)
                             telemetry.addData("Top", recognition.getTop());
                             telemetry.addData("Left", recognition.getLeft());
-                            telemetry.addData("Degrees to Object",  recognition.estimateAngleToObject(AngleUnit.DEGREES));
-                            telemetry.addLine("");
 
-                            //TODO: move to mineral?
-                            if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                                float top;
-                                double degrees;
-                                while (!centered && updatedRecognitions.size() == 1 && opModeIsActive()) {
-                                    degrees = recognition.estimateAngleToObject(AngleUnit.DEGREES);
-                                    if (degrees < 5 && degrees > -5) {
-                                        centered = true;
-                                    } else if (degrees > 5) {
-                                        //turn left
-                                        turn(2.5);
-                                    } else {
-                                        //turn right
-                                        turn(-2.5);
-                                    }
-                                    wait(100);
-                                }
-                                centered = false;
-                                while (!centered && updatedRecognitions.size() > 0 && opModeIsActive()) {
-                                    top = recognition.getTop();
-                                    if (top < 600 && top > 450) {
-                                        centered = true;
-                                    } else if (top > 600) {
-                                        //back up
-                                        moveToDistance(-2.5);
-                                    } else {
-                                        //move forward
-                                        moveToDistance(2.5);
-                                    }
-                                    wait(100);
-                                }
+                            //TODO: move to mineral
+                            top = recognition.getTop();
+                            if (top < topBounds && top > bottomBounds) {
+                                telemetry.addLine("No action needed");
+                            } else if (top > topBounds) {
+                                //turn left
+                                //turn(2.5);
+                                telemetry.addLine("Turn left");
+                            } else {
+                                //turn right
+                                //turn(-2.5);
+                                telemetry.addLine("Turn Right");
                             }
+                            //wait(100);
+
+                            left = recognition.getLeft();
+                            if (left < leftBounds && left > rightBounds) {
+                                telemetry.addLine("No action needed");
+                            } else if (left > leftBounds) {
+                                //back up
+                                //moveToDistance(-2.5);
+                                telemetry.addLine("Move forwards?");
+                            } else {
+                                //move forward
+                                //moveToDistance(2.5);
+                                telemetry.addLine("Move backwards?");
+                            }
+                            //wait(100);
                             //*/
                         }
-                        telemetry.update();
                     }
                 }
+                telemetry.update();
             }
         }
 
@@ -115,8 +114,7 @@ public class SingleMineralTest extends CustomLinearOpMode {
      * Initialize the Tensor Flow Object Detection engine.
      */
     private void initTfod() {
-        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
-                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
