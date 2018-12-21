@@ -7,7 +7,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import java.util.List;
 
-@Autonomous(name = "Mineral Location Test", group = "test")
+@Autonomous(name = "Mineral Location Test", group = "tftest")
 public class SingleMineralTest extends CustomLinearOpMode {
 
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";

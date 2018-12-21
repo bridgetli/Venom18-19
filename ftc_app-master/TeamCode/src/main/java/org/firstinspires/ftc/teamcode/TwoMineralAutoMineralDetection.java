@@ -7,8 +7,8 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import java.util.List;
 
-@Autonomous(name = "AutoMineralDetection", group = "tftest")
-public class TFTest extends CustomLinearOpMode {
+@Autonomous(name = "AutoTwoMineralDetection", group = "tftest")
+public class TwoMineralAutoMineralDetection extends CustomLinearOpMode {
 
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
@@ -36,9 +36,8 @@ public class TFTest extends CustomLinearOpMode {
 
         if (opModeIsActive()) {
             /* Activate Tensor Flow Object Detection. */
-            if (tfod != null) {
+            if (tfod != null)
                 tfod.activate();
-            }
 
             while (opModeIsActive()) {
                 if (tfod != null) {
@@ -47,7 +46,7 @@ public class TFTest extends CustomLinearOpMode {
                     List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                     if (updatedRecognitions != null) {
                         telemetry.addData("# of Objects Detected", updatedRecognitions.size());
-                        if (updatedRecognitions.size() == 3) {
+                        if (updatedRecognitions.size() == 2) {
                             int goldMineralX = -1;
                             int silverMineral1X = -1;
                             int silverMineral2X = -1;
@@ -69,25 +68,20 @@ public class TFTest extends CustomLinearOpMode {
                                 }
                                  */
                             }
-                            if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
-                                if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
-                                    telemetry.addData("Gold Mineral Position", "Right");
-                                } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
-                                    telemetry.addData("Gold Mineral Position", "Left");
-                                } else {
-                                    telemetry.addData("Gold Mineral Position", "Center");
-                                }
-                            }
+                            if (goldMineralX == -1)
+                                telemetry.addData("Gold Mineral Position", "Right");
+                            else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X)
+                                telemetry.addData("Gold Mineral Position", "Left");
+                            else
+                                telemetry.addData("Gold Mineral Position", "Center");
                         }
                         telemetry.update();
                     }
                 }
             }
         }
-
-        if (tfod != null) {
+        if (tfod != null)
             tfod.shutdown();
-        }
     }
 
     /**
