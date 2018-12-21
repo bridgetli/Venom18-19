@@ -18,32 +18,48 @@ import java.util.Arrays;
 @Autonomous(name = "TFLiteSingleImageInference", group = "test")
 public class TFLiteSingleImageInference extends CustomLinearOpMode {
 
-    private MappedByteBuffer tfliteModel;
-    private Interpreter tflite;
-    private ByteBuffer imgData = null;
-    private int[] intValues;
-    private float[][] labelProbArray = null;
+    private ByteBuffer imgData = ByteBuffer.allocateDirect(4 * 28 * 28);
+    private float[][] labelProbArray = new float[1][10];
+
     private VuforiaLocalizer vuforia;
-    private String MODEL_NAME = "roboModel.tflite";
-    private String IMAGE_FILE = "fashion-mnist-sprite-GRAY.png";
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
+        MappedByteBuffer tfliteModel;
+        Interpreter tflite = null;
+        String IMAGE_PATH = "fashion-mnist-sprite-GRAY.png";
+        Bitmap bmp;
+
         telemetry.addLine("Press PLAY to start");
         telemetry.update();
         waitForStart();
 
-        try {
-            tfliteModel = loadModelFile(hardwareMap.appContext.getApplicationContext());
-            tflite = new Interpreter(tfliteModel);
+        boolean modelLoaded = false, imgLoaded = false;
+        while(!modelLoaded || !imgLoaded) {
+            if (!modelLoaded) {
+                try {
+                    tfliteModel = loadModelFile(hardwareMap.appContext.getApplicationContext());
+                    tflite = new Interpreter(tfliteModel);
 
-            Bitmap bmp = BitmapFactory.decodeStream(hardwareMap.appContext.getAssets().open(IMAGE_FILE));
-            convertBitmapToByteBuffer(bmp);
-            telemetry.addLine("Model & Image Successfully Loaded");
-        } catch (Exception e) {
-            telemetry.addData("Model not loaded", e.toString());
+                    telemetry.addLine("Model Successfully Loaded");
+                    modelLoaded = true;
+                } catch (Exception e) {
+                    telemetry.addData("Model not loaded", e.toString());
+                }
+            }
+            if (!imgLoaded) {
+                try {
+                    bmp = BitmapFactory.decodeStream(hardwareMap.appContext.getAssets().open(IMAGE_PATH));
+                    convertBitmapToByteBuffer(bmp);
+
+                    telemetry.addLine("Image Successfully Loaded");
+                    imgLoaded = true;
+                } catch (Exception e) {
+                    telemetry.addData("Image not loaded", e.toString());
+                }
+            }
+            telemetry.update();
         }
-        telemetry.update();
 
         while(opModeIsActive()) {
             try {
@@ -58,7 +74,8 @@ public class TFLiteSingleImageInference extends CustomLinearOpMode {
     }
 
     private MappedByteBuffer loadModelFile(Context activity) throws IOException {
-        AssetFileDescriptor fileDescriptor = activity.getAssets().openFd(MODEL_NAME);
+        String MODEL_PATH = "roboModel.tflite";
+        AssetFileDescriptor fileDescriptor = activity.getAssets().openFd(MODEL_PATH);
         FileInputStream inputStream = new FileInputStream(fileDescriptor.getFileDescriptor());
         FileChannel fileChannel = inputStream.getChannel();
         long startOffset = fileDescriptor.getStartOffset();
@@ -67,21 +84,26 @@ public class TFLiteSingleImageInference extends CustomLinearOpMode {
     }
 
     private void convertBitmapToByteBuffer(Bitmap bitmap) {
-        if (imgData == null) {
-            return;
-        }
+        int[] intValues = new int[28*28];
         imgData.rewind();
-        intValues = new int[28*28];
         bitmap.getPixels(intValues, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
         // Convert the image to floating point.
         int pixel = 0;
         for (int i = 0; i < 28; ++i) {
             for (int j = 0; j < 28; ++j) {
                 final int val = intValues[pixel++];
-                imgData.putFloat(((val >> 16) & 0xFF) / 255.f);
-                imgData.putFloat(((val >> 8) & 0xFF) / 255.f);
-                imgData.putFloat((val & 0xFF) / 255.f);
+                addPixelValue(val);
             }
         }
+    }
+
+    private void addPixelValue(int pixelValue) {
+        imgData.put((byte) ((pixelValue >> 16) & 0xFF));
+        imgData.put((byte) ((pixelValue >> 8) & 0xFF));
+        imgData.put((byte) (pixelValue & 0xFF));
+        /*
+        imgData.putFloat(((pixelValue >> 16) & 0xFF) / 255.f);
+        imgData.putFloat(((pixelValue >> 8) & 0xFF) / 255.f);
+        imgData.putFloat((pixelValue & 0xFF) / 255.f); */
     }
 }
