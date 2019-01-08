@@ -57,35 +57,35 @@ public class PixelCalibration extends CustomLinearOpMode {    //test for red dou
         // basic brute force counter
         int startRow = 14;
         int endRow = 23;
-        int leftSrow = 13;
-        int leftErow = 22;
-        int centerSrow = 35;
-        int centerErow = 44;
-        int rightSrow = 56;
-        int rightErow = 65;
+        int leftScol = 13;
+        int leftEcol = 22;              //MAKE SURE TO COPY THESE VALUES INTO
+        int centerScol = 35;
+        int centerEcol = 44;
+        int rightScol = 56;
+        int rightEcol = 65;
 
         Bitmap bitmap0 = takePic();
-        BoundingBox left = new BoundingBox(startRow, leftSrow, endRow, leftErow);    //look at images taken from consistent
+        BoundingBox left = new BoundingBox(startRow, leftScol, endRow, leftEcol);    //look at images taken from consistent
         saveBox(bitmap0, left);
 
         Bitmap bitmap1 = takePic();
-        BoundingBox center = new BoundingBox(startRow, centerSrow, endRow, centerErow);  //spot in auto and get pixel range
+        BoundingBox center = new BoundingBox(startRow, centerScol, endRow, centerEcol);  //spot in auto and get pixel range
         saveBox(bitmap1, center);
 
         Bitmap bitmap2 = takePic();
-        BoundingBox right = new BoundingBox(startRow, rightSrow, endRow, rightErow);   //of left center and right
+        BoundingBox right = new BoundingBox(startRow, rightScol, endRow, rightEcol);   //of left center and right
         saveBox(bitmap2, right);
 
     }
 
-    /*public void getBlock() throws InterruptedException {
+    /*public void getBlock() thcols InterruptedException {
         //blockPos = 'C';
 
         Bitmap bitmap = takePic();
 
 
         // basic brute force counter
-        int startRow = 30;
+        int startcol = 30;
         int endRow = 36;
         int leftSrow = 20;
         int leftErow = 27;
