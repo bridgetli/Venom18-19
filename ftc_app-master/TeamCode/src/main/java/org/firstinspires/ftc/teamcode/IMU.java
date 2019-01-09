@@ -66,6 +66,7 @@ public class IMU extends LinearOpMode {
         IMU = imu;
     }
 
+    //Just basic init stuff; run in robot init method
     public void IMUinit(HardwareMap map) {
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
@@ -83,21 +84,28 @@ public class IMU extends LinearOpMode {
 
     }
 
-    public double getYaw() { //returns yaw between -179.9999 and 180 degrees
-        angles = IMU.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
-        return -Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
-    }
+    // There's a good chance these are gonna be messed up, use TeleOp to change them around (just the firstAngle, secondAngle, thirdAngle bit)
 
-    public double getPitch() { //returns yaw between -179.9999 and 180 degrees
+    public double getYaw() { //returns yaw between -179.9999 and 180 degrees
+        //yaw is side to side motion (important for turning)
         angles = IMU.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
         return Double.parseDouble(formatAngle(angles.angleUnit, angles.thirdAngle));
     }
 
+    public double getPitch() { //returns yaw between -179.9999 and 180 degrees
+        //pitch is up and down like the nose of an airplane
+        angles = IMU.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
+        return -Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
+    }
+
     public double getRoll() {
+        //roll is side to side rotation (think about an airplane doing a barrel roll)
         angles = IMU.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
         return Double.parseDouble(formatAngle(angles.angleUnit, angles.secondAngle));
     }
 
+    // This method calculates the smallest difference between a specified angle and the current angle
+    // Yeah don't change this cause I don't really remember how I came up with this
     public double getTrueDiff(double origAngle) {
         double currAngle = getYaw();
         if (currAngle >= 0 && origAngle >= 0 || currAngle <= 0 && origAngle <= 0)

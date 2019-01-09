@@ -55,32 +55,5 @@ public class TensorFlowNavigation extends CustomLinearOpMode {
 
     }
 
-    private void Pturn(double angle, int msTimeout) {
-        ElapsedTime time = new ElapsedTime();
-        double kP = .5/90;
-        double minSpeed = .2;
-        double maxSpeed = .6;
-        time.reset();
 
-        while (Math.abs(imu.getTrueDiff(angle)) > .5 && time.milliseconds() < msTimeout && opModeIsActive()) {
-            double angleError = imu.getTrueDiff(angle);
-
-            double PIDchange = kP * angleError;
-
-            if (PIDchange > 0 && PIDchange < minSpeed)
-                PIDchange = minSpeed;
-            else if (PIDchange < 0 && PIDchange > -minSpeed)
-                PIDchange = -minSpeed;
-
-            motorBL.setPower(Range.clip(-PIDchange, -maxSpeed, maxSpeed));
-            motorFL.setPower(Range.clip(-PIDchange, -maxSpeed, maxSpeed));
-            motorBR.setPower(Range.clip(PIDchange, -maxSpeed, maxSpeed));
-            motorFR.setPower(Range.clip(PIDchange, -maxSpeed, maxSpeed));
-
-            telemetry.addData("angleError: ", angleError);
-            telemetry.addData("PIDCHANGE: ", PIDchange);
-            telemetry.update();
-        }
-        stopAllMotors();
-    }
 }
