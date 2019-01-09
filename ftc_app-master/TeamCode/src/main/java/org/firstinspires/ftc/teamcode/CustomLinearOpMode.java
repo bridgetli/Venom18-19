@@ -503,62 +503,6 @@ public class CustomLinearOpMode extends LinearOpMode {
         stopDriveMotors();
     }
 
-    /*TODO: add this method to the auto
-    pos = the position of the gold mineral
-    -1 = initial value, means no minerals were detected (it should never return this value, if it does, you probably fucked something up)
-    0 = left
-    1 = center
-    2 = right
-     */
-    public int getGoldCubePos() {
-        int pos = -1;
-        int numAttempts = 10; //TODO: change if necessary
-        int attempts = 0;
-
-        if (tfod != null) {
-            tfod.activate();
-        }
-
-        while (pos == -1 && attempts < numAttempts) {
-            if (tfod != null) {
-                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                if (updatedRecognitions != null) {
-                    if (updatedRecognitions.size() == 3) {
-                        int goldMineralX = -1;
-                        int silverMineral1X = -1;
-                        int silverMineral2X = -1;
-                        for (Recognition recognition : updatedRecognitions) {
-                            if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                                goldMineralX = (int) recognition.getLeft();
-                            } else if (silverMineral1X == -1) {
-                                silverMineral1X = (int) recognition.getLeft();
-                            } else {
-                                silverMineral2X = (int) recognition.getLeft();
-                            }
-                        }
-                        if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
-                            if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
-                                telemetry.addData("Gold Mineral Position", "Left");
-                                pos = 0;
-                            } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
-                                telemetry.addData("Gold Mineral Position", "Right");
-                                pos = 1;
-                            } else {
-                                telemetry.addData("Gold Mineral Position", "Center");
-                                pos = 2;
-                            }
-                        }
-                    }
-                    telemetry.update();
-                }
-            }
-            attempts++;
-        }
-        if (tfod != null)
-            tfod.shutdown();
-        return pos;
-    }
-
     /**
      * Initialize the Vuforia localization engine.
      */
@@ -631,6 +575,51 @@ public class CustomLinearOpMode extends LinearOpMode {
         motorBL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
+    //TODO replace getBlock with this method
+    public int getGoldCubePos() {
+        char pos = 'C';
+        int numAttempts = 5; //adjust if necessary
+        if (tfod != null)
+            tfod.activate();
+        for(int attempts = 0; attempts < numAttempts; attempts++) {
+            if (tfod != null) {
+                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                if (updatedRecognitions != null) {
+                    if (updatedRecognitions.size() == 3) {
+                        int goldMineralX = -1;
+                        int silverMineral1X = -1;
+                        int silverMineral2X = -1;
+                        for (Recognition recognition : updatedRecognitions) {
+                            if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
+                                goldMineralX = (int) recognition.getLeft();
+                            } else if (silverMineral1X == -1) {
+                                silverMineral1X = (int) recognition.getLeft();
+                            } else {
+                                silverMineral2X = (int) recognition.getLeft();
+                            }
+                        }
+                        if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
+                            if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
+                                telemetry.addData("Gold Mineral Position", "Left");
+                                pos = 'L';
+                            } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
+                                telemetry.addData("Gold Mineral Position", "Right");
+                                pos = 'R';
+                            } else {
+                                telemetry.addData("Gold Mineral Position", "Center");
+                                pos = 'C';
+                            }
+                        }
+                    }
+                    telemetry.update();
+                }
+            }
+        }
+        if (tfod != null)
+            tfod.shutdown();
+        return pos;
     }
 
     public void getBlock() throws InterruptedException {
