@@ -42,8 +42,6 @@ public class TFTest extends CustomLinearOpMode {
 
             while (opModeIsActive()) {
                 if (tfod != null) {
-                    // getUpdatedRecognitions() will return null if no new information is available since
-                    // the last time that call was made.
                     List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                     if (updatedRecognitions != null) {
                         telemetry.addData("# of Objects Detected", updatedRecognitions.size());
@@ -59,7 +57,7 @@ public class TFTest extends CustomLinearOpMode {
                                 } else {
                                     silverMineral2X = (int) recognition.getTop();
                                 }
-                                /* if we mount phone right-side-up
+                                /* if we mount phone vertical
                                 if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
                                     goldMineralX = (int) recognition.getLeft();
                                 } else if (silverMineral1X == -1) {
