@@ -114,7 +114,7 @@ public class TrollbotAuto extends CustomLinearOpMode {
         waitForStart();
 
         try {
-            release();
+            //release();
         } catch(Exception e) {
             stop();
         }
@@ -281,7 +281,7 @@ public class TrollbotAuto extends CustomLinearOpMode {
     }
 
     // starts 75 inches from the wall (flush with the line)
-    public void knockFirstBlock() {
+    public void knockFirstBlock() throws InterruptedException {
         if (blockLocation.equals("CENTER")) {
             moveToDistance(24);
 
