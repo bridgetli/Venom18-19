@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+
 import java.util.List;
 
 @Autonomous(name = "AutoMineralDetection", group = "tftest")
@@ -19,8 +21,6 @@ public class TFTest extends CustomLinearOpMode {
 
     @Override
     public void runOpMode() {
-        // The TFObjectDetector uses the camera frames from the VuforiaLocalizer, so we create that
-        // first.
         initVuforia();
 
         if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
@@ -29,17 +29,17 @@ public class TFTest extends CustomLinearOpMode {
             telemetry.addData("Sorry!", "This device is not compatible with TFOD");
         }
 
-        /* Wait for the game to begin */
         telemetry.addData(">", "Press Play to start tracking");
         telemetry.update();
         waitForStart();
 
         if (opModeIsActive()) {
-            /* Activate Tensor Flow Object Detection. */
+            //Activate Tensor Flow Object Detection.
             if (tfod != null) {
                 tfod.activate();
             }
 
+            //TODO: test this, because I can guarantee it won't work perfectly on the new robot
             while (opModeIsActive()) {
                 if (tfod != null) {
                     List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
@@ -57,15 +57,6 @@ public class TFTest extends CustomLinearOpMode {
                                 } else {
                                     silverMineral2X = (int) recognition.getTop();
                                 }
-                                /* if we mount phone vertical
-                                if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                                    goldMineralX = (int) recognition.getLeft();
-                                } else if (silverMineral1X == -1) {
-                                    silverMineral1X = (int) recognition.getLeft();
-                                } else {
-                                    silverMineral2X = (int) recognition.getLeft();
-                                }
-                                 */
                             }
                             if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
                                 if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
@@ -88,9 +79,7 @@ public class TFTest extends CustomLinearOpMode {
         }
     }
 
-    /**
-     * Initialize the Vuforia localization engine.
-     */
+    //Initialize the Vuforia localization engine.
     private void initVuforia() {
         /*
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
@@ -106,9 +95,7 @@ public class TFTest extends CustomLinearOpMode {
         // Loading trackables is not necessary for the Tensor Flow Object Detection engine.
     }
 
-    /**
-     * Initialize the Tensor Flow Object Detection engine.
-     */
+    //Initialize the Tensor Flow Object Detection engine.
     private void initTfod() {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());

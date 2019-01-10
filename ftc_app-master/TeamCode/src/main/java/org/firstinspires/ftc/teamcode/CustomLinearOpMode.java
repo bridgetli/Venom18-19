@@ -12,7 +12,6 @@ import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -26,19 +25,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
-//import for_camera_opmodes.LinearOpModeCamera;
-
-import java.util.List;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.util.List;
 
-import static android.graphics.Color.blue;
-import static android.graphics.Color.red;
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.FRONT;
-import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.LABEL_GOLD_MINERAL;
-import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.LABEL_SILVER_MINERAL;
-import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.TFOD_MODEL_ASSET;
+
+//import for_camera_opmodes.LinearOpModeCamera;
 
 public class CustomLinearOpMode extends LinearOpMode {
 
@@ -577,7 +571,7 @@ public class CustomLinearOpMode extends LinearOpMode {
         motorFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
-    //TODO replace getBlock with this method; also, make sure this is up to date with TFTest
+    //TODO replace getBlock with this method; also, make sure this is up to date with TFTest (make sure it works on new robot)
     public void getGoldCubePos() {
         char pos = 'C';
         int numAttempts = 5; //adjust if necessary
