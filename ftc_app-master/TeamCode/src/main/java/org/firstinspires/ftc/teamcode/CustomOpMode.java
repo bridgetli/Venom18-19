@@ -18,8 +18,9 @@ public class CustomOpMode extends OpMode{
     DcMotor motorFL;
     DcMotor motorBR;
     DcMotor motorBL;
-    DcMotor motorWL; //carabiner
-    DcMotor motorWR; //release
+    DcMotor motorLiftUp;
+    DcMotor motorLiftDown1;
+    DcMotor motorLiftDown2;
 
     IMU imu;
 
@@ -59,8 +60,9 @@ public class CustomOpMode extends OpMode{
         motorFL = hardwareMap.dcMotor.get("motorFL");
         motorBR = hardwareMap.dcMotor.get("motorBR");
         motorBL = hardwareMap.dcMotor.get("motorBL");
-        motorWL = hardwareMap.dcMotor.get("motorWL");
-        motorWR = hardwareMap.dcMotor.get("motorWR");
+        motorLiftUp = hardwareMap.dcMotor.get("motorLiftUp");
+        motorLiftDown1 = hardwareMap.dcMotor.get("motorLiftDown1");
+        motorLiftDown2 = hardwareMap.dcMotor.get("motorLiftDown2");
 
         rangeSensorB = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensorB");
         rangeSensorL = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensorL");

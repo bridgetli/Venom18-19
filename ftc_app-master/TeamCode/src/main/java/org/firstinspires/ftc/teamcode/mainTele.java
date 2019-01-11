@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name="mainTele", group="TeleOp")
 public class mainTele extends CustomOpMode {
-    double motorScale = 1;
+    double motorScale = -1;
     public void init() {
         initizialize();
     }
@@ -14,34 +14,41 @@ public class mainTele extends CustomOpMode {
         double yL = gamepad1.left_stick_y;
         double yR = gamepad1.right_stick_y;
 
-
-
-
         if (Math.abs(yR) > .2) {
-            motorBL.setPower(leftABSMotorVal(yR) * motorScale);
-            motorFL.setPower(leftABSMotorVal(yR) * motorScale);
+            //motorBL.setPower(leftABSMotorVal(yR) * motorScale);
+            //motorFL.setPower(leftABSMotorVal(yR) * motorScale);
+            motorBL.setPower(yR * motorScale);
+            motorFL.setPower(yR * motorScale);
         } else {
             motorBL.setPower(0);
             motorFL.setPower(0);
         }
         if(Math.abs(yL) > .2) {
-            motorBR.setPower(rightABSMotorVal(yL) * motorScale);
-            motorFR.setPower(rightABSMotorVal(yL) * motorScale);
+            //motorBR.setPower(rightABSMotorVal(yL) * motorScale);
+            //motorFR.setPower(rightABSMotorVal(yL) * motorScale);
+            motorBR.setPower(yL * motorScale);
+            motorFR.setPower(yL * motorScale);
         } else {
             motorBR.setPower(0);
             motorFR.setPower(0);
         }
 
         if (gamepad2.dpad_down) {
-            motorWR.setPower(-1);
+            motorLiftDown1.setPower(1);
+            motorLiftDown2.setPower(1);
+            motorLiftUp.setPower(-1);
         } else if (gamepad2.dpad_up){
-            motorWR.setPower(1);
+            motorLiftDown1.setPower(-1);
+            motorLiftDown2.setPower(-1);
+            motorLiftUp.setPower(1);
         } else {
-            motorWR.setPower(0);
+            motorLiftDown1.setPower(0);
+            motorLiftDown2.setPower(0);
+            motorLiftUp.setPower(0);
         }
 
         if (gamepad1.back)
-            motorScale = motorScale == 1 ? .25 : 1;
+            motorScale = motorScale == -1 ? -.25 : -1;
 
         /*if(gamepad2.a) {
             motorWL.setPower(-1);
@@ -69,7 +76,7 @@ public class mainTele extends CustomOpMode {
         telemetry.addData("motorBL: ", motorBL.getCurrentPosition());
         telemetry.addData("motorFR: ", motorFR.getCurrentPosition());
         telemetry.addData("motorBR: ", motorBR.getCurrentPosition());
-        telemetry.addData("imuYaw: ", imu.getYaw());
+        telemetry.addData("yaw: ", imu.getYaw());
         //telemetry.addData("angle error from 45: ", imu.getTrueDiff(45));
         //telemetry.addData("rangeB: ", getDistB());
         //telemetry.addData("rangeL: ", getDistL());

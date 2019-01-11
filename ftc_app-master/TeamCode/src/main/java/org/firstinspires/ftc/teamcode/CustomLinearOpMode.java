@@ -48,7 +48,6 @@ public class CustomLinearOpMode extends LinearOpMode {
      */
     VuforiaLocalizer vuforia;
 
-
     //drive motors
     DcMotor motorFR;
     DcMotor motorFL;
@@ -61,7 +60,6 @@ public class CustomLinearOpMode extends LinearOpMode {
     //winch motors???
     //DcMotor motorWinchUp;
     //DcMotor motorWinchDown;
-
 
     ModernRoboticsI2cRangeSensor rangeSensorB;
     ModernRoboticsI2cRangeSensor rangeSensorL;
@@ -127,7 +125,6 @@ public class CustomLinearOpMode extends LinearOpMode {
         rangeSensorB = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensorB");
         rangeSensorL = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensorL");
 
-
         servoWinchArm.setPosition(servoWinchArmInitPos);
 
         telemetry.addData("Servo Initialization Complete", "");
@@ -139,29 +136,12 @@ public class CustomLinearOpMode extends LinearOpMode {
 
         telemetry.addData("Initialization Complete", "");
         telemetry.update();
-
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-
-        // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection   = CAMERA_CHOICE;
-
-        //  Instantiate the Vuforia engine
-        vuforia = ClassFactory.getInstance().createVuforia(parameters);
-
-        Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
-        vuforia.setFrameQueueCapacity(1);
-
-        telemetry.addLine("Vuforia initialization complete");
-        //waitForStart();
     }
 
     public void Pturn(double angle, int msTimeout) {
-        double kP = .35/90;
+        double kP = .3/90;
         double minSpeed = .2;
-        double maxSpeed = .6;
+        double maxSpeed = .8;
         time.reset();
 
         while (Math.abs(imu.getTrueDiff(angle)) > .5 && time.milliseconds() < msTimeout && opModeIsActive()) {
@@ -251,10 +231,10 @@ public class CustomLinearOpMode extends LinearOpMode {
     public void moveToEncoder(double encoder, double power, double angle) {
         resetEncoders();
 
-        double kPangle = 1.0/90.0;              // MIGHT NEED TO BE RETUNED
+        double kPangle = 2.0/90.0;              // MIGHT NEED TO BE RETUNED
 
         if (encoder > 0) {
-            while (motorFL.getCurrentPosition() < encoder && opModeIsActive()) {
+            while (motorBL.getCurrentPosition() < encoder && opModeIsActive()) {
 
                 double angleError = imu.getTrueDiff(angle);
                 double PIDchangeAngle = kPangle * angleError;
@@ -267,7 +247,7 @@ public class CustomLinearOpMode extends LinearOpMode {
             }
         }
         else {
-            while (motorFL.getCurrentPosition() > encoder && opModeIsActive()) {
+            while (motorBL.getCurrentPosition() > encoder && opModeIsActive()) {
 
                 double angleError = imu.getTrueDiff(angle);
                 double PIDchangeAngle = kPangle * angleError;
@@ -289,7 +269,7 @@ public class CustomLinearOpMode extends LinearOpMode {
         double kPangle = 1.0/90.0;              // MIGHT NEED TO BE RETUNED
         time.reset();
         if (encoder > 0) {
-            while (motorFL.getCurrentPosition() < encoder && opModeIsActive() && time.milliseconds() < msTimeout) {
+            while (motorBL.getCurrentPosition() < encoder && opModeIsActive() && time.milliseconds() < msTimeout) {
 
                 double angleError = imu.getTrueDiff(angle);
                 double PIDchangeAngle = kPangle * angleError;
@@ -302,7 +282,7 @@ public class CustomLinearOpMode extends LinearOpMode {
             }
         }
         else {
-            while (motorFL.getCurrentPosition() > encoder && opModeIsActive() && time.milliseconds() < msTimeout) {
+            while (motorBL.getCurrentPosition() > encoder && opModeIsActive() && time.milliseconds() < msTimeout) {
 
                 double angleError = imu.getTrueDiff(angle);
                 double PIDchangeAngle = kPangle * angleError;
