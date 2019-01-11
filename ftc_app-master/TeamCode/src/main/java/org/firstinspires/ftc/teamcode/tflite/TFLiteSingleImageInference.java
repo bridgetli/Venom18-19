@@ -4,16 +4,18 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.teamcode.CustomLinearOpMode;
 import org.tensorflow.lite.Interpreter;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.Arrays;
 
 @Autonomous(name = "TFLiteSingleImageInference", group = "test")
 public class TFLiteSingleImageInference extends CustomLinearOpMode {
@@ -27,8 +29,9 @@ public class TFLiteSingleImageInference extends CustomLinearOpMode {
     public void runOpMode() {
         MappedByteBuffer tfliteModel;
         Interpreter tflite = null;
-        String IMAGE_PATH = "fashion-mnist-sprite-GRAY.png";
+        String IMAGE_PATH = "fashion-mnist-sprite.png";
         Bitmap bmp;
+        int i;
 
         telemetry.addLine("Press PLAY to start");
         telemetry.update();
@@ -64,9 +67,12 @@ public class TFLiteSingleImageInference extends CustomLinearOpMode {
         while(opModeIsActive()) {
             try {
                 tflite.run(imgData, labelProbArray);
+                i = 1;
                 for (float[] resultArray : labelProbArray) {
-                    for (float result : resultArray)
-                        telemetry.addData("Probability", result);
+                    for (float result : resultArray) {
+                        telemetry.addData("Label " + i, result);
+                        i++;
+                    }
                 }
             } catch (Exception e) {
                 telemetry.addData("Couldn't run inference", e.toString());
@@ -77,7 +83,7 @@ public class TFLiteSingleImageInference extends CustomLinearOpMode {
     }
 
     private MappedByteBuffer loadModelFile(Context activity) throws IOException {
-        String MODEL_PATH = "roboModel.tflite";
+        String MODEL_PATH = "hamzaiswear.tflite";
         AssetFileDescriptor fileDescriptor = activity.getAssets().openFd(MODEL_PATH);
         FileInputStream inputStream = new FileInputStream(fileDescriptor.getFileDescriptor());
         FileChannel fileChannel = inputStream.getChannel();
