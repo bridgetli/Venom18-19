@@ -64,7 +64,10 @@ public class TFLiteSingleImageInference extends CustomLinearOpMode {
         while(opModeIsActive()) {
             try {
                 tflite.run(imgData, labelProbArray);
-                telemetry.addData("Results", Arrays.toString(labelProbArray));
+                for (float[] resultArray : labelProbArray) {
+                    for (float result : resultArray)
+                        telemetry.addData("Probability", result);
+                }
             } catch (Exception e) {
                 telemetry.addData("Couldn't run inference", e.toString());
             }
