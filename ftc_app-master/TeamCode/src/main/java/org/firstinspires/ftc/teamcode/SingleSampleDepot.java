@@ -31,7 +31,6 @@ import java.io.FileOutputStream;
 public class SingleSampleDepot extends CustomLinearOpMode {
 
     private ElapsedTime time = new ElapsedTime();
-    private char blockPos = 'C';
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -53,6 +52,8 @@ public class SingleSampleDepot extends CustomLinearOpMode {
         telemetry.addLine("Vuforia initialization complete");
 
         waitForStart();
+
+        delatch();
 
         getBlock();
 

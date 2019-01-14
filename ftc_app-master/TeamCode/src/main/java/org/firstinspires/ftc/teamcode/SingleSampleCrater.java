@@ -31,7 +31,6 @@ import java.io.FileOutputStream;
 public class SingleSampleCrater extends CustomLinearOpMode {
 
     private ElapsedTime time = new ElapsedTime();
-    private char blockPos = 'C';
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -52,49 +51,54 @@ public class SingleSampleCrater extends CustomLinearOpMode {
         initizialize();
         telemetry.addLine("Vuforia initialization complete");
 
+        motorLiftDown1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorLiftDown2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorLiftUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        motorLiftDown1.setPower(0);
+        motorLiftDown2.setPower(0);
+        motorLiftUp.setPower(0);
+
         waitForStart();
 
-        getBlock();
+        delatch();
 
-        telemetry.addData("Block Pos", blockPos);
-        telemetry.update();
+        sleep(1000);
 
-        sleep(100);
+        stopMotors();
 
-        moveToEncoder(560, .2, 0);
-        stopAllMotors();
-        sleep(250); //500
         //TODO: optimize paths, focus on depot side first; averages 18 sec currently; goal 15 sec?
         if (blockPos == 'R' || blockPos == '?') {
-            Pturn(45, 2500);
+            Pturn(55, 2500);
             sleep(200); //500
-            moveToEncoder(500, .35, 45);
+            moveToEncoder(1000, .65, 55);
             sleep(200);
-            moveToEncoder(-480, .35, 45);
-            Pturn(-90, 2500);
+            moveToEncoder(1000, .65, -30);
+
         } else if (blockPos == 'C') {
             //Pturn(45, 2500);
             //sleep(500);
-            moveToEncoder(330, .35, 0);
-            sleep(200);
-            moveToEncoder(-320, .35, 0);
-            Pturn(-90, 2500);
+            moveToEncoder(1000, .65, 10);
+
+
         } else {
-            Pturn(-45, 2500);
+            Pturn(-39, 3000);
             sleep(200); //500
-            moveToEncoder(500, .35, -45);
-            sleep(200);
-            moveToEncoder(-480, .35, -45);
-            Pturn(-90, 2500);
+            moveToEncoder(1000, .65, -39);
+            moveToEncoder(1500, .65, 20);
+
         }
 
-        moveToEncoderT(2100, .3, -90, 4000);
-        sleep(250); //500
-        Pturn(45, 2500);
-        moveToEncoderT(-1200, .3,46, 4000);
+        //moveToEncoderT(1500, .95, -90, 3000);
+        //sleep(250); //500
+        //PturnRight(55, 3000);
+        //moveToEncoderT(-400, .95, 55, 2000);
+        //moveToEncoderT(-1500, .95,48, 3500);
 
-        depositMarker();
+        //depositMarker();
 
-        moveTimeP(1450, .6, 43);
+        //moveTimeP(1450, .95, 43);
     }
+
+
 }

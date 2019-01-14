@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name="mainTele", group="TeleOp")
@@ -8,39 +9,55 @@ public class mainTele extends CustomOpMode {
     double motorScale = -1;
     public void init() {
         initizialize();
+
+        motorLiftDown1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorLiftDown2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorLiftUp.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        motorLiftDown1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorLiftDown2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorLiftUp.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        motorLiftDown1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorLiftDown2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorLiftUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        motorLiftDown1.setPower(0);
+        motorLiftDown2.setPower(0);
+        motorLiftUp.setPower(0);
     }
     public void loop() {
 
         double yL = gamepad1.left_stick_y;
         double yR = gamepad1.right_stick_y;
 
-        if (Math.abs(yR) > .2) {
+        if (Math.abs(yL) > .2) {
             //motorBL.setPower(leftABSMotorVal(yR) * motorScale);
             //motorFL.setPower(leftABSMotorVal(yR) * motorScale);
-            motorBL.setPower(yR * motorScale);
-            motorFL.setPower(yR * motorScale);
+            motorBL.setPower(yL * motorScale);
+            motorFL.setPower(yL * motorScale);
         } else {
             motorBL.setPower(0);
             motorFL.setPower(0);
         }
-        if(Math.abs(yL) > .2) {
+        if(Math.abs(yR) > .2) {
             //motorBR.setPower(rightABSMotorVal(yL) * motorScale);
             //motorFR.setPower(rightABSMotorVal(yL) * motorScale);
-            motorBR.setPower(yL * motorScale);
-            motorFR.setPower(yL * motorScale);
+            motorBR.setPower(yR * motorScale);
+            motorFR.setPower(yR * motorScale);
         } else {
             motorBR.setPower(0);
             motorFR.setPower(0);
         }
 
         if (gamepad2.dpad_down) {
-            motorLiftDown1.setPower(1);
-            motorLiftDown2.setPower(1);
-            motorLiftUp.setPower(-1);
+            motorLiftDown1.setPower(.5);
+            motorLiftDown2.setPower(.5);
+            motorLiftUp.setPower(.5);
         } else if (gamepad2.dpad_up){
-            motorLiftDown1.setPower(-1);
-            motorLiftDown2.setPower(-1);
-            motorLiftUp.setPower(1);
+            motorLiftDown1.setPower(-.5);
+            motorLiftDown2.setPower(-.5);
+            motorLiftUp.setPower(-.5);
         } else {
             motorLiftDown1.setPower(0);
             motorLiftDown2.setPower(0);
@@ -68,14 +85,17 @@ public class mainTele extends CustomOpMode {
         } else if (gamepad2.y) {
             servoWinchArm.setPosition(.8);
         }
+
         telemetry.addData("Right motor speeds", yR);
         telemetry.addData("Left motor speed", yL);
         telemetry.addData("motorScale: ", motorScale);
         telemetry.addData("Servo Winch Arm Pos", servoWinchArm.getPosition());
-        telemetry.addData("motorFL: ", motorFL.getCurrentPosition());
+        //telemetry.addData("motorFL: ", motorFL.getCurrentPosition());
         telemetry.addData("motorBL: ", motorBL.getCurrentPosition());
-        telemetry.addData("motorFR: ", motorFR.getCurrentPosition());
-        telemetry.addData("motorBR: ", motorBR.getCurrentPosition());
+        telemetry.addData("motorLiftDown1: ", motorLiftDown1.getCurrentPosition());
+        telemetry.addData("motorLiftDown2: ", motorLiftDown2.getCurrentPosition());
+        //telemetry.addData("motorFR: ", motorFR.getCurrentPosition());
+        //telemetry.addData("motorBR: ", motorBR.getCurrentPosition());
         telemetry.addData("yaw: ", imu.getYaw());
         //telemetry.addData("angle error from 45: ", imu.getTrueDiff(45));
         //telemetry.addData("rangeB: ", getDistB());

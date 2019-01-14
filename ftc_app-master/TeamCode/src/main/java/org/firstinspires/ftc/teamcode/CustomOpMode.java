@@ -124,9 +124,6 @@ public class CustomOpMode extends OpMode{
         motorFL.setPower(0);
         motorBR.setPower(0);
         motorBL.setPower(0);
-
-        //motorWinchDown.setPower(0);
-        //motorWinchUp.setPower(0);
     }
 
     public void setLeftMotors(double left){
@@ -137,12 +134,6 @@ public class CustomOpMode extends OpMode{
     public void setRightMotors(double right){
         motorFR.setPower(right);
         motorBR.setPower(right);
-    }
-    
-    public void release() throws InterruptedException {
-        //lower the robot??
-        //motorWinchDown.setPower(winchDownPower);
-        Thread.sleep(400); // we might wanna PID this
     }
 
     // copy pasted ABS from last year
