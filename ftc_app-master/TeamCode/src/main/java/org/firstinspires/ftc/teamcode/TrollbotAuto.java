@@ -9,7 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 @Autonomous(name="TrollBotAuto", group="TrollBot")
 
 public class TrollbotAuto extends CustomLinearOpMode {
-
+/*
     String blockLocation = "CENTER";
     ModernRoboticsI2cRangeSensor rangeSensor;
 
@@ -115,11 +115,11 @@ public class TrollbotAuto extends CustomLinearOpMode {
 
         try {
             //release();
-        } catch(Exception e) {
+        } catch (Exception e) {
             stop();
         }
 
-        SummerTest1();
+        //SummerTest1();
 
 //        moveToDistance(40);
 ////
@@ -275,7 +275,7 @@ public class TrollbotAuto extends CustomLinearOpMode {
                 // could turn another 90 degrees right to be facing the rover
             }
 
-        } */
+        }
 
 
     }
@@ -335,5 +335,7 @@ public class TrollbotAuto extends CustomLinearOpMode {
         } else if(blockLocation.equals("LEFT")) {
 
         }
+    }
+    */
     }
 }

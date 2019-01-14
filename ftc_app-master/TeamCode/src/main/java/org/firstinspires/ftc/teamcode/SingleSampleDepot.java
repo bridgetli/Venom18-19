@@ -31,7 +31,6 @@ import java.io.FileOutputStream;
 public class SingleSampleDepot extends CustomLinearOpMode {
 
     private ElapsedTime time = new ElapsedTime();
-    private char blockPos = 'C';
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -54,6 +53,8 @@ public class SingleSampleDepot extends CustomLinearOpMode {
 
         waitForStart();
 
+        delatch();
+
         getBlock();
 
 
@@ -62,7 +63,7 @@ public class SingleSampleDepot extends CustomLinearOpMode {
 
         sleep(100);
 
-        moveToEncoder(560, .2, 0);
+        moveToEncoder(560, .45, 0);
         sleep(500);
 
         //TODO: optimize all of these paths; averages 17 sec currently; maybe get to 15 or less
@@ -70,7 +71,7 @@ public class SingleSampleDepot extends CustomLinearOpMode {
             //turn towards block & move through it
             Pturn(45, 2500);
             sleep(250); //500
-            moveToEncoder(1500, .35, 45); //increase encoder/power (if we change path)?
+            moveToEncoder(1500, .40, 45); //increase encoder/power (if we change path)?
             sleep(250); //500
 
 
@@ -84,9 +85,8 @@ public class SingleSampleDepot extends CustomLinearOpMode {
             moveTimeP(2000, .8, -134);
 
         } else if (blockPos == 'C') { //why do we not just drive straight through?? //great question
-            moveToEncoder(1500, .25, 0); //all the way to depot
+            moveToEncoder(1500, .35, 0); //all the way to depot
             sleep(250); //500
-
 
             Pturn(-45, 2000); //turn towards crater
             moveToEncoderT(400, .35, -45, 2000); //move a little forward while turning to align with wall

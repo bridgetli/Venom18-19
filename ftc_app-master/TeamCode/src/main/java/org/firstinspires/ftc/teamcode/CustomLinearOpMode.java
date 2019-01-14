@@ -51,29 +51,29 @@ public class CustomLinearOpMode extends LinearOpMode {
     DcMotor motorFL;
     DcMotor motorBR;
     DcMotor motorBL;
+    DcMotor motorLiftUp;
+    DcMotor motorLiftDown1;
+    DcMotor motorLiftDown2;
 
     //speed
-    double speed = 0.5;
+    double left = 1.04;
 
     //winch motors???
     //DcMotor motorWinchUp;
     //DcMotor motorWinchDown;
 
-
     ModernRoboticsI2cRangeSensor rangeSensorB;
     ModernRoboticsI2cRangeSensor rangeSensorL;
 
     Servo servoWinchArm;
-    final double servoWinchArmInitPos = .1;
-    final double servoWinchArmDepositPos = .79;
+    final double servoWinchArmInitPos = 0;
+    final double servoWinchArmDepositPos = 1;
 
     final double winchDownPower = .5;
     final double winchUpPower = .5;
 
     //Servo servoMarker;
 
-    final double servoMarkerStartPos = 1;
-    final double servoMarkerEndPos = 0;
 
     IMU imu;
     ElapsedTime time = new ElapsedTime();
@@ -105,6 +105,9 @@ public class CustomLinearOpMode extends LinearOpMode {
         motorBR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorFR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorLiftUp = hardwareMap.dcMotor.get("motorLiftUp");
+        motorLiftDown1 = hardwareMap.dcMotor.get("motorLiftDown1");
+        motorLiftDown2 = hardwareMap.dcMotor.get("motorLiftDown2");
         //motorWinchUp.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //motorWinchDown.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
@@ -123,7 +126,6 @@ public class CustomLinearOpMode extends LinearOpMode {
         rangeSensorB = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensorB");
         rangeSensorL = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensorL");
 
-
         servoWinchArm.setPosition(servoWinchArmInitPos);
         telemetry.addData("Servo Initialization Complete", "");
 
@@ -140,6 +142,25 @@ public class CustomLinearOpMode extends LinearOpMode {
         telemetry.addData("Vuforia and Tensorflow Initialization Complete", "");
 
 
+        motorLiftDown1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorLiftDown2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorLiftUp.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        idle();
+
+        motorLiftDown1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorLiftDown2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorLiftUp.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        motorLiftDown1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorLiftDown2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorLiftUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        motorLiftDown1.setPower(0);
+        motorLiftDown2.setPower(0);
+        motorLiftUp.setPower(0);
+
+        
         telemetry.addData("Initialization Complete", "");
         telemetry.update();
     }
@@ -167,12 +188,48 @@ public class CustomLinearOpMode extends LinearOpMode {
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
+        
+
+    public void delatch() throws InterruptedException{
+        resetEncoders();
+
+        motorLiftDown1.setPower(-.75);
+        motorLiftDown2.setPower(-.75);
+        motorLiftUp.setPower(-.75);
+
+        while (motorLiftDown1.getCurrentPosition() > -4000 && opModeIsActive()) {
+        }
+
+        motorLiftDown1.setPower(0);
+        motorLiftDown2.setPower(0);
+        motorLiftUp.setPower(0);
+
+        moveToEncoder(-350, .65, 180);
+        Pturn(0, 3200);
+        moveToEncoder(-150, .55, 0);
+
+        getBlock();
+
+        telemetry.addData("Block Pos", blockPos);
+        telemetry.update();
+
+        motorLiftDown1.setPower(.75);
+        motorLiftDown2.setPower(.75);
+        motorLiftUp.setPower(.75);
+
+        while (motorLiftDown1.getCurrentPosition() < 50 && opModeIsActive()) {
+        }
+
+        motorLiftDown1.setPower(0);
+        motorLiftDown2.setPower(0);
+        motorLiftUp.setPower(0);
+
     }
 
     public void Pturn(double angle, int msTimeout) {
-        double kP = .35/90;
-        double minSpeed = .2;
-        double maxSpeed = .6;
+        double kP = .6/90;
+        double minSpeed = .30;
+        double maxSpeed = 1;
         time.reset();
 
         while (Math.abs(imu.getTrueDiff(angle)) > .5 && time.milliseconds() < msTimeout && opModeIsActive()) {
@@ -185,8 +242,34 @@ public class CustomLinearOpMode extends LinearOpMode {
             else if (PIDchange < 0 && PIDchange > -minSpeed)
                 PIDchange = -minSpeed;
 
-            motorBL.setPower(Range.clip(-PIDchange, -maxSpeed, maxSpeed));
-            motorFL.setPower(Range.clip(-PIDchange, -maxSpeed, maxSpeed));
+            motorBL.setPower(Range.clip(-PIDchange * left, -maxSpeed, maxSpeed));
+            motorFL.setPower(Range.clip(-PIDchange * left, -maxSpeed, maxSpeed));
+            motorBR.setPower(Range.clip(PIDchange, -maxSpeed, maxSpeed));
+            motorFR.setPower(Range.clip(PIDchange, -maxSpeed, maxSpeed));
+
+            telemetry.addData("angleError: ", angleError);
+            telemetry.addData("PIDCHANGE: ", PIDchange);
+            telemetry.update();
+        }
+        stopMotors();
+    }
+
+    public void PturnRight(double angle, int msTimeout) {
+        double kP = .6/90;
+        double minSpeed = .7;
+        double maxSpeed = 1;
+        time.reset();
+
+        while (Math.abs(imu.getTrueDiff(angle)) > .5 && time.milliseconds() < msTimeout && opModeIsActive()) {
+            double angleError = imu.getTrueDiff(angle);
+
+            double PIDchange = kP * angleError;
+
+            if (PIDchange > 0 && PIDchange < minSpeed)
+                PIDchange = minSpeed;
+            else if (PIDchange < 0 && PIDchange > -minSpeed)
+                PIDchange = -minSpeed;
+
             motorBR.setPower(Range.clip(PIDchange, -maxSpeed, maxSpeed));
             motorFR.setPower(Range.clip(PIDchange, -maxSpeed, maxSpeed));
 
@@ -207,8 +290,8 @@ public class CustomLinearOpMode extends LinearOpMode {
             double PIDchangeAngle = kPangle * angleError;
 
             //if (power > 0) {
-            motorBL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
-            motorFL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
+            motorBL.setPower(Range.clip((power - PIDchangeAngle) * left, -1, 1));
+            motorFL.setPower(Range.clip((power - PIDchangeAngle) * left, -1, 1));
             motorBR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
             motorFR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
             //} else if (power < 0) {
@@ -250,8 +333,8 @@ public class CustomLinearOpMode extends LinearOpMode {
             double angleError = imu.getTrueDiff(angle);
             double PIDchangeAngle = kPangle * angleError;
 
-            motorBL.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -1, 1));
-            motorFL.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -1, 1));
+            motorBL.setPower(Range.clip((PIDchangeDist - PIDchangeAngle) * left, -1, 1));
+            motorFL.setPower(Range.clip((PIDchangeDist - PIDchangeAngle) * left, -1, 1));
             motorBR.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -1, 1));
             motorFR.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -1, 1));
         }
@@ -262,32 +345,30 @@ public class CustomLinearOpMode extends LinearOpMode {
     public void moveToEncoder(double encoder, double power, double angle) {
         resetEncoders();
 
-        double kPangle = 1.0/90.0;              // MIGHT NEED TO BE RETUNED
+        double kPangle = 3.0/90.0;              // MIGHT NEED TO BE RETUNED
 
         if (encoder > 0) {
-            while (motorFL.getCurrentPosition() < encoder && opModeIsActive()) {
+            while (motorBL.getCurrentPosition() < encoder && opModeIsActive()) {
 
                 double angleError = imu.getTrueDiff(angle);
                 double PIDchangeAngle = kPangle * angleError;
 
-
-                motorBL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
-                motorFL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
+                motorBL.setPower(Range.clip((power - PIDchangeAngle) * left, -1, 1));
+                motorFL.setPower(Range.clip((power - PIDchangeAngle) * left, -1, 1));
                 motorBR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
                 motorFR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
             }
         }
         else {
-            while (motorFL.getCurrentPosition() > encoder && opModeIsActive()) {
+            while (motorBL.getCurrentPosition() > encoder && opModeIsActive()) {
 
                 double angleError = imu.getTrueDiff(angle);
                 double PIDchangeAngle = kPangle * angleError;
 
-
-                motorBL.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
-                motorFL.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
-                motorBR.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
-                motorFR.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
+                motorBL.setPower(Range.clip((-power - PIDchangeAngle) * left, -1, 1));
+                motorFL.setPower(Range.clip((-power - PIDchangeAngle) * left, -1, 1));
+                motorBR.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
+                motorFR.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
             }
         }
         stopMotors();
@@ -300,29 +381,29 @@ public class CustomLinearOpMode extends LinearOpMode {
         double kPangle = 1.0/90.0;              // MIGHT NEED TO BE RETUNED
         time.reset();
         if (encoder > 0) {
-            while (motorFL.getCurrentPosition() < encoder && opModeIsActive() && time.milliseconds() < msTimeout) {
+            while (motorBL.getCurrentPosition() < encoder && opModeIsActive() && time.milliseconds() < msTimeout) {
 
                 double angleError = imu.getTrueDiff(angle);
                 double PIDchangeAngle = kPangle * angleError;
 
 
-                motorBL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
-                motorFL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
+                motorBL.setPower(Range.clip((power - PIDchangeAngle) * left, -1, 1));
+                motorFL.setPower(Range.clip((power - PIDchangeAngle) * left, -1, 1));
                 motorBR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
                 motorFR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
             }
         }
         else {
-            while (motorFL.getCurrentPosition() > encoder && opModeIsActive() && time.milliseconds() < msTimeout) {
+            while (motorBL.getCurrentPosition() > encoder && opModeIsActive() && time.milliseconds() < msTimeout) {
 
                 double angleError = imu.getTrueDiff(angle);
                 double PIDchangeAngle = kPangle * angleError;
 
 
-                motorBL.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
-                motorFL.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
-                motorBR.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
-                motorFR.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
+                motorBL.setPower(Range.clip((-power - PIDchangeAngle) * left, -1, 1));
+                motorFL.setPower(Range.clip((-power - PIDchangeAngle) * left, -1, 1));
+                motorBR.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
+                motorFR.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
             }
         }
         stopMotors();
@@ -347,50 +428,13 @@ public class CustomLinearOpMode extends LinearOpMode {
         //motorWinchUp.setPower(0);
     }
 
-    //˯˯ Sets motors to turn right when called in the Turn method
-    public void turnRight() {
-        motorFL.setPower(-speed);
-        motorFR.setPower(speed);
-        motorBL.setPower(-speed);
-        motorBR.setPower(speed);
-    }
 
-    //˯˯ Sets motors to turn left when called in the Turn method
-    public void turnLeft() {
-        motorFL.setPower(speed);
-        motorFR.setPower(-speed);
-        motorBL.setPower(speed);
-        motorBR.setPower(-speed);
-    }
 
-    //˯˯ Turn method (no PID loop)
-    public void turn(double angle)
-    {
-        double yaw = imu.getYaw();
-        if (angle > yaw) {
-            while (yaw < angle && opModeIsActive()) {
-                turnRight();
-            }
-        }
-        else if (angle < yaw) {
-            while (yaw > angle && opModeIsActive()) {
-                turnLeft();
-            }
-        }
-        stopDriveMotors();
-    }
-
-    public void driveForward() {
-        motorFL.setPower(speed);
-        motorFR.setPower(speed);
-        motorBL.setPower(speed);
-        motorBR.setPower(speed);
-    }
 
     public void depositMarker() throws InterruptedException {
         //this actually works now
         servoWinchArm.setPosition(servoWinchArmDepositPos);
-        sleep(1500);
+        sleep(1000);
         servoWinchArm.setPosition(servoWinchArmInitPos);
     }
 
@@ -405,19 +449,6 @@ public class CustomLinearOpMode extends LinearOpMode {
         return "CENTER";
     }
 
-    public void goForward(double distance){
-        // goes forward a certain distance after we add the sensor in
-        // distance is in inches
-
-        double oldDist = getDistB();
-        double newDist = getDistB();
-        while(Math.abs(oldDist - newDist) > distance && opModeIsActive()) {
-            driveForward();
-            newDist = getDistB();
-            telemetry.addData("Stuck in the loop", "");
-        }
-        stopDriveMotors();
-    }
     public double getDistB() {
         double dist = rangeSensorB.getDistance(DistanceUnit.INCH);
         while ((dist > 200 || Double.isNaN(dist)) && opModeIsActive()) {
@@ -547,37 +578,27 @@ public class CustomLinearOpMode extends LinearOpMode {
 
 
         // basic brute force counter
-        int startRow = 14;                  // VERTICAL DIMENSIONS
-        int endRow = 23;
+        int startRow = 39;                  // VERTICAL DIMENSIONS
+        int endRow = 50;
         // WILL NEED TO BE TUNED AGAIN WITH NEW PHONE LOCATION
-        int leftScol = 13;                  // HORIZONTAL DIMENSIONS
-        int leftEcol = 22;
-        int centerScol = 35;
-        int centerEcol = 44;
-        int rightScol = 56;
-        int rightEcol = 65;
+        int leftScol = 5;                  // HORIZONTAL DIMENSIONS
+        int leftEcol = 28;
+        //int centerScol = 35;
+        //int centerEcol = 44;
+        int rightScol = 45;
+        int rightEcol = 75;
 
         BoundingBox left = new BoundingBox(startRow, leftScol, endRow, leftEcol);    //look at images taken from consistent
-        BoundingBox center = new BoundingBox(startRow, centerScol, endRow, centerEcol);  //spot in auto and get pixel range
+        //BoundingBox center = new BoundingBox(startRow, centerScol, endRow, centerEcol);  //spot in auto and get pixel range
         BoundingBox right = new BoundingBox(startRow, rightScol, endRow, rightEcol);   //of left center and right
 
-        if (yellowValOfBox(bitmap, left) > yellowValOfBox(bitmap, center)) {
-            blockPos = 'L';
-            if (yellowValOfBox(bitmap, right) > yellowValOfBox(bitmap, left))
-                blockPos = 'R';
-        }
-        else if (yellowValOfBox(bitmap, right) > yellowValOfBox(bitmap, center))
+        if (yellowValOfBox(bitmap, left) < 3200 && yellowValOfBox(bitmap, right) < 3200)
             blockPos = 'R';
-
-        //saveBox(bitmap, left);
-        //saveBox(bitmap.copy(Bitmap.Config.RGB_565, true), center);
-        //saveBox(bitmap.copy(Bitmap.Config.RGB_565, true), right);
-
-        // multi location pixel scanner (better but much slower)
-
-        /*int N = 4; // the approx height and width of an object
-
-        for (int r = 0; r < */
+        else if (yellowValOfBox(bitmap, left) > yellowValOfBox(bitmap, right)) {
+            blockPos = 'L';
+        } else if (yellowValOfBox(bitmap, right) > yellowValOfBox(bitmap, left)) {
+            blockPos = 'C';
+        }
     }
 
     public int yellowValOfBox(Bitmap bmp, BoundingBox bb) {
@@ -590,7 +611,7 @@ public class CustomLinearOpMode extends LinearOpMode {
                 int R = (color >> 16) & 0xff;
                 int G = (color >>  8) & 0xff;
                 int B = color & 0xff;
-                int yellow = Math.min(R, G) - B / 2 > 0 ? Math.min(R, G) - B / 2 : 0;
+                int yellow = Math.min(R, G) - B  > 0 ? Math.min(R, G) - B : 0;
                 ySum += yellow;
             }
         }
