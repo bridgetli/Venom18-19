@@ -89,13 +89,13 @@ public class IMU extends LinearOpMode {
     public double getYaw() { //returns yaw between -179.9999 and 180 degrees
         //yaw is side to side motion (important for turning)
         angles = IMU.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
-        return -Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
+        return Double.parseDouble(formatAngle(angles.angleUnit, angles.thirdAngle));
     }
 
     public double getPitch() { //returns yaw between -179.9999 and 180 degrees
         //pitch is up and down like the nose of an airplane
         angles = IMU.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
-        return Double.parseDouble(formatAngle(angles.angleUnit, angles.thirdAngle));
+        return -Double.parseDouble(formatAngle(angles.angleUnit, angles.firstAngle));
     }
 
     public double getRoll() {

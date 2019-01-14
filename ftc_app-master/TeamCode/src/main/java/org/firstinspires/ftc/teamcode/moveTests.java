@@ -52,22 +52,10 @@ public class moveTests extends CustomLinearOpMode {    //test for red double dep
         initizialize();
         telemetry.addLine("Vuforia initialization complete");
 
-        motorLiftDown1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorLiftDown2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorLiftUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        motorLiftDown1.setPower(0);
-        motorLiftDown2.setPower(0);
-        motorLiftUp.setPower(0);
-
         waitForStart();
 
-        delatch();
+        moveToLineP(45, 0, 5000);
 
-
-        sleep(1000);
-
-        stopMotors();
 
         // At this point, front of robot should align with corner of lander
     }

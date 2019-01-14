@@ -50,7 +50,7 @@ public class TensorFlowNavigation extends CustomLinearOpMode {
         // change the 0 to something else later (however high from the top of the screen)
         while (y > 0)
         {
-            //driveForward();
+            driveForward();
         }
 
     }
