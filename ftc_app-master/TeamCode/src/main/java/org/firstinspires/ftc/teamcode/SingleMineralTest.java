@@ -21,7 +21,7 @@ public class SingleMineralTest extends CustomLinearOpMode {
 
     @Override
     public void runOpMode() {
-        //init everything
+        //TODO: uncomment next line and delete 2 init lines
         //initizialize();
         initVuforia();
         initTfod();
@@ -50,10 +50,8 @@ public class SingleMineralTest extends CustomLinearOpMode {
                         //this if statement is important, probably will need to be changed
                         if (updatedRecognitions.size() == 1) {
                             Recognition recognition = updatedRecognitions.get(0);
-                            if (recognition.getLabel().equals(LABEL_GOLD_MINERAL))
-                                telemetry.addLine("I see a gold mineral");
-                            else
-                                telemetry.addLine("I see a white mineral");
+                            telemetry.addData("Mineral Type", recognition.getLabel());
+
                             //center robot with mineral
                             top = recognition.getTop();
                             telemetry.addData("Top", top);
@@ -64,7 +62,7 @@ public class SingleMineralTest extends CustomLinearOpMode {
                                 telemetry.addLine("Turn left");
                             } else {
                                 //turn right
-                                telemetry.addLine("Turn Right");
+                                telemetry.addLine("Turn right");
                             }
                             //close in on mineral
                             area = recognition.getHeight() * recognition.getWidth();
@@ -73,10 +71,10 @@ public class SingleMineralTest extends CustomLinearOpMode {
                                 telemetry.addLine("No action needed");
                             } else if (area > areaUpperBounds) {
                                 //move back
-                                telemetry.addLine("move closer");
-                            } else {
-                                //move back
                                 telemetry.addLine("Move back");
+                            } else {
+                                //move forward
+                                telemetry.addLine("Move closer");
                             }
                         }
                         telemetry.update();

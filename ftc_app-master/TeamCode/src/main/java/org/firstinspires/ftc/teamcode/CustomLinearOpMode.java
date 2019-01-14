@@ -20,6 +20,7 @@ import com.vuforia.PIXEL_FORMAT;
 import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
@@ -117,7 +118,6 @@ public class CustomLinearOpMode extends LinearOpMode {
         servoWinchArm = hardwareMap.servo.get("servoWinchArm");
 
         stopAllMotors();
-
         telemetry.addData("Motor Initialization Complete", "");
 
         rangeSensorB = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensorB");
@@ -125,12 +125,10 @@ public class CustomLinearOpMode extends LinearOpMode {
 
 
         servoWinchArm.setPosition(servoWinchArmInitPos);
-
         telemetry.addData("Servo Initialization Complete", "");
 
         imu = new IMU(hardwareMap.get(BNO055IMU.class, "imu"));
         imu.IMUinit(hardwareMap);
-
         telemetry.addData("IMU Initialization Complete", "");
 
         //Vuforia and Tensorflow init (This only works on the Motorola)
@@ -144,23 +142,31 @@ public class CustomLinearOpMode extends LinearOpMode {
 
         telemetry.addData("Initialization Complete", "");
         telemetry.update();
+    }
 
+    //Initialize the Vuforia localization engine.
+    private void initVuforia() {
+        //Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-
-        // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection   = CAMERA_CHOICE;
 
-        //  Instantiate the Vuforia engine
+        //TODO: add this line here once we add webcam (replace line below)
+        //parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
+        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
+
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
-
         Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
         vuforia.setFrameQueueCapacity(1);
+    }
 
-        telemetry.addLine("Vuforia initialization complete");
-        //waitForStart();
+    //Initialize the Tensor Flow Object Detection engine.
+    private void initTfod() {
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
     }
 
     public void Pturn(double angle, int msTimeout) {
@@ -388,65 +394,6 @@ public class CustomLinearOpMode extends LinearOpMode {
         servoWinchArm.setPosition(servoWinchArmInitPos);
     }
 
-    /* :)
-    public void getJewelColor() {
-        //jewel camera init
-        telemetry.addLine("JewelCamera initialization started");
-        telemetry.update();
-
-        setCameraDownsampling(2);
-
-        telemetry.addLine("Wait for camera to finish initializing!");
-        telemetry.update();
-
-        startCamera();  // can take a while.
-
-        sleep(50);
-
-        telemetry.addLine("Camera ready!");
-        telemetry.update();
-
-        ElapsedTime time = new ElapsedTime();
-        time.reset();
-        int numPics = 0;
-        int redValue = 0;
-        int blueValue = 0;
-        int numFailLoops = 0;
-
-        while (time.seconds() < 2 && opModeIsActive()) {
-            if (imageReady()) { // only do this if an image has been returned from the camera
-
-                numPics++;
-
-                // get image, rotated so (0,0) is in the bottom left of the preview window
-                Bitmap rgbImage;
-                rgbImage = convertYuvImageToRgb(yuvImage, width, height, 1);
-
-                for (int x = (int) (.8 * rgbImage.getWidth()); x < rgbImage.getWidth(); x++) {
-                    for (int y = 0; y < (int) (.25 * rgbImage.getHeight()); y++) {
-                        int pixel = rgbImage.getPixel(x, y);
-                        redValue += red(pixel);
-                        blueValue += blue(pixel);
-                    }
-                }
-            } else {
-                numFailLoops++;
-            }
-
-            sleep(10);
-        }
-
-        boolean jewelIsRed = redValue > blueValue;
-
-        stopCamera();
-
-        telemetry.addData("Is Jewel Red?", jewelIsRed);
-
-        telemetry.addData("numPics: ", numPics);
-        telemetry.addData("numFailLoops: ", numFailLoops);
-        telemetry.addData("red blue: ", redValue + "    " + blueValue);
-    } */
-
     public void driveBackward() {
         motorFL.setPower(-speed);
         motorFR.setPower(-speed);
@@ -495,31 +442,6 @@ public class CustomLinearOpMode extends LinearOpMode {
             driveBackward();
         }
         stopDriveMotors();
-    }
-
-    /**
-     * Initialize the Vuforia localization engine.
-     */
-    private void initVuforia() {
-        //Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
-
-        //  Instantiate the Vuforia engine
-        vuforia = ClassFactory.getInstance().createVuforia(parameters);
-    }
-
-    /**
-     * Initialize the Tensor Flow Object Detection engine.
-     */
-    private void initTfod() {
-        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
-                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
     }
     
     public void moveToLineP(double yIntercept, double angle, double timeout) { //y-int is 64?
