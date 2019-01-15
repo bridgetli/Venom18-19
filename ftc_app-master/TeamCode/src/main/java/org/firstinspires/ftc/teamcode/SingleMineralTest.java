@@ -39,14 +39,15 @@ public class SingleMineralTest extends CustomLinearOpMode {
             //TODO: These are place holders, please remember to adjust
             float topBounds = 550;
             float bottomBounds = 350;
-            float areaUpperBounds = 900;
-            float areaLowerBounds = 250;
+            float areaUpperBounds = 90000;
+            float areaLowerBounds = 60000;
 
             while (opModeIsActive()) {
                 if (tfod != null) {
                     List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                     if (updatedRecognitions != null) {
                         telemetry.addData("# of Objects Detected", updatedRecognitions.size());
+
                         //this if statement is important, probably will need to be changed
                         if (updatedRecognitions.size() == 1) {
                             Recognition recognition = updatedRecognitions.get(0);
