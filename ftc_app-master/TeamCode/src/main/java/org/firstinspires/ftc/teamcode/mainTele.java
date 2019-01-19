@@ -7,24 +7,12 @@ import com.qualcomm.robotcore.util.Range;
 @TeleOp(name="mainTele", group="TeleOp")
 public class mainTele extends CustomOpMode {
     double motorScale = -1;
+
+    boolean rT = false;
+    boolean lT = false;
+
     public void init() {
         initizialize();
-
-        motorLiftDown1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorLiftDown2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorLiftUp.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        motorLiftDown1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorLiftDown2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorLiftUp.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        motorLiftDown1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorLiftDown2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorLiftUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        motorLiftDown1.setPower(0);
-        motorLiftDown2.setPower(0);
-        motorLiftUp.setPower(0);
     }
     public void loop() {
 
@@ -84,6 +72,37 @@ public class mainTele extends CustomOpMode {
             servoWinchArm.setPosition(servoWinchArmDownPos);
         } else if (gamepad2.y) {
             servoWinchArm.setPosition(.8);
+        }
+
+        //how to dp toggle? idk
+
+
+
+
+
+
+        if(gamepad2.right_bumper) {
+            if(rT){
+                servoLeftManip.setPower(0);
+                servoRightManip.setPower(0);
+                rT = false;
+            } else{
+                servoLeftManip.setPower(.5);
+                servoRightManip.setPower(-.5);
+                rT = true;
+                lT = false;
+            }
+        } else if(gamepad2.left_bumper) {
+            if(lT){
+                servoLeftManip.setPower(0);
+                servoRightManip.setPower(0);
+                lT = false;
+            } else {
+                servoLeftManip.setPower(-.5);
+                servoRightManip.setPower(.5);
+                lT = true;
+                rT = false;
+            }
         }
 
         telemetry.addData("Right motor speeds", yR);

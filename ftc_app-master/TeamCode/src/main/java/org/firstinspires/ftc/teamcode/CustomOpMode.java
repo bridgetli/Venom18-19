@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -34,6 +35,9 @@ public class CustomOpMode extends OpMode{
     final double winchUpPower = .5;
 
     Servo servoWinchArm;
+
+    CRServo servoLeftManip;
+    CRServo servoRightManip;
 
     final double servoWinchArmDownPos = .09;
     final double servoWinchArmUpPos = .3;
@@ -87,6 +91,20 @@ public class CustomOpMode extends OpMode{
         motorFL.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBL.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        motorLiftDown1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorLiftDown2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorLiftUp.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        motorLiftDown1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorLiftDown2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorLiftUp.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        motorLiftDown1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorLiftDown2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorLiftUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        motorLiftDown1.setPower(0);
+
         stopAllMotors();
 
         telemetry.addData("Motor Initialization Complete", "");
@@ -96,6 +114,9 @@ public class CustomOpMode extends OpMode{
 
         servoWinchArm = hardwareMap.servo.get("servoWinchArm");
         servoWinchArm.setPosition(servoWinchArmDownPos);
+
+        servoLeftManip = hardwareMap.crservo.get("servoLeftManip");
+        servoRightManip = hardwareMap.crservo.get("servoLeftManip");
 
 
         telemetry.addData("Servo Initialization Complete", "");
@@ -124,6 +145,10 @@ public class CustomOpMode extends OpMode{
         motorFL.setPower(0);
         motorBR.setPower(0);
         motorBL.setPower(0);
+
+        motorLiftDown1.setPower(0);
+        motorLiftDown2.setPower(0);
+        motorLiftUp.setPower(0);
     }
 
     public void setLeftMotors(double left){
