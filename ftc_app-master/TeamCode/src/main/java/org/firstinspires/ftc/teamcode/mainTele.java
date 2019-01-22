@@ -5,7 +5,11 @@ import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name="mainTele", group="TeleOp")
 public class mainTele extends CustomOpMode {
-    double motorScale = 1;
+    double motorScale = -1;
+
+    boolean rT = false;
+    boolean lT = false;
+
     public void init() {
         initizialize();
     }
@@ -33,11 +37,17 @@ public class mainTele extends CustomOpMode {
         }
 
         if (gamepad2.dpad_down) {
-            motorWR.setPower(-1);
+            motorLiftDown1.setPower(.5);
+            motorLiftDown2.setPower(.5);
+            //motorLiftUp.setPower(.5);
         } else if (gamepad2.dpad_up){
-            motorWR.setPower(1);
+            motorLiftDown1.setPower(-.5);
+            motorLiftDown2.setPower(-.5);
+            //motorLiftUp.setPower(-.5);
         } else {
-            motorWR.setPower(0);
+            motorLiftDown1.setPower(0);
+            motorLiftDown2.setPower(0);
+            //motorLiftUp.setPower(0);
         }
 
         if (gamepad1.back)
@@ -61,6 +71,31 @@ public class mainTele extends CustomOpMode {
         } else if (gamepad2.y) {
             servoWinchArm.setPosition(.8);
         }
+
+
+        if (gamepad2.right_bumper) {
+            servoLeftManip.setPower(1);
+            servoRightManip.setPower(-1);
+        } else if (gamepad2.left_bumper) {
+            servoLeftManip.setPower(-1);
+            servoRightManip.setPower(1);
+        } else {
+            servoLeftManip.setPower(0);
+            servoRightManip.setPower(0);
+        }
+
+        if (Math.abs(gamepad2.left_stick_y) > .1) {
+            motorExtend.setPower(gamepad2.left_stick_y);
+        } else {
+            motorExtend.setPower(0);
+        }
+
+        if (Math.abs(gamepad2.right_stick_y) > .1) {
+            motorManip.setPower(gamepad2.right_stick_y);
+        } else {
+            motorManip.setPower(0);
+        }
+
         telemetry.addData("Right motor speeds", yR);
         telemetry.addData("Left motor speed", yL);
         telemetry.addData("motorScale: ", motorScale);
