@@ -41,15 +41,15 @@ public class mainTele extends CustomOpMode {
         if (gamepad2.dpad_down) {
             motorLiftDown1.setPower(.5);
             motorLiftDown2.setPower(.5);
-            motorLiftUp.setPower(.5);
+            //motorLiftUp.setPower(.5);
         } else if (gamepad2.dpad_up){
             motorLiftDown1.setPower(-.5);
             motorLiftDown2.setPower(-.5);
-            motorLiftUp.setPower(-.5);
+            //motorLiftUp.setPower(-.5);
         } else {
             motorLiftDown1.setPower(0);
             motorLiftDown2.setPower(0);
-            motorLiftUp.setPower(0);
+            //motorLiftUp.setPower(0);
         }
 
         if (gamepad1.back)
@@ -74,35 +74,28 @@ public class mainTele extends CustomOpMode {
             servoWinchArm.setPosition(.8);
         }
 
-        //how to dp toggle? idk
 
+        if (gamepad2.right_bumper) {
+            servoLeftManip.setPower(1);
+            servoRightManip.setPower(-1);
+        } else if (gamepad2.left_bumper) {
+            servoLeftManip.setPower(-1);
+            servoRightManip.setPower(1);
+        } else {
+            servoLeftManip.setPower(0);
+            servoRightManip.setPower(0);
+        }
 
+        if (Math.abs(gamepad2.left_stick_y) > .1) {
+            motorExtend.setPower(gamepad2.left_stick_y);
+        } else {
+            motorExtend.setPower(0);
+        }
 
-
-
-
-        if(gamepad2.right_bumper) {
-            if(rT){
-                servoLeftManip.setPower(0);
-                servoRightManip.setPower(0);
-                rT = false;
-            } else{
-                servoLeftManip.setPower(.5);
-                servoRightManip.setPower(-.5);
-                rT = true;
-                lT = false;
-            }
-        } else if(gamepad2.left_bumper) {
-            if(lT){
-                servoLeftManip.setPower(0);
-                servoRightManip.setPower(0);
-                lT = false;
-            } else {
-                servoLeftManip.setPower(-.5);
-                servoRightManip.setPower(.5);
-                lT = true;
-                rT = false;
-            }
+        if (Math.abs(gamepad2.right_stick_y) > .1) {
+            motorManip.setPower(gamepad2.right_stick_y);
+        } else {
+            motorManip.setPower(0);
         }
 
         telemetry.addData("Right motor speeds", yR);

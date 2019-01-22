@@ -19,9 +19,10 @@ public class CustomOpMode extends OpMode{
     DcMotor motorFL;
     DcMotor motorBR;
     DcMotor motorBL;
-    DcMotor motorLiftUp;
+    DcMotor motorExtend;
     DcMotor motorLiftDown1;
     DcMotor motorLiftDown2;
+    DcMotor motorManip;
 
     IMU imu;
 
@@ -35,6 +36,8 @@ public class CustomOpMode extends OpMode{
     final double winchUpPower = .5;
 
     Servo servoWinchArm;
+    Servo servoGate;
+    Servo servoBasket;
 
     CRServo servoLeftManip;
     CRServo servoRightManip;
@@ -60,13 +63,17 @@ public class CustomOpMode extends OpMode{
 
     // initzialization method
     public void initizialize() {
+
         motorFR = hardwareMap.dcMotor.get("motorFR");
         motorFL = hardwareMap.dcMotor.get("motorFL");
         motorBR = hardwareMap.dcMotor.get("motorBR");
         motorBL = hardwareMap.dcMotor.get("motorBL");
-        motorLiftUp = hardwareMap.dcMotor.get("motorLiftUp");
+
+        motorExtend = hardwareMap.dcMotor.get("motorExtend");
         motorLiftDown1 = hardwareMap.dcMotor.get("motorLiftDown1");
         motorLiftDown2 = hardwareMap.dcMotor.get("motorLiftDown2");
+
+        motorManip = hardwareMap.dcMotor.get("motorManip");
 
         rangeSensorB = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensorB");
         rangeSensorL = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensorL");
@@ -74,11 +81,8 @@ public class CustomOpMode extends OpMode{
        // motorWinchUp = hardwareMap.dcMotor.get("motorWinchUp");
         //motorWinchDown = hardwareMap.dcMotor.get("motorWinchDown");
 
-        motorBL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorBR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorFR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //motorWinchUp.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);motorBR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         //motorWinchDown.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         motorBL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -92,16 +96,19 @@ public class CustomOpMode extends OpMode{
         motorBL.setDirection(DcMotorSimple.Direction.REVERSE);
 
         motorLiftDown1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorFR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //motorWinchUp.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorLiftDown2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorLiftUp.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorExtend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         motorLiftDown1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorLiftDown2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorLiftUp.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorExtend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         motorLiftDown1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorLiftDown2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorLiftUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorExtend.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         motorLiftDown1.setPower(0);
 
@@ -115,8 +122,11 @@ public class CustomOpMode extends OpMode{
         servoWinchArm = hardwareMap.servo.get("servoWinchArm");
         servoWinchArm.setPosition(servoWinchArmDownPos);
 
+        servoBasket = hardwareMap.servo.get("servoBasket");
+        servoGate = hardwareMap.servo.get("servoGate");
+
         servoLeftManip = hardwareMap.crservo.get("servoLeftManip");
-        servoRightManip = hardwareMap.crservo.get("servoLeftManip");
+        servoRightManip = hardwareMap.crservo.get("servoRightManip");
 
 
         telemetry.addData("Servo Initialization Complete", "");
@@ -148,7 +158,7 @@ public class CustomOpMode extends OpMode{
 
         motorLiftDown1.setPower(0);
         motorLiftDown2.setPower(0);
-        motorLiftUp.setPower(0);
+        motorExtend.setPower(0);
     }
 
     public void setLeftMotors(double left){
