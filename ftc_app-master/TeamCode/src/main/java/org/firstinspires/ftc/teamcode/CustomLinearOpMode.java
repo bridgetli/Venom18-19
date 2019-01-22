@@ -38,13 +38,13 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
 public class CustomLinearOpMode extends LinearOpMode {
 
     protected static final String VUFORIA_KEY = "AXb/g5n/////AAAAGSUed2rh5Us1jESA1cUn5r5KDUqTfwO2woh7MxjiLKSUyDslqBAgwCi0Qmc6lVczErnF5TIw7vG5R4TJ2igvrDVp+dP+3i2o7UUCRRj/PtyVgb4ZfNrDzHE80/6TUHifpKu4QCM04eRWYZocWNWhuRfytVeWy6NSTWefM9xadqG8FFrFk3XnvqDvk/6ZAgerNBdq5SsJ90eDdoAhgYEee40WxasoUUM9YVMvkWOqZgHSuraV2IyIUjkW/u0O+EkFtTNRUWP+aZwn1qO1H4Lk07AJYe21eqioBLMdzY7A8YqR1TeQ//0WJg8SFdXjuGbF6uHykBe2FF5UeyaehA0iTqfPS+59FLm8y1TuUt57eImq";
-    protected static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = FRONT;
     VuforiaLocalizer vuforia;
+    protected static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = FRONT;
 
-    private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
-    private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
-    private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
-    private TFObjectDetector tfod;
+    protected static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
+    protected static final String LABEL_GOLD_MINERAL = "Gold Mineral";
+    protected static final String LABEL_SILVER_MINERAL = "Silver Mineral";
+    protected TFObjectDetector tfod;
 
     //drive motors
     DcMotor motorFR;
@@ -145,15 +145,14 @@ public class CustomLinearOpMode extends LinearOpMode {
     }
 
     //Initialize the Vuforia localization engine.
-    private void initVuforia() {
+    protected void initVuforia() {
         //Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
 
-        //TODO: add this line here once we add webcam (replace line below)
-        //parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
-        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
+        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
+        //parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
 
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
         Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
@@ -161,7 +160,7 @@ public class CustomLinearOpMode extends LinearOpMode {
     }
 
     //Initialize the Tensor Flow Object Detection engine.
-    private void initTfod() {
+    protected void initTfod() {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
