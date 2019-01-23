@@ -2,10 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
-import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import java.util.List;
 
@@ -16,11 +13,7 @@ public class TFTest extends CustomLinearOpMode {
     public void runOpMode() {
         //initizialize();
         initVuforia();
-        if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
-            initTfod();
-        } else {
-            telemetry.addData("Sorry!", "This device is not compatible with TFOD");
-        }
+        initTfod();
 
         telemetry.addData(">", "Press Play to start tracking");
         telemetry.update();
@@ -32,7 +25,6 @@ public class TFTest extends CustomLinearOpMode {
                 tfod.activate();
             }
 
-            //TODO: test this, because I can guarantee it won't work perfectly on the new robot
             while (opModeIsActive()) {
                 if (tfod != null) {
                     List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
@@ -44,11 +36,14 @@ public class TFTest extends CustomLinearOpMode {
                             int silverMineral2X = -1;
                             for (Recognition recognition : updatedRecognitions) {
                                 if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                                    goldMineralX = (int) recognition.getTop();
+                                    goldMineralX = (int) (recognition.getRight() + recognition.getLeft() / 2);
+                                    ;
                                 } else if (silverMineral1X == -1) {
-                                    silverMineral1X = (int) recognition.getTop();
+                                    silverMineral1X = (int) (recognition.getRight() + recognition.getLeft() / 2);
+                                    ;
                                 } else {
-                                    silverMineral2X = (int) recognition.getTop();
+                                    silverMineral2X = (int) (recognition.getRight() + recognition.getLeft() / 2);
+                                    ;
                                 }
                             }
                             if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {

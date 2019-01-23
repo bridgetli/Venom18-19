@@ -37,7 +37,8 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
 
 public class CustomLinearOpMode extends LinearOpMode {
 
-    protected static final String VUFORIA_KEY = "AXb/g5n/////AAAAGSUed2rh5Us1jESA1cUn5r5KDUqTfwO2woh7MxjiLKSUyDslqBAgwCi0Qmc6lVczErnF5TIw7vG5R4TJ2igvrDVp+dP+3i2o7UUCRRj/PtyVgb4ZfNrDzHE80/6TUHifpKu4QCM04eRWYZocWNWhuRfytVeWy6NSTWefM9xadqG8FFrFk3XnvqDvk/6ZAgerNBdq5SsJ90eDdoAhgYEee40WxasoUUM9YVMvkWOqZgHSuraV2IyIUjkW/u0O+EkFtTNRUWP+aZwn1qO1H4Lk07AJYe21eqioBLMdzY7A8YqR1TeQ//0WJg8SFdXjuGbF6uHykBe2FF5UeyaehA0iTqfPS+59FLm8y1TuUt57eImq";
+    protected static final String VUFORIA_KEY = "AU1EPdr/////AAABmT6zWfr8qUNugR5o7PvwzcEJfcXKCLInER6PgCU4kiAwOmPTqEJB9HCG9hlVk009cFlQbSYCfySClawEGv8sVVlYagXM4pXlFGtqw+gDH7+Y35RYUp5aZzm++TPT/Zgd3uJSd2FNtQKXqCFqWp0kar/a50Q5B3kE3cWw6+UFaYTNSSSgDVtMNkZgu4fCbgpIo8iOCQnaOJUsxdo41Nt/VdkaQ2+78ys2EJOkSEAw8lvWSRU4XXBc3p3e8NrSXIjpxUGUIYAIZ7rsvxH2ck3qEcBu+KyRWGzSk5xGAfXY8+2AQHaSMpYanZt2k2d68ROZuwog30HcWwpSfueDw3NuWbN+WIi5XicgbiTunHUlXQiD";
+    //protected static final String VUFORIA_KEY = "AXb/g5n/////AAAAGSUed2rh5Us1jESA1cUn5r5KDUqTfwO2woh7MxjiLKSUyDslqBAgwCi0Qmc6lVczErnF5TIw7vG5R4TJ2igvrDVp+dP+3i2o7UUCRRj/PtyVgb4ZfNrDzHE80/6TUHifpKu4QCM04eRWYZocWNWhuRfytVeWy6NSTWefM9xadqG8FFrFk3XnvqDvk/6ZAgerNBdq5SsJ90eDdoAhgYEee40WxasoUUM9YVMvkWOqZgHSuraV2IyIUjkW/u0O+EkFtTNRUWP+aZwn1qO1H4Lk07AJYe21eqioBLMdzY7A8YqR1TeQ//0WJg8SFdXjuGbF6uHykBe2FF5UeyaehA0iTqfPS+59FLm8y1TuUt57eImq";
     VuforiaLocalizer vuforia;
     protected static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = FRONT;
 
@@ -133,10 +134,7 @@ public class CustomLinearOpMode extends LinearOpMode {
 
         //Vuforia and Tensorflow init (This only works on the Motorola)
         initVuforia();
-        if (ClassFactory.getInstance().canCreateTFObjectDetector())
-            initTfod();
-        else
-            telemetry.addLine("Please use the Motorolas if you want to use Tensorflow");
+        initTfod();
         telemetry.addData("Vuforia and Tensorflow Initialization Complete", "");
 
 
@@ -161,11 +159,14 @@ public class CustomLinearOpMode extends LinearOpMode {
 
     //Initialize the Tensor Flow Object Detection engine.
     protected void initTfod() {
-        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
-                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
+        if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
+            int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+            TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+            tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+            tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
+        } else {
+            telemetry.addData("Sorry!", "Please use the Motorolas if you want to use Tensorflow");
+        }
     }
 
     public void Pturn(double angle, int msTimeout) {
@@ -492,10 +493,9 @@ public class CustomLinearOpMode extends LinearOpMode {
         motorFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
-    //TODO replace getBlock with this method; also, make sure this is up to date with TFTest (make sure it works on new robot)
     public void getGoldCubePos() {
         char pos = 'C';
-        int numAttempts = 5; //adjust if necessary
+        int numAttempts = 10; //adjust if necessary
         if (tfod != null)
             tfod.activate();
         for(int attempts = 0; attempts < numAttempts; attempts++) {
@@ -508,20 +508,23 @@ public class CustomLinearOpMode extends LinearOpMode {
                         int silverMineral2X = -1;
                         for (Recognition recognition : updatedRecognitions) {
                             if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                                goldMineralX = (int) recognition.getTop();
+                                goldMineralX = (int) (recognition.getRight() + recognition.getLeft() / 2);
+                                ;
                             } else if (silverMineral1X == -1) {
-                                silverMineral1X = (int) recognition.getTop();
+                                silverMineral1X = (int) (recognition.getRight() + recognition.getLeft() / 2);
+                                ;
                             } else {
-                                silverMineral2X = (int) recognition.getTop();
+                                silverMineral2X = (int) (recognition.getRight() + recognition.getLeft() / 2);
+                                ;
                             }
                         }
                         if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
                             if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
-                                telemetry.addData("Gold Mineral Position", "Left");
-                                pos = 'L';
-                            } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
                                 telemetry.addData("Gold Mineral Position", "Right");
                                 pos = 'R';
+                            } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
+                                telemetry.addData("Gold Mineral Position", "Left");
+                                pos = 'L';
                             } else {
                                 telemetry.addData("Gold Mineral Position", "Center");
                                 pos = 'C';

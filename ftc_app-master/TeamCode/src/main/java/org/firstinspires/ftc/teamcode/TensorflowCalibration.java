@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+
 import java.util.List;
 
 @Autonomous(name = "TFStats", group = "tftest")
@@ -18,6 +19,10 @@ public class TensorflowCalibration extends CustomLinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
+            if (tfod != null) {
+                tfod.activate();
+            }
+
             if (tfod != null) {
                 List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                 if (updatedRecognitions != null) {
@@ -37,6 +42,9 @@ public class TensorflowCalibration extends CustomLinearOpMode {
                     telemetry.update();
                 }
             }
+        }
+        if (tfod != null) {
+            tfod.shutdown();
         }
     }
 }

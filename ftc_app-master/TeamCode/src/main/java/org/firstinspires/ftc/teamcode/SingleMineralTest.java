@@ -2,10 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
-import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import java.util.List;
 
@@ -26,13 +23,13 @@ public class SingleMineralTest extends CustomLinearOpMode {
             //activate tensorflow
             if (tfod != null)
                 tfod.activate();
-            float top;
+            float x;
             float area;
             //TODO: These are place holders, please remember to adjust
-            float topBounds = 550;
-            float bottomBounds = 350;
-            float areaUpperBounds = 90000;
-            float areaLowerBounds = 60000;
+            float rightBounds = 600;
+            float leftBounds = 400;
+            float areaUpperBounds = 8000;
+            float areaLowerBounds = 4000;
 
             while (opModeIsActive()) {
                 if (tfod != null) {
@@ -46,11 +43,11 @@ public class SingleMineralTest extends CustomLinearOpMode {
                             telemetry.addData("Mineral Type", recognition.getLabel());
 
                             //center robot with mineral
-                            top = recognition.getTop();
-                            telemetry.addData("Top", top);
-                            if (top < topBounds && top > bottomBounds) {
+                            x = (recognition.getRight() + recognition.getLeft() / 2);
+                            telemetry.addData("x", x);
+                            if (x < rightBounds && x > leftBounds) {
                                 telemetry.addLine("No action needed");
-                            } else if (top > topBounds) {
+                            } else if (x > rightBounds) {
                                 //turn left
                                 telemetry.addLine("Turn left");
                             } else {
