@@ -17,7 +17,9 @@ import com.vuforia.PIXEL_FORMAT;
 import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -40,10 +42,16 @@ public class SingleSampleCrater extends CustomLinearOpMode {
         // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection   = CAMERA_CHOICE;
+        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
+
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
 
         Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
         vuforia.setFrameQueueCapacity(1);
@@ -63,29 +71,20 @@ public class SingleSampleCrater extends CustomLinearOpMode {
 
         delatch();
 
-        sleep(1000);
+        getBlock();
+
+        moveToEncoder(-350, .3, 0);
+
+        lowerLift();
 
         stopMotors();
 
         //TODO: optimize paths, focus on depot side first; averages 18 sec currently; goal 15 sec?
         if (blockPos == 'R' || blockPos == '?') {
-            Pturn(55, 2500);
-            sleep(200); //500
-            moveToEncoder(1000, .65, 55);
-            sleep(200);
-            moveToEncoder(1000, .65, -30);
 
         } else if (blockPos == 'C') {
-            //Pturn(45, 2500);
-            //sleep(500);
-            moveToEncoder(1000, .65, 10);
-
 
         } else {
-            Pturn(-39, 3000);
-            sleep(200); //500
-            moveToEncoder(1000, .65, -39);
-            moveToEncoder(1500, .65, 20);
 
         }
 

@@ -23,12 +23,17 @@ import com.vuforia.Vuforia;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 //import for_camera_opmodes.LinearOpModeCamera;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import static android.graphics.Color.blue;
 import static android.graphics.Color.red;
@@ -36,17 +41,36 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
 
 public class CustomLinearOpMode extends LinearOpMode {
 
-    protected static final String VUFORIA_KEY = "AXb/g5n/////AAAAGSUed2rh5Us1jESA1cUn5r5KDUqTfwO2woh7MxjiLKSUyDslqBAgwCi0Qmc6lVczErnF5TIw7vG5R4TJ2igvrDVp+dP+3i2o7UUCRRj/PtyVgb4ZfNrDzHE80/6TUHifpKu4QCM04eRWYZocWNWhuRfytVeWy6NSTWefM9xadqG8FFrFk3XnvqDvk/6ZAgerNBdq5SsJ90eDdoAhgYEee40WxasoUUM9YVMvkWOqZgHSuraV2IyIUjkW/u0O+EkFtTNRUWP+aZwn1qO1H4Lk07AJYe21eqioBLMdzY7A8YqR1TeQ//0WJg8SFdXjuGbF6uHykBe2FF5UeyaehA0iTqfPS+59FLm8y1TuUt57eImq";
+    protected static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
+    protected static final String LABEL_GOLD_MINERAL = "Gold Mineral";
+    protected static final String LABEL_SILVER_MINERAL = "Silver Mineral";
 
-    protected static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = FRONT;
+    /*
+     * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
+     * 'parameters.vuforiaLicenseKey' is initialized is for illustration only, and will not function.
+     * A Vuforia 'Development' license key, can be obtained free of charge from the Vuforia developer
+     * web site at https://developer.vuforia.com/license-manager.
+     *
+     * Vuforia license keys are always 380 characters long, and look as if they contain mostly
+     * random data. As an example, here is a example of a fragment of a valid key:
+     *      ... yIgIzTqZ4mWjk9wd3cZO9T1axEqzuhxoGlfOOI2dRzKS4T0hQ8kT ...
+     * Once you've obtained a license key, copy the string from the Vuforia web site
+     * and paste it in to your code on the next line, between the double quotes.
+     */
 
-
+    protected static final String VUFORIA_KEY = "AU1EPdr/////AAABmT6zWfr8qUNugR5o7PvwzcEJfcXKCLInER6PgCU4kiAwOmPTqEJB9HCG9hlVk009cFlQbSYCfySClawEGv8sVVlYagXM4pXlFGtqw+gDH7+Y35RYUp5aZzm++TPT/Zgd3uJSd2FNtQKXqCFqWp0kar/a50Q5B3kE3cWw6+UFaYTNSSSgDVtMNkZgu4fCbgpIo8iOCQnaOJUsxdo41Nt/VdkaQ2+78ys2EJOkSEAw8lvWSRU4XXBc3p3e8NrSXIjpxUGUIYAIZ7rsvxH2ck3qEcBu+KyRWGzSk5xGAfXY8+2AQHaSMpYanZt2k2d68ROZuwog30HcWwpSfueDw3NuWbN+WIi5XicgbiTunHUlXQiD";
 
     /**
      * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
      * localization engine.
      */
-    VuforiaLocalizer vuforia;
+    protected VuforiaLocalizer vuforia;
+
+    /**
+     * {@link #tfod} is the variable we will use to store our instance of the Tensor Flow Object
+     * Detection engine.
+     */
+    protected TFObjectDetector tfod;
 
     //drive motors
     DcMotor motorFR;
@@ -163,9 +187,8 @@ public class CustomLinearOpMode extends LinearOpMode {
     public void delatch() throws InterruptedException{
         resetEncoders();
 
-        motorLiftDown1.setPower(-.75);
-        motorLiftDown2.setPower(-.75);
-        motorLiftUp.setPower(-.75);
+        motorLiftDown1.setPower(-.8);
+        motorLiftDown2.setPower(-.8);
 
         while (motorLiftDown1.getCurrentPosition() > -4000 && opModeIsActive()) {
         }
@@ -173,16 +196,9 @@ public class CustomLinearOpMode extends LinearOpMode {
         motorLiftDown1.setPower(0);
         motorLiftDown2.setPower(0);
         motorLiftUp.setPower(0);
+    }
 
-        moveToEncoder(-350, .65, 180);
-        Pturn(0, 3200);
-        moveToEncoder(-150, .55, 0);
-
-        getBlock();
-
-        telemetry.addData("Block Pos", blockPos);
-        telemetry.update();
-
+    public void lowerLift() throws InterruptedException {
         motorLiftDown1.setPower(.75);
         motorLiftDown2.setPower(.75);
         motorLiftUp.setPower(.75);
@@ -193,7 +209,6 @@ public class CustomLinearOpMode extends LinearOpMode {
         motorLiftDown1.setPower(0);
         motorLiftDown2.setPower(0);
         motorLiftUp.setPower(0);
-
     }
 
     public void Pturn(double angle, int msTimeout) {
@@ -538,34 +553,60 @@ public class CustomLinearOpMode extends LinearOpMode {
     }
 
     public void getBlock() throws InterruptedException {
-        // Retrieves the location of the yellow block and saves it in blockPos
+        if (tfod != null) {
+            tfod.activate();
+        }
 
-        blockPos = 'C'; //default case
+        List<Recognition> recognitions = null;
 
-        Bitmap bitmap = takePic();
+        while (recognitions == null) {
+            if (tfod != null) {
+                // getUpdatedRecognitions() will return null if no new information is available since
+                // the last time that call was made.
+                recognitions = tfod.getRecognitions();
+                if (recognitions != null) {
+                    telemetry.addData("# Object Detected", recognitions.size());
 
+                    int min1X;
+                    int min2X;
+                    String min1Label;
+                    String min2Label;
 
-        // basic brute force counter
-        int startRow = 39;                  // VERTICAL DIMENSIONS
-        int endRow = 50;
-        // WILL NEED TO BE TUNED AGAIN WITH NEW PHONE LOCATION
-        int leftScol = 5;                  // HORIZONTAL DIMENSIONS
-        int leftEcol = 28;
-        //int centerScol = 35;
-        //int centerEcol = 44;
-        int rightScol = 45;
-        int rightEcol = 75;
+                    if (recognitions.size() >= 2) {
+                        Collections.sort(recognitions, new Comparator<Recognition>() {
+                            @Override
+                            public int compare(Recognition recognition, Recognition t1) {
+                                if (recognition.getBottom() > t1.getBottom())
+                                    return -1;
+                                return 1;
+                            }
 
-        BoundingBox left = new BoundingBox(startRow, leftScol, endRow, leftEcol);    //look at images taken from consistent
-        //BoundingBox center = new BoundingBox(startRow, centerScol, endRow, centerEcol);  //spot in auto and get pixel range
-        BoundingBox right = new BoundingBox(startRow, rightScol, endRow, rightEcol);   //of left center and right
+                        });
 
-        if (yellowValOfBox(bitmap, left) < 3200 && yellowValOfBox(bitmap, right) < 3200)
-            blockPos = 'R';
-        else if (yellowValOfBox(bitmap, left) > yellowValOfBox(bitmap, right)) {
-            blockPos = 'L';
-        } else if (yellowValOfBox(bitmap, right) > yellowValOfBox(bitmap, left)) {
-            blockPos = 'C';
+                        min1Label = recognitions.get(0).getLabel();
+                        min1X = (int) recognitions.get(0).getLeft();
+
+                        min2Label = recognitions.get(1).getLabel();
+                        min2X = (int) recognitions.get(1).getLeft();
+
+                        if (min1Label.equals(LABEL_SILVER_MINERAL) && min2Label.equals(LABEL_SILVER_MINERAL)) {
+                            blockPos = 'R';
+                        } else {
+                            if (min1Label.equals(LABEL_GOLD_MINERAL)) {
+                                blockPos = min1X < min2X ? 'L' : 'C';
+                            } else if (min2Label.equals(LABEL_GOLD_MINERAL)) {
+                                blockPos = min2X < min1X ? 'L' : 'C';
+                            }
+                        }
+                        telemetry.addData("blockPos: ", blockPos);
+
+                    } else {
+                        //well shit
+                        telemetry.addLine("Less than 2 blocks found");
+                    }
+                    telemetry.update();
+                }
+            }
         }
     }
 
@@ -802,4 +843,6 @@ public class CustomLinearOpMode extends LinearOpMode {
             this.endCol = endCol;
         }
     }
+
+
 }
