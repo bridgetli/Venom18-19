@@ -29,6 +29,8 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.FRONT;
@@ -40,8 +42,6 @@ public class CustomLinearOpMode extends LinearOpMode {
     protected static final String VUFORIA_KEY = "AU1EPdr/////AAABmT6zWfr8qUNugR5o7PvwzcEJfcXKCLInER6PgCU4kiAwOmPTqEJB9HCG9hlVk009cFlQbSYCfySClawEGv8sVVlYagXM4pXlFGtqw+gDH7+Y35RYUp5aZzm++TPT/Zgd3uJSd2FNtQKXqCFqWp0kar/a50Q5B3kE3cWw6+UFaYTNSSSgDVtMNkZgu4fCbgpIo8iOCQnaOJUsxdo41Nt/VdkaQ2+78ys2EJOkSEAw8lvWSRU4XXBc3p3e8NrSXIjpxUGUIYAIZ7rsvxH2ck3qEcBu+KyRWGzSk5xGAfXY8+2AQHaSMpYanZt2k2d68ROZuwog30HcWwpSfueDw3NuWbN+WIi5XicgbiTunHUlXQiD";
     //protected static final String VUFORIA_KEY = "AXb/g5n/////AAAAGSUed2rh5Us1jESA1cUn5r5KDUqTfwO2woh7MxjiLKSUyDslqBAgwCi0Qmc6lVczErnF5TIw7vG5R4TJ2igvrDVp+dP+3i2o7UUCRRj/PtyVgb4ZfNrDzHE80/6TUHifpKu4QCM04eRWYZocWNWhuRfytVeWy6NSTWefM9xadqG8FFrFk3XnvqDvk/6ZAgerNBdq5SsJ90eDdoAhgYEee40WxasoUUM9YVMvkWOqZgHSuraV2IyIUjkW/u0O+EkFtTNRUWP+aZwn1qO1H4Lk07AJYe21eqioBLMdzY7A8YqR1TeQ//0WJg8SFdXjuGbF6uHykBe2FF5UeyaehA0iTqfPS+59FLm8y1TuUt57eImq";
     VuforiaLocalizer vuforia;
-    protected static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = FRONT;
-
     protected static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     protected static final String LABEL_GOLD_MINERAL = "Gold Mineral";
     protected static final String LABEL_SILVER_MINERAL = "Silver Mineral";
@@ -52,9 +52,13 @@ public class CustomLinearOpMode extends LinearOpMode {
     DcMotor motorFL;
     DcMotor motorBR;
     DcMotor motorBL;
+    DcMotor motorExtend;
+    DcMotor motorLiftDown1;
+    DcMotor motorLiftDown2;
+    DcMotor motorManip;
 
     //speed
-    double speed = 0.5;
+    double left = 1.00;
 
     //winch motors???
     //DcMotor motorWinchUp;
@@ -65,12 +69,14 @@ public class CustomLinearOpMode extends LinearOpMode {
     ModernRoboticsI2cRangeSensor rangeSensorL;
 
     Servo servoWinchArm;
-    final double servoWinchArmInitPos = .1;
-    final double servoWinchArmDepositPos = .79;
+    final double servoWinchArmInitPos = .5;
+    final double servoWinchArmDepositPos = 1;
 
     final double winchDownPower = .5;
     final double winchUpPower = .5;
 
+
+    String tensorflowInfo = "";
     //Servo servoMarker;
 
     final double servoMarkerStartPos = 1;
@@ -106,6 +112,9 @@ public class CustomLinearOpMode extends LinearOpMode {
         motorBR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorFR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorExtend = hardwareMap.dcMotor.get("motorExtend");
+        motorLiftDown1 = hardwareMap.dcMotor.get("motorLiftDown1");
+        motorLiftDown2 = hardwareMap.dcMotor.get("motorLiftDown2");
         //motorWinchUp.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //motorWinchDown.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
@@ -132,14 +141,54 @@ public class CustomLinearOpMode extends LinearOpMode {
         imu.IMUinit(hardwareMap);
         telemetry.addData("IMU Initialization Complete", "");
 
-        //Vuforia and Tensorflow init (This only works on the Motorola)
+        motorLiftDown1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorLiftDown2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorExtend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        idle();
+
+        motorLiftDown1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorLiftDown2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorExtend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        motorLiftDown1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorLiftDown2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorExtend.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        motorLiftDown1.setPower(0);
+        motorLiftDown2.setPower(0);
+        motorExtend.setPower(0);
+
+        //vuforia + tfod init
         initVuforia();
         initTfod();
-        telemetry.addData("Vuforia and Tensorflow Initialization Complete", "");
-
 
         telemetry.addData("Initialization Complete", "");
         telemetry.update();
+    }
+
+    public void delatch() throws InterruptedException{
+        resetEncoders();
+
+        motorLiftDown1.setPower(.8);
+        motorLiftDown2.setPower(.8);
+
+        while (motorLiftDown1.getCurrentPosition() < 3500 && opModeIsActive()) {
+        }
+
+        motorLiftDown1.setPower(0);
+        motorLiftDown2.setPower(0);
+    }
+
+    public void lowerLift() throws InterruptedException {
+        motorLiftDown1.setPower(-.75);
+        motorLiftDown2.setPower(-.75);
+
+        while (motorLiftDown1.getCurrentPosition() > 50 && opModeIsActive()) {
+        }
+
+        motorLiftDown1.setPower(0);
+        motorLiftDown2.setPower(0);
     }
 
     //Initialize the Vuforia localization engine.
@@ -297,7 +346,7 @@ public class CustomLinearOpMode extends LinearOpMode {
 
         resetEncoders();
 
-        double kPangle = 1.0/90.0;              // MIGHT NEED TO BE RETUNED
+        double kPangle = 3.0/90.0;              // MIGHT NEED TO BE RETUNED
         time.reset();
         if (encoder > 0) {
             while (motorFL.getCurrentPosition() < encoder && opModeIsActive() && time.milliseconds() < msTimeout) {
@@ -401,9 +450,6 @@ public class CustomLinearOpMode extends LinearOpMode {
         motorBR.setPower(-speed);
     }
 
-    public String getBlockLocation() {
-        return "CENTER";
-    }
 
     public void goForward(double distance){
         // goes forward a certain distance after we add the sensor in
@@ -541,32 +587,67 @@ public class CustomLinearOpMode extends LinearOpMode {
     }
 
     public void getBlock() throws InterruptedException {
-        // Retrieves the location of the yellow block and saves it in blockPos
+        if (tfod != null) {
+            tfod.activate();
+        }
 
-        blockPos = 'C'; //default case
+        telemetry.addData("tfod is null? ", tfod == null);
+        tensorflowInfo += "tfod is null? " + tfod == null + "\n";
 
-        Bitmap bitmap = takePic();
+        List<Recognition> recognitions = null;
+        boolean twoObjectsFound = false;
 
+        while (recognitions == null || !twoObjectsFound) {
+            if (tfod != null) {
+                // getUpdatedRecognitions() will return null if no new information is available since
+                // the last time that call was made.
+                recognitions = tfod.getUpdatedRecognitions();
+                if (recognitions != null) {
+                    telemetry.addData("# Object Detected", recognitions.size());
+                    tensorflowInfo += "# Object Detected " + recognitions.size() + "\n";
 
-        // basic brute force counter
-        int startRow = 14;                  // VERTICAL DIMENSIONS
-        int endRow = 23;
-        // WILL NEED TO BE TUNED AGAIN WITH NEW PHONE LOCATION
-        int leftScol = 13;                  // HORIZONTAL DIMENSIONS
-        int leftEcol = 22;
-        int centerScol = 35;
-        int centerEcol = 44;
-        int rightScol = 56;
-        int rightEcol = 65;
+                    int min1X;
+                    int min2X;
+                    String min1Label;
+                    String min2Label;
 
-        BoundingBox left = new BoundingBox(startRow, leftScol, endRow, leftEcol);    //look at images taken from consistent
-        BoundingBox center = new BoundingBox(startRow, centerScol, endRow, centerEcol);  //spot in auto and get pixel range
-        BoundingBox right = new BoundingBox(startRow, rightScol, endRow, rightEcol);   //of left center and right
+                    if (recognitions.size() >= 2) {
+                        twoObjectsFound = true;
+                        Collections.sort(recognitions, new Comparator<Recognition>() {
+                            @Override
+                            public int compare(Recognition recognition, Recognition t1) {
+                                if (recognition.getBottom() > t1.getBottom())
+                                    return -1;
+                                return 1;
+                            }
 
-        if (yellowValOfBox(bitmap, left) > yellowValOfBox(bitmap, center)) {
-            blockPos = 'L';
-            if (yellowValOfBox(bitmap, right) > yellowValOfBox(bitmap, left))
-                blockPos = 'R';
+                        });
+
+                        min1Label = recognitions.get(0).getLabel();
+                        min1X = (int) recognitions.get(0).getLeft();
+
+                        min2Label = recognitions.get(1).getLabel();
+                        min2X = (int) recognitions.get(1).getLeft();
+
+                        if (min1Label.equals(LABEL_SILVER_MINERAL) && min2Label.equals(LABEL_SILVER_MINERAL)) {
+                            blockPos = 'R';
+                        } else {
+                            if (min1Label.equals(LABEL_GOLD_MINERAL)) {
+                                blockPos = min1X < min2X ? 'L' : 'C';
+                            } else if (min2Label.equals(LABEL_GOLD_MINERAL)) {
+                                blockPos = min2X < min1X ? 'L' : 'C';
+                            }
+                        }
+                        telemetry.addData("blockPos: ", blockPos);
+
+                    } else {
+                        //well shit
+                        telemetry.addLine("Less than 2 blocks found");
+                        tensorflowInfo += "Less than 2 blocks found" + "\n";
+                    }
+                    telemetry.update();
+                }
+            }
         }
         else if (yellowValOfBox(bitmap, right) > yellowValOfBox(bitmap, center))
             blockPos = 'R';
@@ -815,4 +896,6 @@ public class CustomLinearOpMode extends LinearOpMode {
             this.endCol = endCol;
         }
     }
+
+
 }

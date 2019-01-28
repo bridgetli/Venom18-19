@@ -37,17 +37,17 @@ public class mainTele extends CustomOpMode {
         }
 
         if (gamepad2.dpad_down) {
-            motorLiftDown1.setPower(.5);
-            motorLiftDown2.setPower(.5);
-            //motorLiftUp.setPower(.5);
+            motorLiftDown1.setPower(-.9);
+            motorLiftDown2.setPower(-.9);
+            //motorExtend.setPower(.5);
         } else if (gamepad2.dpad_up){
-            motorLiftDown1.setPower(-.5);
-            motorLiftDown2.setPower(-.5);
-            //motorLiftUp.setPower(-.5);
+            motorLiftDown1.setPower(.9);
+            motorLiftDown2.setPower(.9);
+            //motorExtend.setPower(-.5);
         } else {
             motorLiftDown1.setPower(0);
             motorLiftDown2.setPower(0);
-            //motorLiftUp.setPower(0);
+            //motorExtend.setPower(0);
         }
 
         if (gamepad1.back)
@@ -84,7 +84,7 @@ public class mainTele extends CustomOpMode {
             servoRightManip.setPower(0);
         }
 
-        if (Math.abs(gamepad2.left_stick_y) > .1) {
+        if (Math.abs(gamepad2.left_stick_y) > .25) {
             motorExtend.setPower(gamepad2.left_stick_y);
         } else {
             motorExtend.setPower(0);

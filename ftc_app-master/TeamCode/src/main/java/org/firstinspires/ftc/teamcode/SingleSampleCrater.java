@@ -17,7 +17,9 @@ import com.vuforia.PIXEL_FORMAT;
 import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -41,10 +43,16 @@ public class SingleSampleCrater extends CustomLinearOpMode {
         // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection   = CAMERA_CHOICE;
+        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
+
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
 
         Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
         vuforia.setFrameQueueCapacity(1);
@@ -52,12 +60,36 @@ public class SingleSampleCrater extends CustomLinearOpMode {
         initizialize();
         telemetry.addLine("Vuforia initialization complete");
 
+        motorLiftDown1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorLiftDown2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorExtend.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        motorLiftDown1.setPower(0);
+        motorLiftDown2.setPower(0);
+        motorExtend.setPower(0);
+
+        motorLiftDown1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorLiftDown2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while (!opModeIsActive()) {
+            motorLiftDown1.setTargetPosition(0);
+            motorLiftDown2.setTargetPosition(0);
+            motorLiftDown1.setPower(-.3);
+            motorLiftDown2.setPower(-.3);
+        }
+
+        motorLiftDown1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorLiftDown2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         waitForStart();
 
         getBlock();
-
-        telemetry.addData("Block Pos", blockPos);
+        telemetry.addData("blockPos: ", blockPos);
         telemetry.update();
+
+        moveToEncoder(-550, .45, 0);
+
+        lowerLift();
 
         sleep(100);
 
@@ -66,35 +98,25 @@ public class SingleSampleCrater extends CustomLinearOpMode {
         sleep(250); //500
         //TODO: optimize paths, focus on depot side first; averages 18 sec currently; goal 15 sec?
         if (blockPos == 'R' || blockPos == '?') {
-            Pturn(45, 2500);
-            sleep(200); //500
-            moveToEncoder(500, .35, 45);
-            sleep(200);
-            moveToEncoder(-480, .35, 45);
-            Pturn(-90, 2500);
+            Pturn(45, 2000);
+            moveToEncoderT(-600, .45, 45, 2000);
+            moveToEncoderT(600, .45, 45, 2000);
+
         } else if (blockPos == 'C') {
-            //Pturn(45, 2500);
-            //sleep(500);
-            moveToEncoder(330, .35, 0);
-            sleep(200);
-            moveToEncoder(-320, .35, 0);
-            Pturn(-90, 2500);
+            moveToEncoderT(-600, .45, 0, 2000);
+            moveToEncoderT(600, .45, 0, 2000);
         } else {
-            Pturn(-45, 2500);
-            sleep(200); //500
-            moveToEncoder(500, .35, -45);
-            sleep(200);
-            moveToEncoder(-480, .35, -45);
-            Pturn(-90, 2500);
+            Pturn(-45, 2000);
+            moveToEncoderT(-600, .45, -45, 2000);
+            moveToEncoderT(600, .45, -45, 2000);
         }
 
-        moveToEncoderT(2100, .3, -90, 4000);
-        sleep(250); //500
-        Pturn(45, 2500);
-        moveToEncoderT(-1200, .3,46, 4000);
-
+        Pturn(-90, 3000);
+        moveToEncoderT(-2100, .45, -90, 3500);
+        Pturn(-135, 2000);
+        moveToEncoderT(-2000, .55, -135, 3000);
         depositMarker();
+        moveToEncoderT(5000, .85, -137, 5000);
 
-        moveTimeP(1450, .6, 43);
     }
 }

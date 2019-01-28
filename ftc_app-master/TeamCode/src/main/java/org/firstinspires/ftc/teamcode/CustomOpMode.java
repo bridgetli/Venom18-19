@@ -42,13 +42,10 @@ public class CustomOpMode extends OpMode{
     CRServo servoLeftManip;
     CRServo servoRightManip;
 
-    final double servoWinchArmDownPos = .09;
-    final double servoWinchArmUpPos = .3;
+    final double servoWinchArmDownPos = .5;
+    final double servoWinchArmUpPos = 1;
 
     //Servo servoMarker;
-
-    final double servoMarkerStartPos = 1;
-    final double servoMarkerEndPos = 0;
 
     //IMU imu;
 
