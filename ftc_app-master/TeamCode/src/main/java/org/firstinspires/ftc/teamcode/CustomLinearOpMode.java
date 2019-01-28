@@ -564,7 +564,7 @@ public class CustomLinearOpMode extends LinearOpMode {
             if (tfod != null) {
                 // getUpdatedRecognitions() will return null if no new information is available since
                 // the last time that call was made.
-                recognitions = tfod.getRecognitions();
+                recognitions = tfod.getUpdatedRecognitions();
                 if (recognitions != null) {
                     telemetry.addData("# Object Detected", recognitions.size());
                     tensorflowInfo += "# Object Detected " + recognitions.size() + "\n";
