@@ -40,6 +40,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -117,6 +119,14 @@ public class DriverlessTest extends CustomOpMode {
             // the last time that call was made.
             List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
             if (updatedRecognitions != null) {
+                Collections.sort(updatedRecognitions, new Comparator<Recognition>() {
+                    @Override
+                    public int compare(Recognition recognition, Recognition t1) {
+                        if (recognition.getBottom() > t1.getBottom())
+                            return -1;
+                        return 1;
+                    }
+                });
                 telemetry.addData("# Object Detected", updatedRecognitions.size());
                 //Marcus is the best hardware lead -Bo Deng
                 //He is also god tier at CAD, I want him next year on my team
@@ -125,9 +135,14 @@ public class DriverlessTest extends CustomOpMode {
                     telemetry.addData("Type: ", particle.getLabel());
                     telemetry.addData("Angle to particle: ", particle.estimateAngleToObject(AngleUnit.DEGREES));
                     telemetry.addData("x of particle: ", (particle.getLeft() + particle.getRight()) / 2);
+                    telemetry.addData("y of particle: ", (particle.getTop() + particle.getBottom()) / 2);
+                    telemetry.addData("Confidence: ", particle.getConfidence());
+                    telemetry.addLine("\n\n");
                 }
                 telemetry.update();
             }
+
+
         }
 
         if (tfod != null) {

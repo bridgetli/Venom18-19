@@ -17,7 +17,9 @@ import com.vuforia.PIXEL_FORMAT;
 import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -40,10 +42,16 @@ public class SingleSampleDepot extends CustomLinearOpMode {
         // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection   = CAMERA_CHOICE;
+        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
+
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
 
         Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
         vuforia.setFrameQueueCapacity(1);
@@ -51,64 +59,74 @@ public class SingleSampleDepot extends CustomLinearOpMode {
         initizialize();
         telemetry.addLine("Vuforia initialization complete");
 
+        motorLiftDown1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorLiftDown2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorExtend.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        motorLiftDown1.setPower(0);
+        motorLiftDown2.setPower(0);
+        motorExtend.setPower(0);
+
+        motorLiftDown1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorLiftDown2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while (!opModeIsActive()) {
+            motorLiftDown1.setTargetPosition(0);
+            motorLiftDown2.setTargetPosition(0);
+            motorLiftDown1.setPower(-.3);
+            motorLiftDown2.setPower(-.3);
+        }
+
+        motorLiftDown1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorLiftDown2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         waitForStart();
 
         delatch();
 
         getBlock();
-
-
-        telemetry.addData("Block Pos", blockPos);
+        telemetry.addData("blockPos: ", blockPos);
         telemetry.update();
 
-        sleep(100);
+        moveToEncoder(-550, .45, 0);
 
-        moveToEncoder(560, .45, 0);
-        sleep(500);
+        lowerLift();
 
-        //TODO: optimize all of these paths; averages 17 sec currently; maybe get to 15 or less
-        if (blockPos == 'R' || blockPos == '?') { //also, default path should be center, as it is slightly faster //ehh don't worry about it hamza
-            //turn towards block & move through it
-            Pturn(45, 2500);
-            sleep(250); //500
-            moveToEncoder(1500, .40, 45); //increase encoder/power (if we change path)?
-            sleep(250); //500
+        stopMotors();
 
-
-            Pturn(135, 2500); //replace this; instead, move straight through the block?
-            sleep(250); //500
-            moveToEncoderT(-1500, .35, 135, 2000);
-            Pturn(-135, 2500); //turn to depot (adjust angle or remove statement)
-
-            moveToEncoderT(700, .35, -135, 2000); //adjust angle as needed
+        //TODO: optimize paths, focus on depot side first; averages 18 sec currently; goal 15 sec?
+        if (blockPos == 'R' || blockPos == '?') {
+            Pturn(45, 2000);
+            moveToEncoderT(-2500, .45, 45, 3000);
+            Pturn(-45, 2000);
+            moveToEncoderT(-2000, .45, -45, 3000);
             depositMarker();
-            moveTimeP(2000, .8, -134);
-
-        } else if (blockPos == 'C') { //why do we not just drive straight through?? //great question
-            moveToEncoder(1500, .35, 0); //all the way to depot
-            sleep(250); //500
-
-            Pturn(-45, 2000); //turn towards crater
-            moveToEncoderT(400, .35, -45, 2000); //move a little forward while turning to align with wall
-            Pturn(-135, 2500); //drop marker
-
-
-            moveToEncoderT(300, .35, -135, 2000);
+            Pturn(45, 2000);
+            moveToEncoderT(5000, .85, 45, 5000);
+        } else if (blockPos == 'C') {
+            moveToEncoderT(-4350, .45, 0, 3000);
             depositMarker();
-            moveTimeP(2000, .8, -134); //drive to crater
-
+            Pturn(45, 2000);
+            moveToEncoderT(5000, .85, 45, 5000);
         } else {
-            Pturn(-45, 2500);
-            sleep(250); //500
-            moveToEncoder(1300, .35, -45);
-            sleep(250); //500
-
-
-            Pturn(-135, 2500); //remove, just drive straight to wall? //you can try i guess
-            moveTimeP(400, -.35, -135); //turn towards crater, and rest is the same
-            //moveToEncoderT(1000, .35, -135, 2000);
+            Pturn(-45, 2000);
+            moveToEncoderT(-2500, .45, -45, 2000);
+            Pturn(45, 2000);
+            moveToEncoderT(-1500, .45, 45, 3000);
             depositMarker();
-            moveTimeP(2000, .8, -134);
+            moveToEncoderT(5000, .85, 45, 5000);
         }
+
+        //moveToEncoderT(1500, .95, -90, 3000);
+        //sleep(250); //500
+        //PturnRight(55, 3000);
+        //moveToEncoderT(-400, .95, 55, 2000);
+        //moveToEncoderT(-1500, .95,48, 3500);
+
+        //depositMarker();
+
+        //moveTimeP(1450, .95, 43);
     }
+
+
 }

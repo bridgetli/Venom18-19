@@ -77,12 +77,13 @@ public class CustomLinearOpMode extends LinearOpMode {
     DcMotor motorFL;
     DcMotor motorBR;
     DcMotor motorBL;
-    DcMotor motorLiftUp;
+    DcMotor motorExtend;
     DcMotor motorLiftDown1;
     DcMotor motorLiftDown2;
+    DcMotor motorManip;
 
     //speed
-    double left = 1.04;
+    double left = 1.00;
 
     //winch motors???
     //DcMotor motorWinchUp;
@@ -92,12 +93,14 @@ public class CustomLinearOpMode extends LinearOpMode {
     ModernRoboticsI2cRangeSensor rangeSensorL;
 
     Servo servoWinchArm;
-    final double servoWinchArmInitPos = 0;
+    final double servoWinchArmInitPos = .5;
     final double servoWinchArmDepositPos = 1;
 
     final double winchDownPower = .5;
     final double winchUpPower = .5;
 
+
+    String tensorflowInfo = "";
     //Servo servoMarker;
 
 
@@ -131,7 +134,7 @@ public class CustomLinearOpMode extends LinearOpMode {
         motorBR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorFL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorFR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorLiftUp = hardwareMap.dcMotor.get("motorLiftUp");
+        motorExtend = hardwareMap.dcMotor.get("motorExtend");
         motorLiftDown1 = hardwareMap.dcMotor.get("motorLiftDown1");
         motorLiftDown2 = hardwareMap.dcMotor.get("motorLiftDown2");
         //motorWinchUp.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -167,48 +170,45 @@ public class CustomLinearOpMode extends LinearOpMode {
 
         motorLiftDown1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorLiftDown2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorLiftUp.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorExtend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         idle();
 
         motorLiftDown1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorLiftDown2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorLiftUp.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorExtend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         motorLiftDown1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorLiftDown2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorLiftUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorExtend.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         motorLiftDown1.setPower(0);
         motorLiftDown2.setPower(0);
-        motorLiftUp.setPower(0);
+        motorExtend.setPower(0);
     }
 
     public void delatch() throws InterruptedException{
         resetEncoders();
 
-        motorLiftDown1.setPower(-.8);
-        motorLiftDown2.setPower(-.8);
+        motorLiftDown1.setPower(.8);
+        motorLiftDown2.setPower(.8);
 
-        while (motorLiftDown1.getCurrentPosition() > -4000 && opModeIsActive()) {
+        while (motorLiftDown1.getCurrentPosition() < 3500 && opModeIsActive()) {
         }
 
         motorLiftDown1.setPower(0);
         motorLiftDown2.setPower(0);
-        motorLiftUp.setPower(0);
     }
 
     public void lowerLift() throws InterruptedException {
-        motorLiftDown1.setPower(.75);
-        motorLiftDown2.setPower(.75);
-        motorLiftUp.setPower(.75);
+        motorLiftDown1.setPower(-.75);
+        motorLiftDown2.setPower(-.75);
 
-        while (motorLiftDown1.getCurrentPosition() < 50 && opModeIsActive()) {
+        while (motorLiftDown1.getCurrentPosition() > 50 && opModeIsActive()) {
         }
 
         motorLiftDown1.setPower(0);
         motorLiftDown2.setPower(0);
-        motorLiftUp.setPower(0);
     }
 
     public void Pturn(double angle, int msTimeout) {
@@ -363,7 +363,7 @@ public class CustomLinearOpMode extends LinearOpMode {
 
         resetEncoders();
 
-        double kPangle = 1.0/90.0;              // MIGHT NEED TO BE RETUNED
+        double kPangle = 3.0/90.0;              // MIGHT NEED TO BE RETUNED
         time.reset();
         if (encoder > 0) {
             while (motorBL.getCurrentPosition() < encoder && opModeIsActive() && time.milliseconds() < msTimeout) {
@@ -482,9 +482,6 @@ public class CustomLinearOpMode extends LinearOpMode {
         telemetry.addData("red blue: ", redValue + "    " + blueValue);
     } */
 
-    public String getBlockLocation() {
-        return "CENTER";
-    }
 
     public double getDistB() {
         double dist = rangeSensorB.getDistance(DistanceUnit.INCH);
@@ -557,6 +554,9 @@ public class CustomLinearOpMode extends LinearOpMode {
             tfod.activate();
         }
 
+        telemetry.addData("tfod is null? ", tfod == null);
+        tensorflowInfo += "tfod is null? " + tfod == null + "\n";
+
         List<Recognition> recognitions = null;
 
         while (recognitions == null) {
@@ -566,6 +566,7 @@ public class CustomLinearOpMode extends LinearOpMode {
                 recognitions = tfod.getRecognitions();
                 if (recognitions != null) {
                     telemetry.addData("# Object Detected", recognitions.size());
+                    tensorflowInfo += "# Object Detected " + recognitions.size() + "\n";
 
                     int min1X;
                     int min2X;
@@ -603,6 +604,7 @@ public class CustomLinearOpMode extends LinearOpMode {
                     } else {
                         //well shit
                         telemetry.addLine("Less than 2 blocks found");
+                        tensorflowInfo += "Less than 2 blocks found" + "\n";
                     }
                     telemetry.update();
                 }

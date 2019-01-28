@@ -61,19 +61,34 @@ public class SingleSampleCrater extends CustomLinearOpMode {
 
         motorLiftDown1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorLiftDown2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorLiftUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorExtend.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         motorLiftDown1.setPower(0);
         motorLiftDown2.setPower(0);
-        motorLiftUp.setPower(0);
+        motorExtend.setPower(0);
+
+        motorLiftDown1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorLiftDown2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while (!opModeIsActive()) {
+            motorLiftDown1.setTargetPosition(0);
+            motorLiftDown2.setTargetPosition(0);
+            motorLiftDown1.setPower(-.3);
+            motorLiftDown2.setPower(-.3);
+        }
+
+        motorLiftDown1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorLiftDown2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         waitForStart();
 
         delatch();
 
         getBlock();
+        telemetry.addData("blockPos: ", blockPos);
+        telemetry.update();
 
-        moveToEncoder(-350, .3, 0);
+        moveToEncoder(-550, .45, 0);
 
         lowerLift();
 
@@ -81,22 +96,26 @@ public class SingleSampleCrater extends CustomLinearOpMode {
 
         //TODO: optimize paths, focus on depot side first; averages 18 sec currently; goal 15 sec?
         if (blockPos == 'R' || blockPos == '?') {
+            Pturn(45, 2000);
+            moveToEncoderT(-600, .45, 45, 2000);
+            moveToEncoderT(600, .45, 45, 2000);
 
         } else if (blockPos == 'C') {
-
+            moveToEncoderT(-600, .45, 0, 2000);
+            moveToEncoderT(600, .45, 0, 2000);
         } else {
-
+            Pturn(-45, 2000);
+            moveToEncoderT(-600, .45, -45, 2000);
+            moveToEncoderT(600, .45, -45, 2000);
         }
 
-        //moveToEncoderT(1500, .95, -90, 3000);
-        //sleep(250); //500
-        //PturnRight(55, 3000);
-        //moveToEncoderT(-400, .95, 55, 2000);
-        //moveToEncoderT(-1500, .95,48, 3500);
+        Pturn(-90, 3000);
+        moveToEncoderT(-2100, .45, -90, 3500);
+        Pturn(-135, 2000);
+        moveToEncoderT(-2000, .55, -135, 3000);
+        depositMarker();
+        moveToEncoderT(5000, .85, -137, 5000);
 
-        //depositMarker();
-
-        //moveTimeP(1450, .95, 43);
     }
 
 

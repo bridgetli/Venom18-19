@@ -62,20 +62,46 @@ public class moveTests extends CustomLinearOpMode {    //test for red double dep
 
         motorLiftDown1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorLiftDown2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorLiftUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorExtend.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         motorLiftDown1.setPower(0);
         motorLiftDown2.setPower(0);
-        motorLiftUp.setPower(0);
+        motorExtend.setPower(0);
+
+        motorLiftDown1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorLiftDown2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while (!opModeIsActive()) {
+            motorLiftDown1.setTargetPosition(0);
+            motorLiftDown2.setTargetPosition(0);
+            motorLiftDown1.setPower(-.3);
+            motorLiftDown2.setPower(-.3);
+        }
+
+        motorLiftDown1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorLiftDown2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         waitForStart();
 
         delatch();
 
+        getBlock();
+
+        //moveToEncoder(-350, .5, 0);
+
+        /*
+        moveToEncoder(1000, .5, 0);
 
         sleep(1000);
 
-        stopMotors();
+        moveToEncoder(-1000, .5, 0);
+
+        sleep(1000);
+
+        Pturn(90, 2500);
+
+        Pturn(-90, 2500);
+        */
 
         // At this point, front of robot should align with corner of lander
     }
