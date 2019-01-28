@@ -21,6 +21,7 @@ import com.vuforia.PIXEL_FORMAT;
 import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
@@ -44,20 +45,6 @@ public class CustomLinearOpMode extends LinearOpMode {
     protected static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     protected static final String LABEL_GOLD_MINERAL = "Gold Mineral";
     protected static final String LABEL_SILVER_MINERAL = "Silver Mineral";
-
-    /*
-     * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
-     * 'parameters.vuforiaLicenseKey' is initialized is for illustration only, and will not function.
-     * A Vuforia 'Development' license key, can be obtained free of charge from the Vuforia developer
-     * web site at https://developer.vuforia.com/license-manager.
-     *
-     * Vuforia license keys are always 380 characters long, and look as if they contain mostly
-     * random data. As an example, here is a example of a fragment of a valid key:
-     *      ... yIgIzTqZ4mWjk9wd3cZO9T1axEqzuhxoGlfOOI2dRzKS4T0hQ8kT ...
-     * Once you've obtained a license key, copy the string from the Vuforia web site
-     * and paste it in to your code on the next line, between the double quotes.
-     */
-
     protected static final String VUFORIA_KEY = "AU1EPdr/////AAABmT6zWfr8qUNugR5o7PvwzcEJfcXKCLInER6PgCU4kiAwOmPTqEJB9HCG9hlVk009cFlQbSYCfySClawEGv8sVVlYagXM4pXlFGtqw+gDH7+Y35RYUp5aZzm++TPT/Zgd3uJSd2FNtQKXqCFqWp0kar/a50Q5B3kE3cWw6+UFaYTNSSSgDVtMNkZgu4fCbgpIo8iOCQnaOJUsxdo41Nt/VdkaQ2+78ys2EJOkSEAw8lvWSRU4XXBc3p3e8NrSXIjpxUGUIYAIZ7rsvxH2ck3qEcBu+KyRWGzSk5xGAfXY8+2AQHaSMpYanZt2k2d68ROZuwog30HcWwpSfueDw3NuWbN+WIi5XicgbiTunHUlXQiD";
 
     /**
@@ -165,9 +152,6 @@ public class CustomLinearOpMode extends LinearOpMode {
 
         telemetry.addData("IMU Initialization Complete", "");
 
-        telemetry.addData("Initialization Complete", "");
-        telemetry.update();
-
         motorLiftDown1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorLiftDown2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorExtend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -185,6 +169,40 @@ public class CustomLinearOpMode extends LinearOpMode {
         motorLiftDown1.setPower(0);
         motorLiftDown2.setPower(0);
         motorExtend.setPower(0);
+
+        //vuforia + tfod init
+        initVuforia();
+        initTfod();
+
+        telemetry.addData("Initialization Complete", "");
+        telemetry.update();
+    }
+
+    //Initialize the Vuforia localization engine.
+    protected void initVuforia() {
+        //Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+
+        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
+        //parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
+
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+        Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
+        vuforia.setFrameQueueCapacity(1);
+    }
+
+    //Initialize the Tensor Flow Object Detection engine.
+    protected void initTfod() {
+        if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
+            int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+            TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+            tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+            tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
+        } else {
+            telemetry.addData("Sorry!", "Please use the Motorolas if you want to use Tensorflow");
+        }
     }
 
     public void delatch() throws InterruptedException{
