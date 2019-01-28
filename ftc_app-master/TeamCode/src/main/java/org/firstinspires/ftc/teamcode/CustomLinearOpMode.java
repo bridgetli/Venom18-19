@@ -558,8 +558,9 @@ public class CustomLinearOpMode extends LinearOpMode {
         tensorflowInfo += "tfod is null? " + tfod == null + "\n";
 
         List<Recognition> recognitions = null;
+        boolean twoObjectsFound = false;
 
-        while (recognitions == null) {
+        while (recognitions == null || !twoObjectsFound) {
             if (tfod != null) {
                 // getUpdatedRecognitions() will return null if no new information is available since
                 // the last time that call was made.
@@ -574,6 +575,7 @@ public class CustomLinearOpMode extends LinearOpMode {
                     String min2Label;
 
                     if (recognitions.size() >= 2) {
+                        twoObjectsFound = true;
                         Collections.sort(recognitions, new Comparator<Recognition>() {
                             @Override
                             public int compare(Recognition recognition, Recognition t1) {

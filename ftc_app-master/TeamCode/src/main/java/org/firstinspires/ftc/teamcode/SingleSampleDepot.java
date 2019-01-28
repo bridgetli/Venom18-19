@@ -85,6 +85,7 @@ public class SingleSampleDepot extends CustomLinearOpMode {
         delatch();
 
         getBlock();
+        telemetry.addLine(tensorflowInfo);
         telemetry.addData("blockPos: ", blockPos);
         telemetry.update();
 
