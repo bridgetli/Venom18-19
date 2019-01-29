@@ -16,8 +16,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import com.vuforia.Image;
-import com.vuforia.PIXEL_FORMAT;
-import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -33,18 +31,15 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.FRONT;
-
 //import for_camera_opmodes.LinearOpModeCamera;
 
 public class CustomLinearOpMode extends LinearOpMode {
 
-    protected static final String VUFORIA_KEY = "AU1EPdr/////AAABmT6zWfr8qUNugR5o7PvwzcEJfcXKCLInER6PgCU4kiAwOmPTqEJB9HCG9hlVk009cFlQbSYCfySClawEGv8sVVlYagXM4pXlFGtqw+gDH7+Y35RYUp5aZzm++TPT/Zgd3uJSd2FNtQKXqCFqWp0kar/a50Q5B3kE3cWw6+UFaYTNSSSgDVtMNkZgu4fCbgpIo8iOCQnaOJUsxdo41Nt/VdkaQ2+78ys2EJOkSEAw8lvWSRU4XXBc3p3e8NrSXIjpxUGUIYAIZ7rsvxH2ck3qEcBu+KyRWGzSk5xGAfXY8+2AQHaSMpYanZt2k2d68ROZuwog30HcWwpSfueDw3NuWbN+WIi5XicgbiTunHUlXQiD";
-    //protected static final String VUFORIA_KEY = "AXb/g5n/////AAAAGSUed2rh5Us1jESA1cUn5r5KDUqTfwO2woh7MxjiLKSUyDslqBAgwCi0Qmc6lVczErnF5TIw7vG5R4TJ2igvrDVp+dP+3i2o7UUCRRj/PtyVgb4ZfNrDzHE80/6TUHifpKu4QCM04eRWYZocWNWhuRfytVeWy6NSTWefM9xadqG8FFrFk3XnvqDvk/6ZAgerNBdq5SsJ90eDdoAhgYEee40WxasoUUM9YVMvkWOqZgHSuraV2IyIUjkW/u0O+EkFtTNRUWP+aZwn1qO1H4Lk07AJYe21eqioBLMdzY7A8YqR1TeQ//0WJg8SFdXjuGbF6uHykBe2FF5UeyaehA0iTqfPS+59FLm8y1TuUt57eImq";
-    VuforiaLocalizer vuforia;
     protected static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     protected static final String LABEL_GOLD_MINERAL = "Gold Mineral";
     protected static final String LABEL_SILVER_MINERAL = "Silver Mineral";
+    protected static final String VUFORIA_KEY = "AU1EPdr/////AAABmT6zWfr8qUNugR5o7PvwzcEJfcXKCLInER6PgCU4kiAwOmPTqEJB9HCG9hlVk009cFlQbSYCfySClawEGv8sVVlYagXM4pXlFGtqw+gDH7+Y35RYUp5aZzm++TPT/Zgd3uJSd2FNtQKXqCFqWp0kar/a50Q5B3kE3cWw6+UFaYTNSSSgDVtMNkZgu4fCbgpIo8iOCQnaOJUsxdo41Nt/VdkaQ2+78ys2EJOkSEAw8lvWSRU4XXBc3p3e8NrSXIjpxUGUIYAIZ7rsvxH2ck3qEcBu+KyRWGzSk5xGAfXY8+2AQHaSMpYanZt2k2d68ROZuwog30HcWwpSfueDw3NuWbN+WIi5XicgbiTunHUlXQiD";
+    protected VuforiaLocalizer vuforia;
     protected TFObjectDetector tfod;
 
     //drive motors
@@ -79,8 +74,6 @@ public class CustomLinearOpMode extends LinearOpMode {
     String tensorflowInfo = "";
     //Servo servoMarker;
 
-    final double servoMarkerStartPos = 1;
-    final double servoMarkerEndPos = 0;
 
     IMU imu;
     ElapsedTime time = new ElapsedTime();
@@ -161,10 +154,26 @@ public class CustomLinearOpMode extends LinearOpMode {
 
         //vuforia + tfod init
         initVuforia();
-        initTfod();
+        if (ClassFactory.getInstance().canCreateTFObjectDetector())
+            initTfod();
 
         telemetry.addData("Initialization Complete", "");
         telemetry.update();
+    }
+
+    protected void initVuforia() {
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+    }
+
+    protected void initTfod() {
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
     }
 
     public void delatch() throws InterruptedException{
@@ -191,37 +200,10 @@ public class CustomLinearOpMode extends LinearOpMode {
         motorLiftDown2.setPower(0);
     }
 
-    //Initialize the Vuforia localization engine.
-    protected void initVuforia() {
-        //Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
-
-        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
-        //parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
-
-        vuforia = ClassFactory.getInstance().createVuforia(parameters);
-        Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
-        vuforia.setFrameQueueCapacity(1);
-    }
-
-    //Initialize the Tensor Flow Object Detection engine.
-    protected void initTfod() {
-        if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
-            int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-            TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-            tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-            tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
-        } else {
-            telemetry.addData("Sorry!", "Please use the Motorolas if you want to use Tensorflow");
-        }
-    }
-
     public void Pturn(double angle, int msTimeout) {
-        double kP = .35/90;
-        double minSpeed = .2;
-        double maxSpeed = .6;
+        double kP = .6 / 90;
+        double minSpeed = .30;
+        double maxSpeed = 1;
         time.reset();
 
         while (Math.abs(imu.getTrueDiff(angle)) > .5 && time.milliseconds() < msTimeout && opModeIsActive()) {
@@ -234,8 +216,34 @@ public class CustomLinearOpMode extends LinearOpMode {
             else if (PIDchange < 0 && PIDchange > -minSpeed)
                 PIDchange = -minSpeed;
 
-            motorBL.setPower(Range.clip(-PIDchange, -maxSpeed, maxSpeed));
-            motorFL.setPower(Range.clip(-PIDchange, -maxSpeed, maxSpeed));
+            motorBL.setPower(Range.clip(-PIDchange * left, -maxSpeed, maxSpeed));
+            motorFL.setPower(Range.clip(-PIDchange * left, -maxSpeed, maxSpeed));
+            motorBR.setPower(Range.clip(PIDchange, -maxSpeed, maxSpeed));
+            motorFR.setPower(Range.clip(PIDchange, -maxSpeed, maxSpeed));
+
+            telemetry.addData("angleError: ", angleError);
+            telemetry.addData("PIDCHANGE: ", PIDchange);
+            telemetry.update();
+        }
+        stopMotors();
+    }
+
+    public void PturnRight(double angle, int msTimeout) {
+        double kP = .6 / 90;
+        double minSpeed = .7;
+        double maxSpeed = 1;
+        time.reset();
+
+        while (Math.abs(imu.getTrueDiff(angle)) > .5 && time.milliseconds() < msTimeout && opModeIsActive()) {
+            double angleError = imu.getTrueDiff(angle);
+
+            double PIDchange = kP * angleError;
+
+            if (PIDchange > 0 && PIDchange < minSpeed)
+                PIDchange = minSpeed;
+            else if (PIDchange < 0 && PIDchange > -minSpeed)
+                PIDchange = -minSpeed;
+
             motorBR.setPower(Range.clip(PIDchange, -maxSpeed, maxSpeed));
             motorFR.setPower(Range.clip(PIDchange, -maxSpeed, maxSpeed));
 
@@ -256,8 +264,8 @@ public class CustomLinearOpMode extends LinearOpMode {
             double PIDchangeAngle = kPangle * angleError;
 
             //if (power > 0) {
-            motorBL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
-            motorFL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
+            motorBL.setPower(Range.clip((power - PIDchangeAngle) * left, -1, 1));
+            motorFL.setPower(Range.clip((power - PIDchangeAngle) * left, -1, 1));
             motorBR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
             motorFR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
             //} else if (power < 0) {
@@ -299,8 +307,8 @@ public class CustomLinearOpMode extends LinearOpMode {
             double angleError = imu.getTrueDiff(angle);
             double PIDchangeAngle = kPangle * angleError;
 
-            motorBL.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -1, 1));
-            motorFL.setPower(Range.clip(PIDchangeDist - PIDchangeAngle, -1, 1));
+            motorBL.setPower(Range.clip((PIDchangeDist - PIDchangeAngle) * left, -1, 1));
+            motorFL.setPower(Range.clip((PIDchangeDist - PIDchangeAngle) * left, -1, 1));
             motorBR.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -1, 1));
             motorFR.setPower(Range.clip(PIDchangeDist + PIDchangeAngle, -1, 1));
         }
@@ -311,32 +319,30 @@ public class CustomLinearOpMode extends LinearOpMode {
     public void moveToEncoder(double encoder, double power, double angle) {
         resetEncoders();
 
-        double kPangle = 1.0/90.0;              // MIGHT NEED TO BE RETUNED
+        double kPangle = 3.0 / 90.0;              // MIGHT NEED TO BE RETUNED
 
         if (encoder > 0) {
-            while (motorFL.getCurrentPosition() < encoder && opModeIsActive()) {
+            while (motorBL.getCurrentPosition() < encoder && opModeIsActive()) {
 
                 double angleError = imu.getTrueDiff(angle);
                 double PIDchangeAngle = kPangle * angleError;
 
-
-                motorBL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
-                motorFL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
+                motorBL.setPower(Range.clip((power - PIDchangeAngle) * left, -1, 1));
+                motorFL.setPower(Range.clip((power - PIDchangeAngle) * left, -1, 1));
                 motorBR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
                 motorFR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
             }
         }
         else {
-            while (motorFL.getCurrentPosition() > encoder && opModeIsActive()) {
+            while (motorBL.getCurrentPosition() > encoder && opModeIsActive()) {
 
                 double angleError = imu.getTrueDiff(angle);
                 double PIDchangeAngle = kPangle * angleError;
 
-
-                motorBL.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
-                motorFL.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
-                motorBR.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
-                motorFR.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
+                motorBL.setPower(Range.clip((-power - PIDchangeAngle) * left, -1, 1));
+                motorFL.setPower(Range.clip((-power - PIDchangeAngle) * left, -1, 1));
+                motorBR.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
+                motorFR.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
             }
         }
         stopMotors();
@@ -349,29 +355,29 @@ public class CustomLinearOpMode extends LinearOpMode {
         double kPangle = 3.0/90.0;              // MIGHT NEED TO BE RETUNED
         time.reset();
         if (encoder > 0) {
-            while (motorFL.getCurrentPosition() < encoder && opModeIsActive() && time.milliseconds() < msTimeout) {
+            while (motorBL.getCurrentPosition() < encoder && opModeIsActive() && time.milliseconds() < msTimeout) {
 
                 double angleError = imu.getTrueDiff(angle);
                 double PIDchangeAngle = kPangle * angleError;
 
 
-                motorBL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
-                motorFL.setPower(Range.clip(power - PIDchangeAngle, -1, 1));
+                motorBL.setPower(Range.clip((power - PIDchangeAngle) * left, -1, 1));
+                motorFL.setPower(Range.clip((power - PIDchangeAngle) * left, -1, 1));
                 motorBR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
                 motorFR.setPower(Range.clip(power + PIDchangeAngle, -1, 1));
             }
         }
         else {
-            while (motorFL.getCurrentPosition() > encoder && opModeIsActive() && time.milliseconds() < msTimeout) {
+            while (motorBL.getCurrentPosition() > encoder && opModeIsActive() && time.milliseconds() < msTimeout) {
 
                 double angleError = imu.getTrueDiff(angle);
                 double PIDchangeAngle = kPangle * angleError;
 
 
-                motorBL.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
-                motorFL.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
-                motorBR.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
-                motorFR.setPower(Range.clip(-power - PIDchangeAngle, -1, 1));
+                motorBL.setPower(Range.clip((-power - PIDchangeAngle) * left, -1, 1));
+                motorFL.setPower(Range.clip((-power - PIDchangeAngle) * left, -1, 1));
+                motorBR.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
+                motorFR.setPower(Range.clip(-power + PIDchangeAngle, -1, 1));
             }
         }
         stopMotors();
@@ -396,74 +402,61 @@ public class CustomLinearOpMode extends LinearOpMode {
         //motorWinchUp.setPower(0);
     }
 
-    //˯˯ Sets motors to turn right when called in the Turn method
-    public void turnRight() {
-        motorFL.setPower(-speed);
-        motorFR.setPower(speed);
-        motorBL.setPower(-speed);
-        motorBR.setPower(speed);
-    }
 
-    //˯˯ Sets motors to turn left when called in the Turn method
-    public void turnLeft() {
-        motorFL.setPower(speed);
-        motorFR.setPower(-speed);
-        motorBL.setPower(speed);
-        motorBR.setPower(-speed);
-    }
 
-    //˯˯ Turn method (no PID loop)
-    public void turn(double angle)
-    {
-        double yaw = imu.getYaw();
-        if (angle > yaw) {
-            while (yaw < angle && opModeIsActive()) {
-                turnRight();
-            }
-        }
-        else if (angle < yaw) {
-            while (yaw > angle && opModeIsActive()) {
-                turnLeft();
-            }
-        }
-        stopDriveMotors();
-    }
-
-    public void driveForward() {
-        motorFL.setPower(speed);
-        motorFR.setPower(speed);
-        motorBL.setPower(speed);
-        motorBR.setPower(speed);
-    }
 
     public void depositMarker() throws InterruptedException {
         //this actually works now
         servoWinchArm.setPosition(servoWinchArmDepositPos);
-        sleep(1500);
+        sleep(1000);
         servoWinchArm.setPosition(servoWinchArmInitPos);
     }
 
-    public void driveBackward() {
-        motorFL.setPower(-speed);
-        motorFR.setPower(-speed);
-        motorBL.setPower(-speed);
-        motorBR.setPower(-speed);
+    /* :)
+    public void getJewelColor() {
+        //jewel camera init
+        telemetry.addLine("JewelCamera initialization started");
+        telemetry.update();
+        setCameraDownsampling(2);
+        telemetry.addLine("Wait for camera to finish initializing!");
+        telemetry.update();
+        startCamera();  // can take a while.
+        sleep(50);
+        telemetry.addLine("Camera ready!");
+        telemetry.update();
+        ElapsedTime time = new ElapsedTime();
+        time.reset();
+        int numPics = 0;
+        int redValue = 0;
+        int blueValue = 0;
+        int numFailLoops = 0;
+        while (time.seconds() < 2 && opModeIsActive()) {
+            if (imageReady()) { // only do this if an image has been returned from the camera
+                numPics++;
+                // get image, rotated so (0,0) is in the bottom left of the preview window
+                Bitmap rgbImage;
+                rgbImage = convertYuvImageToRgb(yuvImage, width, height, 1);
+                for (int x = (int) (.8 * rgbImage.getWidth()); x < rgbImage.getWidth(); x++) {
+                    for (int y = 0; y < (int) (.25 * rgbImage.getHeight()); y++) {
+                        int pixel = rgbImage.getPixel(x, y);
+                        redValue += red(pixel);
+                        blueValue += blue(pixel);
+                    }
+                }
+            } else {
+                numFailLoops++;
+            }
+            sleep(10);
     }
+        boolean jewelIsRed = redValue > blueValue;
+        stopCamera();
+        telemetry.addData("Is Jewel Red?", jewelIsRed);
+        telemetry.addData("numPics: ", numPics);
+        telemetry.addData("numFailLoops: ", numFailLoops);
+        telemetry.addData("red blue: ", redValue + "    " + blueValue);
+    } */
 
 
-    public void goForward(double distance){
-        // goes forward a certain distance after we add the sensor in
-        // distance is in inches
-
-        double oldDist = getDistB();
-        double newDist = getDistB();
-        while(Math.abs(oldDist - newDist) > distance && opModeIsActive()) {
-            driveForward();
-            newDist = getDistB();
-            telemetry.addData("Stuck in the loop", "");
-        }
-        stopDriveMotors();
-    }
     public double getDistB() {
         double dist = rangeSensorB.getDistance(DistanceUnit.INCH);
         while ((dist > 200 || Double.isNaN(dist)) && opModeIsActive()) {
@@ -480,17 +473,8 @@ public class CustomLinearOpMode extends LinearOpMode {
         return dist;
     }
 
-    public void moveToDistance(double dist) {
-        while(getDistB() > dist && opModeIsActive()) {
-            driveForward();
-        }
-        while(getDistB() < dist && opModeIsActive()) {
-            driveBackward();
-        }
-        stopDriveMotors();
-    }
-    
-    public void moveToLineP(double yIntercept, double angle, double timeout) { //y-int is 64?
+
+    public void moveToLineP(double yIntercept, double angle, double timeout) {
         double kPdist = .0105;
         double kPangle = .9/90.0;
                                         //ONLY MODIFY THESE PARAMETERS, NOTHING BELOW THEM
@@ -539,46 +523,43 @@ public class CustomLinearOpMode extends LinearOpMode {
         motorFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
+    //TODO: remember to check accuracy/efficiency of this vs below method
     public void getGoldCubePos() {
         char pos = 'C';
-        int numAttempts = 10; //adjust if necessary
         if (tfod != null)
             tfod.activate();
-        for(int attempts = 0; attempts < numAttempts; attempts++) {
-            if (tfod != null) {
-                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                if (updatedRecognitions != null) {
-                    if (updatedRecognitions.size() == 3) {
-                        int goldMineralX = -1;
-                        int silverMineral1X = -1;
-                        int silverMineral2X = -1;
-                        for (Recognition recognition : updatedRecognitions) {
-                            if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                                goldMineralX = (int) (recognition.getRight() + recognition.getLeft() / 2);
-                                ;
-                            } else if (silverMineral1X == -1) {
-                                silverMineral1X = (int) (recognition.getRight() + recognition.getLeft() / 2);
-                                ;
-                            } else {
-                                silverMineral2X = (int) (recognition.getRight() + recognition.getLeft() / 2);
-                                ;
-                            }
-                        }
-                        if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
-                            if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
-                                telemetry.addData("Gold Mineral Position", "Right");
-                                pos = 'R';
-                            } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
-                                telemetry.addData("Gold Mineral Position", "Left");
-                                pos = 'L';
-                            } else {
-                                telemetry.addData("Gold Mineral Position", "Center");
-                                pos = 'C';
-                            }
+
+        if (tfod != null) {
+            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+
+            if (updatedRecognitions != null) {
+                if (updatedRecognitions.size() == 3) {
+                    int goldMineralX = -1;
+                    int silverMineral1X = -1;
+                    int silverMineral2X = -1;
+                    for (Recognition recognition : updatedRecognitions) {
+                        if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
+                            goldMineralX = (int) (recognition.getRight() + recognition.getLeft() / 2);
+                        } else if (silverMineral1X == -1) {
+                            silverMineral1X = (int) (recognition.getRight() + recognition.getLeft() / 2);
+                        } else {
+                            silverMineral2X = (int) (recognition.getRight() + recognition.getLeft() / 2);
                         }
                     }
-                    telemetry.update();
+                    if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
+                        if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
+                            telemetry.addData("Gold Mineral Position", "Right");
+                            pos = 'R';
+                        } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
+                            telemetry.addData("Gold Mineral Position", "Left");
+                            pos = 'L';
+                        } else {
+                            telemetry.addData("Gold Mineral Position", "Center");
+                            pos = 'C';
+                        }
+                    }
                 }
+                telemetry.update();
             }
         }
         if (tfod != null)
@@ -649,18 +630,6 @@ public class CustomLinearOpMode extends LinearOpMode {
                 }
             }
         }
-        else if (yellowValOfBox(bitmap, right) > yellowValOfBox(bitmap, center))
-            blockPos = 'R';
-
-        //saveBox(bitmap, left);
-        //saveBox(bitmap.copy(Bitmap.Config.RGB_565, true), center);
-        //saveBox(bitmap.copy(Bitmap.Config.RGB_565, true), right);
-
-        // multi location pixel scanner (better but much slower)
-
-        /*int N = 4; // the approx height and width of an object
-
-        for (int r = 0; r < */
     }
 
     public int yellowValOfBox(Bitmap bmp, BoundingBox bb) {
@@ -673,7 +642,7 @@ public class CustomLinearOpMode extends LinearOpMode {
                 int R = (color >> 16) & 0xff;
                 int G = (color >>  8) & 0xff;
                 int B = color & 0xff;
-                int yellow = Math.min(R, G) - B / 2 > 0 ? Math.min(R, G) - B / 2 : 0;
+                int yellow = Math.min(R, G) - B > 0 ? Math.min(R, G) - B : 0;
                 ySum += yellow;
             }
         }

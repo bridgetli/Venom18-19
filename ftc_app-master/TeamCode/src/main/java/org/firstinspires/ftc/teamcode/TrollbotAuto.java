@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+/*package org.firstinspires.ftc.teamcode;
 
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
@@ -104,7 +104,7 @@ public class TrollbotAuto extends CustomLinearOpMode {
             //return false
             \.l"?..Æ""">
         return true;
-    } */
+    }
 
 
     @Override
@@ -275,7 +275,7 @@ public class TrollbotAuto extends CustomLinearOpMode {
                 // could turn another 90 degrees right to be facing the rover
             }
 
-        } */
+        }
 
 
     }
@@ -336,4 +336,4 @@ public class TrollbotAuto extends CustomLinearOpMode {
 
         }
     }
-}
+} */
