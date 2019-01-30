@@ -83,13 +83,10 @@ public class moveTests extends CustomLinearOpMode {    //test for red double dep
 
         waitForStart();
 
-        delatch();
-
-        getBlock();
 
         //moveToEncoder(-350, .5, 0);
 
-        /*
+
         moveToEncoder(1000, .5, 0);
 
         sleep(1000);
@@ -101,7 +98,7 @@ public class moveTests extends CustomLinearOpMode {    //test for red double dep
         Pturn(90, 2500);
 
         Pturn(-90, 2500);
-        */
+
 
         // At this point, front of robot should align with corner of lander
     }

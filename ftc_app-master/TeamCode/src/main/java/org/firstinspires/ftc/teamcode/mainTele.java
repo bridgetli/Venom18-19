@@ -63,16 +63,16 @@ public class mainTele extends CustomOpMode {
             motorWL.setPower(0);
         }*/
 
-        if(gamepad2.b) {
+        //if(gamepad2.b) {
             //servoWinchArm.setPosition(Range.clip(servoWinchArm.getPosition() + .1, 0, 1));
-            servoWinchArm.setPosition(servoWinchArmUpPos);
-        }
-        else if(gamepad2.a) {
+        //    servoWinchArm.setPosition(servoWinchArmUpPos);
+        //}
+        //else if(gamepad2.a) {
             //servoWinchArm.setPosition(Range.clip(servoWinchArm.getPosition() - .1, 0, 1));
-            servoWinchArm.setPosition(servoWinchArmDownPos);
-        } else if (gamepad2.y) {
-            servoWinchArm.setPosition(.8);
-        }
+        //    servoWinchArm.setPosition(servoWinchArmDownPos);
+        //} else if (gamepad2.y) {
+        //    servoWinchArm.setPosition(.8);
+        //}
 
 
         if (gamepad2.right_bumper) {
@@ -93,7 +93,7 @@ public class mainTele extends CustomOpMode {
         }
 
         if (Math.abs(gamepad2.right_stick_y) > .1) {
-            motorManip.setPower(gamepad2.right_stick_y);
+            motorManip.setPower(-gamepad2.right_stick_y/3.0);
         } else {
             motorManip.setPower(0);
         }
