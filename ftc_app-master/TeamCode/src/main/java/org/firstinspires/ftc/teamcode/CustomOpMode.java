@@ -135,9 +135,10 @@ public class CustomOpMode extends OpMode{
 
         telemetry.addData("IMU Initialization Complete", "");
 
+        //initVuforia();
+        //initTfod();
+
         telemetry.addData("Initialization Complete", "");
-
-
     }
 
     public void stopDriveMotors() {
@@ -209,5 +210,7 @@ public class CustomOpMode extends OpMode{
         return dist;
     }
 
-
+    //void initVuforia() {}
+    //void initTfod() {} (make sure to put device validation in method)
+    //:)
 }

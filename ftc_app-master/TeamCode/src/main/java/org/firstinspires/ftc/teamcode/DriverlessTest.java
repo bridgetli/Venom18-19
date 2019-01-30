@@ -29,94 +29,52 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-/**
- * This 2018-2019 OpMode illustrates the basics of using the TensorFlow Object Detection API to
- * determine the position of the gold and silver minerals.
- *
- * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list.
- *
- * IMPORTANT: In order to use this OpMode, you need to obtain your own Vuforia license key as
- * is explained below.
- */
 
 @TeleOp(name = "DriverlessTest", group = "Concept")
 public class DriverlessTest extends CustomOpMode {
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
     private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
-
-    /*
-     * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
-     * 'parameters.vuforiaLicenseKey' is initialized is for illustration only, and will not function.
-     * A Vuforia 'Development' license key, can be obtained free of charge from the Vuforia developer
-     * web site at https://developer.vuforia.com/license-manager.
-     *
-     * Vuforia license keys are always 380 characters long, and look as if they contain mostly
-     * random data. As an example, here is a example of a fragment of a valid key:
-     *      ... yIgIzTqZ4mWjk9wd3cZO9T1axEqzuhxoGlfOOI2dRzKS4T0hQ8kT ...
-     * Once you've obtained a license key, copy the string from the Vuforia web site
-     * and paste it in to your code on the next line, between the double quotes.
-     */
-
     private static final String VUFORIA_KEY = "AU1EPdr/////AAABmT6zWfr8qUNugR5o7PvwzcEJfcXKCLInER6PgCU4kiAwOmPTqEJB9HCG9hlVk009cFlQbSYCfySClawEGv8sVVlYagXM4pXlFGtqw+gDH7+Y35RYUp5aZzm++TPT/Zgd3uJSd2FNtQKXqCFqWp0kar/a50Q5B3kE3cWw6+UFaYTNSSSgDVtMNkZgu4fCbgpIo8iOCQnaOJUsxdo41Nt/VdkaQ2+78ys2EJOkSEAw8lvWSRU4XXBc3p3e8NrSXIjpxUGUIYAIZ7rsvxH2ck3qEcBu+KyRWGzSk5xGAfXY8+2AQHaSMpYanZt2k2d68ROZuwog30HcWwpSfueDw3NuWbN+WIi5XicgbiTunHUlXQiD";
 
-    /**
-     * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
-     * localization engine.
-     */
     private VuforiaLocalizer vuforia;
-
-    /**
-     * {@link #tfod} is the variable we will use to store our instance of the Tensor Flow Object
-     * Detection engine.
-     */
     private TFObjectDetector tfod;
 
     @Override
     public void init() {
-        // The TFObjectDetector uses the camera frames from the VuforiaLocalizer, so we create that
-        // first.
+        //TODO: eventually move initVuforia() and initTfod() into CustomOpMode as part of initizialize()
+        //initizialize();
         initVuforia();
-
         if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
             initTfod();
         } else {
-            telemetry.addData("Sorry!", "This device is not compatible with TFOD");
+            telemetry.addLine("If you see this error message, you are definitely screwing something up.");
         }
 
-        /** Wait for the game to begin */
         telemetry.addData(">", "Press Play to start tracking");
         telemetry.update();
 
-        /** Activate Tensor Flow Object Detection. */
         if (tfod != null) {
             tfod.activate();
         }
     }
 
-
     @Override
     public void loop() {
+        int golds = 0, silvers = 0;
 
         if (tfod != null) {
-            // getUpdatedRecognitions() will return null if no new information is available since
-            // the last time that call was made.
+            // getUpdatedRecognitions() will return null if no new information is available since the last time that call was made.
             List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
             if (updatedRecognitions != null) {
                 Collections.sort(updatedRecognitions, new Comparator<Recognition>() {
@@ -138,11 +96,20 @@ public class DriverlessTest extends CustomOpMode {
                     telemetry.addData("y of particle: ", (particle.getTop() + particle.getBottom()) / 2);
                     telemetry.addData("Confidence: ", particle.getConfidence());
                     telemetry.addLine("\n\n");
+
+                    if (particle.getLabel().equals(LABEL_GOLD_MINERAL)) golds++;
+                    else silvers++;
                 }
                 telemetry.update();
+
+                //TODO: plz adjust and test this part
+                //(Y) for gold cube, (X) for white ball
+                if (golds > 0 && gamepad1.y) {
+                    trackMineral(closestMineral(LABEL_GOLD_MINERAL, updatedRecognitions));
+                } else if (silvers > 0 && gamepad1.x) {
+                    trackMineral(closestMineral(LABEL_SILVER_MINERAL, updatedRecognitions));
+                }
             }
-
-
         }
 
         if (tfod != null) {
@@ -150,9 +117,71 @@ public class DriverlessTest extends CustomOpMode {
         }
     }
 
-    /**
-     * Initialize the Vuforia localization engine.
-     */
+    //finds closest mineral of specified type
+    private Recognition closestMineral(String label, List recognitions) {
+        Recognition temp;
+        for (Object recognition : recognitions) {
+            temp = (Recognition) recognition;
+            if (temp.getLabel().equals(label)) return temp;
+        }
+        //it shouldn't ever make it to this statement...
+        return (Recognition) recognitions.get(0);
+    }
+
+    //This method tracks and grabs mineral. Runs until mineral is grabbed or (B) is pressed.
+    private void trackMineral(Recognition recognition) {
+        float x;
+        float area;
+        boolean Xcheck, Acheck, done = false;
+
+        //TODO: Please adjust these, they aren't that accurate
+        float rightBounds = 600;
+        float leftBounds = 400;
+        float areaUpperBounds = 8000;
+        float areaLowerBounds = 4000;
+
+        telemetry.addData("Tracking", recognition.getLabel());
+        while (!done && !gamepad1.b /*&& opModeActive()*/) {
+            //center robot with mineral
+            x = (recognition.getRight() + recognition.getLeft() / 2);
+            telemetry.addData("x", x);
+            if (x < rightBounds && x > leftBounds) {
+                telemetry.addLine("No action needed");
+                Xcheck = true;
+            } else if (x > rightBounds) {
+                //turn left
+                telemetry.addLine("Turn left");
+                Xcheck = false;
+            } else {
+                //turn right
+                telemetry.addLine("Turn right");
+                Xcheck = false;
+            }
+            //close in on mineral
+            area = recognition.getHeight() * recognition.getWidth();
+            telemetry.addData("Area", area);
+            if (area < areaUpperBounds && area > areaLowerBounds) {
+                telemetry.addLine("No action needed");
+                Acheck = true;
+            } else if (area > areaUpperBounds) {
+                //move back
+                telemetry.addLine("Move back");
+                Acheck = false;
+            } else {
+                //move forward
+                telemetry.addLine("Move closer");
+                Acheck = false;
+            }
+            //if centered, grab mineral
+            if (Xcheck && Acheck) {
+                telemetry.addData("Grabbing", recognition.getLabel());
+                //TODO: actually grab mineral w/ manipulator
+                done = true;
+            }
+            telemetry.update();
+        }
+    }
+
     private void initVuforia() {
         /*
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
@@ -166,9 +195,6 @@ public class DriverlessTest extends CustomOpMode {
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
     }
 
-    /**
-     * Initialize the Tensor Flow Object Detection engine.
-     */
     private void initTfod() {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
