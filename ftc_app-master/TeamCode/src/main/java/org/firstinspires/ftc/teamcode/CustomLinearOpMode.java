@@ -547,6 +547,7 @@ public class CustomLinearOpMode extends LinearOpMode {
 
     public void getBlock() throws InterruptedException {
 
+        //can we not initialize vuforia before we start auto?
         initVuforia();
         if (ClassFactory.getInstance().canCreateTFObjectDetector())
             initTfod();
@@ -848,6 +849,4 @@ public class CustomLinearOpMode extends LinearOpMode {
             this.endCol = endCol;
         }
     }
-
-
 }

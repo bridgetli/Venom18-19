@@ -84,7 +84,6 @@ public class DriverlessTest extends CustomOpMode {
     public void loop() {
         int golds = 0, silvers = 0;
 
-
         if (tfod != null) {
             // getUpdatedRecognitions() will return null if no new information is available since the last time that call was made.
             List<Recognition> updatedRecognitions = tfod.getRecognitions();
@@ -116,8 +115,6 @@ public class DriverlessTest extends CustomOpMode {
                 }
                 telemetry.update();
 
-                //TODO: plz adjust and test this part
-
                 if (gamepad1.a) {
                     if (!locked  && !updatedRecognitions.isEmpty()) {
                         desiredAngle = imu.getYaw() + updatedRecognitions.get(0).estimateAngleToObject(AngleUnit.DEGREES);
@@ -140,6 +137,21 @@ public class DriverlessTest extends CustomOpMode {
                         }
                         stopMotors();
                         mode = "picking up";
+                    } else if (mode.equals("picking up") && !updatedRecognitions.isEmpty()) {
+                        motorExtend.setPower(.5);
+                        while(motorExtend.getCurrentPosition() < 1000/*some magic value im not motivated to find*/) {}
+                        motorExtend.setPower(0);
+
+                        motorManip.setPower(.5);
+                        try {wait(1000);}
+                        catch (InterruptedException e) {telemetry.addLine("-_-");}
+                        motorManip.setPower(0);
+
+                        //idk if this is even right
+                        motorExtend.setPower(-.5);
+                        while(motorExtend.getCurrentPosition() > 0) {}
+                        motorExtend.setPower(0);
+                        mode = "done";
                     }
                 }
                 //(Y) for gold cube, (X) for white ball

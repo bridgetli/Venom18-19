@@ -35,24 +35,33 @@ public class DoubleSampleDepot extends CustomLinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-
-        // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        //parameters.cameraDirection   = CAMERA_CHOICE;
-
-        //  Instantiate the Vuforia engine
-        vuforia = ClassFactory.getInstance().createVuforia(parameters);
-
-        Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true);
-        vuforia.setFrameQueueCapacity(1);
-
         initizialize();
         telemetry.addLine("Vuforia initialization complete");
 
+        motorLiftDown1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorLiftDown2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorExtend.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        motorLiftDown1.setPower(0);
+        motorLiftDown2.setPower(0);
+        motorExtend.setPower(0);
+
+        motorLiftDown1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorLiftDown2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while (!opModeIsActive()) {
+            motorLiftDown1.setTargetPosition(0);
+            motorLiftDown2.setTargetPosition(0);
+            motorLiftDown1.setPower(-.3);
+            motorLiftDown2.setPower(-.3);
+        }
+
+        motorLiftDown1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorLiftDown2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         waitForStart();
+
+        delatch();
 
         getBlock();
 
