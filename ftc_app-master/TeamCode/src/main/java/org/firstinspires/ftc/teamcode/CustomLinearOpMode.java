@@ -83,7 +83,7 @@ public class CustomLinearOpMode extends LinearOpMode {
 
     IMU imu;
     ElapsedTime time = new ElapsedTime();
-    char blockPos = 'C';
+    char blockPos = 'R';
 
     //just had to put these to run the code dw about it
 
@@ -161,9 +161,6 @@ public class CustomLinearOpMode extends LinearOpMode {
         motorExtend.setPower(0);
 
         //vuforia + tfod init
-        initVuforia();
-        if (ClassFactory.getInstance().canCreateTFObjectDetector())
-            initTfod();
 
         telemetry.addData("Initialization Complete", "");
         telemetry.update();
@@ -549,24 +546,29 @@ public class CustomLinearOpMode extends LinearOpMode {
     }
 
     public void getBlock() throws InterruptedException {
+
+        initVuforia();
+        if (ClassFactory.getInstance().canCreateTFObjectDetector())
+            initTfod();
+
         if (tfod != null) {
             tfod.activate();
         }
 
         telemetry.addData("tfod is null? ", tfod == null);
-        tensorflowInfo += "tfod is null? " + tfod == null + "\n";
+        //tensorflowInfo += "tfod is null? " + tfod == null + "\n";
 
         List<Recognition> recognitions = null;
         boolean twoObjectsFound = false;
-
-        while (recognitions == null || !twoObjectsFound) {
+        time.reset();
+        while ((recognitions == null || !twoObjectsFound) && time.seconds() < 5) {
             if (tfod != null) {
                 // getUpdatedRecognitions() will return null if no new information is available since
                 // the last time that call was made.
                 recognitions = tfod.getUpdatedRecognitions();
                 if (recognitions != null) {
                     telemetry.addData("# Object Detected", recognitions.size());
-                    tensorflowInfo += "# Object Detected " + recognitions.size() + "\n";
+                    //tensorflowInfo += "# Object Detected " + recognitions.size() + "\n";
 
                     int min1X;
                     int min2X;
@@ -605,7 +607,7 @@ public class CustomLinearOpMode extends LinearOpMode {
                     } else {
                         //well shit
                         telemetry.addLine("Less than 2 blocks found");
-                        tensorflowInfo += "Less than 2 blocks found" + "\n";
+                        //tensorflowInfo += "Less than 2 blocks found" + "\n";
                     }
                     telemetry.update();
                 }

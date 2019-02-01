@@ -65,11 +65,12 @@ public class SingleSampleDepot extends CustomLinearOpMode {
         delatch();
 
         getBlock();
+
         telemetry.addLine(tensorflowInfo);
         telemetry.addData("blockPos: ", blockPos);
         telemetry.update();
 
-        moveToEncoder(-550, .45, 0);
+        moveToEncoder(-450, .45, 0);
 
         lowerLift();
 
@@ -81,21 +82,21 @@ public class SingleSampleDepot extends CustomLinearOpMode {
             moveToEncoderT(-2500, .45, 45, 3000);
             Pturn(-45, 2000);
             moveToEncoderT(-2000, .45, -45, 3000);
-            depositMarker();
             Pturn(45, 2000);
-            moveToEncoderT(5000, .85, 45, 5000);
+            depositMarker();
+            moveToEncoderT(3500, .85, 45, 5000);
         } else if (blockPos == 'C') {
             moveToEncoderT(-4350, .45, 0, 3000);
             depositMarker();
             Pturn(45, 2000);
-            moveToEncoderT(5000, .85, 45, 5000);
+            moveToEncoderT(3500, .85, 45, 5000);
         } else {
             Pturn(-45, 2000);
             moveToEncoderT(-2500, .45, -45, 2000);
             Pturn(45, 2000);
             moveToEncoderT(-1500, .45, 45, 3000);
             depositMarker();
-            moveToEncoderT(5000, .85, 45, 5000);
+            moveToEncoderT(3500, .85, 45, 5000);
         }
 
         //moveToEncoderT(1500, .95, -90, 3000);

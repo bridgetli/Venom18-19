@@ -68,7 +68,7 @@ public class SingleSampleCrater extends CustomLinearOpMode {
         telemetry.addData("blockPos: ", blockPos);
         telemetry.update();
 
-        moveToEncoder(-550, .45, 0);
+        moveToEncoder(-450, .45, 0);
 
         lowerLift();
 
@@ -77,24 +77,24 @@ public class SingleSampleCrater extends CustomLinearOpMode {
         //TODO: optimize paths, focus on depot side first; averages 18 sec currently; goal 15 sec?
         if (blockPos == 'R' || blockPos == '?') {
             Pturn(45, 2000);
-            moveToEncoderT(-600, .45, 45, 2000);
-            moveToEncoderT(600, .45, 45, 2000);
+            moveToEncoderT(-1000, .55, 45, 2000);
+            moveToEncoderT(800, .55, 45, 2000);
 
         } else if (blockPos == 'C') {
-            moveToEncoderT(-600, .45, 0, 2000);
-            moveToEncoderT(600, .45, 0, 2000);
+            moveToEncoderT(-900, .55, 0, 2000);
+            moveToEncoderT(750, .55, 0, 2000);
         } else {
             Pturn(-45, 2000);
-            moveToEncoderT(-600, .45, -45, 2000);
-            moveToEncoderT(600, .45, -45, 2000);
+            moveToEncoderT(-1000, .55, -45, 2000);
+            moveToEncoderT(800, .55, -45, 2000);
         }
 
         Pturn(-90, 3000);
         moveToEncoderT(-2100, .45, -90, 3500);
         Pturn(-135, 2000);
-        moveToEncoderT(-2000, .55, -135, 3000);
+        moveToEncoderT(-1500, .55, -135, 3000);
         depositMarker();
-        moveToEncoderT(5000, .85, -137, 5000);
+        moveToEncoderT(3000, .85, -139, 5000);
 
     }
 

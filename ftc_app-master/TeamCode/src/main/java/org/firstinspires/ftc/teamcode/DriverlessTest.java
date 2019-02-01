@@ -30,6 +30,9 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
+
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -49,6 +52,14 @@ public class DriverlessTest extends CustomOpMode {
 
     private VuforiaLocalizer vuforia;
     private TFObjectDetector tfod;
+    ElapsedTime eTime = new ElapsedTime();
+
+    double kP = .6/90;
+    double minSpeed = .38;
+    double maxSpeed = 1;
+    boolean locked = false;
+    String mode = "";
+    double desiredAngle = 0;
 
     @Override
     public void init() {
@@ -73,9 +84,10 @@ public class DriverlessTest extends CustomOpMode {
     public void loop() {
         int golds = 0, silvers = 0;
 
+
         if (tfod != null) {
             // getUpdatedRecognitions() will return null if no new information is available since the last time that call was made.
-            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+            List<Recognition> updatedRecognitions = tfod.getRecognitions();
             if (updatedRecognitions != null) {
                 Collections.sort(updatedRecognitions, new Comparator<Recognition>() {
                     @Override
@@ -85,6 +97,8 @@ public class DriverlessTest extends CustomOpMode {
                         return 1;
                     }
                 });
+
+
                 telemetry.addData("# Object Detected", updatedRecognitions.size());
                 //Marcus is the best hardware lead -Bo Deng
                 //He is also god tier at CAD, I want him next year on my team
@@ -103,17 +117,38 @@ public class DriverlessTest extends CustomOpMode {
                 telemetry.update();
 
                 //TODO: plz adjust and test this part
+
+                if (gamepad1.a) {
+                    if (!locked  && !updatedRecognitions.isEmpty()) {
+                        desiredAngle = imu.getYaw() + updatedRecognitions.get(0).estimateAngleToObject(AngleUnit.DEGREES);
+                        locked = true;
+                        mode = "turning";
+                        if (desiredAngle > 180)
+                            desiredAngle -= 360;
+                        else if (desiredAngle <= -180)
+                            desiredAngle += 360;
+                    } else if (mode.equals("turning")) {
+                        Pturn(desiredAngle, 3500);
+                        mode = "closing";
+                    } else if (mode.equals("closing") && !updatedRecognitions.isEmpty()) {
+                        double currY = updatedRecognitions.get(0).getBottom();
+                        if (currY < 400) {
+                            motorBL.setPower(.5);
+                            motorBR.setPower(.5);
+                            motorFL.setPower(.5);
+                            motorFR.setPower(.5);
+                        }
+                        stopMotors();
+                        mode = "picking up";
+                    }
+                }
                 //(Y) for gold cube, (X) for white ball
-                if (golds > 0 && gamepad1.y) {
+                /*if (golds > 0 && gamepad1.y) {
                     trackMineral(closestMineral(LABEL_GOLD_MINERAL, updatedRecognitions));
                 } else if (silvers > 0 && gamepad1.x) {
                     trackMineral(closestMineral(LABEL_SILVER_MINERAL, updatedRecognitions));
-                }
+                }*/
             }
-        }
-
-        if (tfod != null) {
-            tfod.shutdown();
         }
     }
 
@@ -131,30 +166,37 @@ public class DriverlessTest extends CustomOpMode {
     //This method tracks and grabs mineral. Runs until mineral is grabbed or (B) is pressed.
     private void trackMineral(Recognition recognition) {
         float x;
+        float y;
         float area;
         boolean Xcheck, Acheck, done = false;
 
         //TODO: Please adjust these, they aren't that accurate
         float rightBounds = 600;
         float leftBounds = 400;
+
+        float upperBound = 200;
+        float lowerBound = 500;
+
         float areaUpperBounds = 8000;
         float areaLowerBounds = 4000;
 
         telemetry.addData("Tracking", recognition.getLabel());
         while (!done && !gamepad1.b /*&& opModeActive()*/) {
             //center robot with mineral
-            x = (recognition.getRight() + recognition.getLeft() / 2);
-            telemetry.addData("x", x);
+            x = (recognition.getRight() + recognition.getLeft()) / 2;
+            y = (recognition.getTop() + recognition.getBottom()) / 2;
+            telemetry.addData("x: ", x);
+            telemetry.addData("y: ", y);
             if (x < rightBounds && x > leftBounds) {
                 telemetry.addLine("No action needed");
                 Xcheck = true;
             } else if (x > rightBounds) {
                 //turn left
-                telemetry.addLine("Turn left");
+                telemetry.addLine("Turn right");
                 Xcheck = false;
             } else {
                 //turn right
-                telemetry.addLine("Turn right");
+                telemetry.addLine("Turn left");
                 Xcheck = false;
             }
             //close in on mineral
@@ -201,5 +243,37 @@ public class DriverlessTest extends CustomOpMode {
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
+    }
+
+    public void Pturn(double angle, int msTimeout) {
+
+        eTime.reset();
+
+        while (Math.abs(imu.getTrueDiff(angle)) > .5 && eTime.milliseconds() < msTimeout) {
+            double angleError = imu.getTrueDiff(angle);
+
+            double PIDchange = kP * angleError;
+
+            if (PIDchange > 0 && PIDchange < minSpeed)
+                PIDchange = minSpeed;
+            else if (PIDchange < 0 && PIDchange > -minSpeed)
+                PIDchange = -minSpeed;
+
+            motorBL.setPower(Range.clip(-PIDchange, -maxSpeed, maxSpeed));
+            motorFL.setPower(Range.clip(-PIDchange, -maxSpeed, maxSpeed));
+            motorBR.setPower(Range.clip(PIDchange, -maxSpeed, maxSpeed));
+            motorFR.setPower(Range.clip(PIDchange, -maxSpeed, maxSpeed));
+
+            telemetry.addData("angleError: ", angleError);
+            telemetry.addData("PIDCHANGE: ", PIDchange);
+            telemetry.update();
+        }
+        stopMotors();
+    }
+    public void stopMotors() {
+        motorBL.setPower(0);
+        motorFL.setPower(0);
+        motorBR.setPower(0);
+        motorFR.setPower(0);
     }
 }
