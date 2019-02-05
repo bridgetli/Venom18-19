@@ -849,4 +849,15 @@ public class CustomLinearOpMode extends LinearOpMode {
             this.endCol = endCol;
         }
     }
+
+    //motion profile stuff
+
+    //TODO: placeholder
+    public double averageCurrentVelocity() {
+        return 0;
+    }
+
+    public double averageCurrentAcceleration() {
+        return 0;
+    }
 }
