@@ -82,7 +82,7 @@ public class CustomLinearOpMode extends LinearOpMode {
 
 
     IMU imu;
-    ElapsedTime time = new ElapsedTime();
+    protected ElapsedTime time = new ElapsedTime();
     char blockPos = 'R';
 
     //just had to put these to run the code dw about it

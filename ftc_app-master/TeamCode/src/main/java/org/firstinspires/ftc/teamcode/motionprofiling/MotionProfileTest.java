@@ -1,9 +1,42 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.motionprofiling;
+
+import org.firstinspires.ftc.teamcode.CustomLinearOpMode;
+
+import java.util.ArrayList;
 
 public class MotionProfileTest extends CustomLinearOpMode {
 
-    //tbh im not even sure if this pseudocode is correct
+    public static void main(String[] args) {
+        /*
+        WheelbaseWidth - the width of your robot drive train (again, units don't matter - consistency does)
+        WaypointsArrayList - ArrayList containing the needed waypoints
+        MaxVel - The maximum velocity the CENTER of the robot will move at - leave yourself some margin as the left and right wheels can independently move faster than the set MaxVel
+        MaxAcc - The maximum velocity the CENTER of the robot will accelerate at to achieve the MaxVel.
+        Filename - The name of the text file to be written to. (include .txt)
+        Time Delta - How often readouts will occur in the written path. 0.1 = readouts every 0.1 seconds.
+        */
+        double x, y, theta, wheelBaseWidth, maxVel, maxAcc, timedelta;
+        String file = "MPTest.txt";
 
+        //TODO: actually test plz
+        x = 24;
+        y = 56;
+        theta = 0;
+        wheelBaseWidth = 10;
+        maxVel = 20;
+        maxAcc = 10;
+        timedelta = .1;
+
+        ArrayList<Waypoint> WaypointsArrayList = new ArrayList<>();
+        WaypointsArrayList.add(new Waypoint(x, y, theta));
+
+        Trajectory trajectory = new Trajectory(wheelBaseWidth, WaypointsArrayList, maxVel, maxAcc, file, timedelta);
+        trajectory.Generate();
+        trajectory.toTextFile();
+    }
+
+    //tbh im not even sure if this pseudocode is correct
+    //update: actually, fuck everything that is not copypasta
     /**
      * Idk this is just a test. :)
      * @param pos = position
