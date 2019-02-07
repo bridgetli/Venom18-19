@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.motionprofiling;
 
 import org.firstinspires.ftc.teamcode.CustomLinearOpMode;
-
 import java.util.ArrayList;
 
 public class MotionProfileTest extends CustomLinearOpMode {
@@ -13,26 +12,40 @@ public class MotionProfileTest extends CustomLinearOpMode {
         MaxVel - The maximum velocity the CENTER of the robot will move at - leave yourself some margin as the left and right wheels can independently move faster than the set MaxVel
         MaxAcc - The maximum velocity the CENTER of the robot will accelerate at to achieve the MaxVel.
         Filename - The name of the text file to be written to. (include .txt)
-        Time Delta - How often readouts will occur in the written path. 0.1 = readouts every 0.1 seconds.
+        Time Delta - How often readouts will occur in the written path. (sec)
         */
-        double x, y, theta, wheelBaseWidth, maxVel, maxAcc, timedelta;
+        double wheelBaseWidth, maxVel, maxAcc, timedelta;
         String file = "MPTest.txt";
 
-        //TODO: actually test plz
-        x = 24;
-        y = 56;
-        theta = 0;
+        //TODO: adjust these values
         wheelBaseWidth = 10;
         maxVel = 20;
         maxAcc = 10;
         timedelta = .1;
 
         ArrayList<Waypoint> WaypointsArrayList = new ArrayList<>();
-        WaypointsArrayList.add(new Waypoint(x, y, theta));
+        //add some points
+        //i don't actually know how the axis are oriented respective to the field (probably doesn't matter)
+        WaypointsArrayList.add(new Waypoint(0, 10, 45));
+        WaypointsArrayList.add(new Waypoint(27, 10, 85));
 
         Trajectory trajectory = new Trajectory(wheelBaseWidth, WaypointsArrayList, maxVel, maxAcc, file, timedelta);
         trajectory.Generate();
         trajectory.toTextFile();
+
+        /*
+        output: as you can obviously tell, everything is delimited by a comma
+                num of lines = time + <timedelta>, so the complete motion will take <timedelta>*num of lines
+        x pos,
+        y pos,
+        left spline x?,
+        left spline y?,
+        right spline x?,
+        right spline y?,
+        integral left,
+        integral right,
+        "Math.atan2(deltaY,deltaX) * 180 / Math.PI -90"
+         */
     }
 
     //tbh im not even sure if this pseudocode is correct
