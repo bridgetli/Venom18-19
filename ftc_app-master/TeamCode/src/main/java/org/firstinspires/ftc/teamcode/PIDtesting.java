@@ -29,39 +29,27 @@ public class PIDtesting extends CustomLinearOpMode {
         double I = 0;
         double D = 0;
         ElapsedTime timeStuff = new ElapsedTime();
-        double minSpeed = .075;
 
-        while (/*Math.abs(angleError) > 1 && */opModeIsActive()) {
+        while (Math.abs(angleError) > .5 && opModeIsActive()) {
             angleError = imu.getTrueDiff(angle);
             newTime = timeStuff.seconds();
             totalError += (newTime - oldTime) * (angleError + oldError) / 2;
+
             P = kP * angleError;
             I = totalError * kI;
             D = -(angleError - oldError) / (newTime - oldTime) * kD;
-            if (Math.abs(angleError - oldError) / (newTime - oldTime) < .01 && newTime > .5)
-                break;
+
+            motorFL.setPower(Range.clip(P + I + D, -1, 1));
+            motorBL.setPower(Range.clip(P + I + D, -1, 1));
+            motorFR.setPower(Range.clip(-P - I - D, -1, 1));
+            motorBR.setPower(Range.clip(-P - I - D, -1, 1));
+
 
             oldTime = newTime;
             oldError = angleError;
-            if(Math.abs(P + I + D ) < minSpeed) {
-                motorBL.setPower(0);
-                motorFL.setPower(0);
-            } else {
-                motorFL.setPower(Range.clip(P + I + D, -1, 1));
-                motorBL.setPower(Range.clip(P + I + D, -1, 1));
-            }
-            if(Math.abs(-P - I - D) < minSpeed) {
-                motorBR.setPower(0);
-                motorFR.setPower(0);
-            } else {
-                motorFR.setPower(Range.clip(-P - I - D, -1, 1));
-                motorBR.setPower(Range.clip(-P - I - D, -1, 1));
-            }
 
             telemetry.addLine("angleError: " + angleError);
         }
-
-
     }
 
     @Override

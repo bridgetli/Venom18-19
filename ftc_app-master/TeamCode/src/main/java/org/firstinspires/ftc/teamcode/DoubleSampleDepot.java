@@ -116,8 +116,6 @@ public class DoubleSampleDepot extends CustomLinearOpMode {
         // Method itself probably doesn't need to be tuned, but you can try I guess
         moveToLineP(45, 135, 4500);
 
-
-
         // Double sampling sections
         // Should be ok, probably let Bo know before changing these
 

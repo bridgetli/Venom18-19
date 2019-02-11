@@ -169,26 +169,25 @@ public class CustomOpMode extends OpMode{
         motorBR.setPower(right);
     }
 
-    // copy pasted ABS from last year
+
     public double rightABSMotorVal(double joyStickVal) {
-        /*if (Math.abs(joyStickVal - motorBL.getPower()) < 1) {
-            return joyStickVal;
-        }*/
-        double c = .25;
-        if (joyStickVal >= motorBR.getPower()) {
+        double maxJump = .4;
+        double c = .1;
+        if (joyStickVal >= motorBR.getPower() + maxJump) {
             return Range.clip(motorBR.getPower() + c, -1, joyStickVal);
         }
-        else if (joyStickVal < motorBR.getPower()) {
+        else if (joyStickVal < motorBR.getPower() - maxJump) {
             return Range.clip(motorBR.getPower() - c, joyStickVal, 1);
         }
         else return joyStickVal;
     }
     public double leftABSMotorVal(double joyStickVal) {
-        double c = .25;
-        if (joyStickVal >= motorBL.getPower()) {
+        double maxJump = .4;
+        double c = .1;
+        if (joyStickVal >= motorBL.getPower() + maxJump) {
             return Range.clip(motorBL.getPower() + c, -1, joyStickVal);
         }
-        else if (joyStickVal < motorBL.getPower()) {
+        else if (joyStickVal < motorBL.getPower() - maxJump) {
             return Range.clip(motorBL.getPower() - c, joyStickVal, 1);
         }
         else return joyStickVal;

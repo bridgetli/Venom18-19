@@ -138,20 +138,28 @@ public class DriverlessTest extends CustomOpMode {
                         stopMotors();
                         mode = "picking up";
                     } else if (mode.equals("picking up") && !updatedRecognitions.isEmpty()) {
-                        motorExtend.setPower(.5);
-                        while(motorExtend.getCurrentPosition() < 1000/*some magic value im not motivated to find*/) {}
-                        motorExtend.setPower(0);
-
-                        motorManip.setPower(.5);
-                        try {wait(1000);}
+                        motorManip.setPower(-.5);
+                        try {Thread.sleep(1000);}
                         catch (InterruptedException e) {telemetry.addLine("-_-");}
                         motorManip.setPower(0);
 
-                        //idk if this is even right
+                        mode = "";
+
+                        servoLeftManip.setPower(-1);
+                        servoRightManip.setPower(1);
+
+                        motorExtend.setPower(.5);
+                        while(motorExtend.getCurrentPosition() < 1000) {}
+                        motorExtend.setPower(0);
+
+                        servoLeftManip.setPower(1);
+                        servoRightManip.setPower(-1);
+
                         motorExtend.setPower(-.5);
                         while(motorExtend.getCurrentPosition() > 0) {}
                         motorExtend.setPower(0);
-                        mode = "done";
+                        mode = "";
+                        locked = false;
                     }
                 }
                 //(Y) for gold cube, (X) for white ball

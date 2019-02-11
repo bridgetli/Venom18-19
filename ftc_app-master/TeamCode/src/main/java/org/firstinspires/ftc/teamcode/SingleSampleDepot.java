@@ -87,8 +87,8 @@ public class SingleSampleDepot extends CustomLinearOpMode {
             moveToEncoderT(3500, .85, 45, 5000);
         } else if (blockPos == 'C') {
             moveToEncoderT(-4350, .45, 0, 3000);
-            depositMarker();
             Pturn(45, 2000);
+            depositMarker();
             moveToEncoderT(3500, .85, 45, 5000);
         } else {
             Pturn(-45, 2000);

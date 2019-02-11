@@ -19,6 +19,28 @@ public class mainTele extends CustomOpMode {
         double yL = gamepad1.left_stick_y;
         double yR = gamepad1.right_stick_y;
 
+        /*if (imu.getPitch() < -39) {
+            motorFL.setPower(1);
+            motorBL.setPower(1);
+            motorFR.setPower(1);
+            motorBR.setPower(1);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+
+            }
+        } else if (imu.getPitch() > 39) {
+            motorFL.setPower(-1);
+            motorBL.setPower(-1);
+            motorFR.setPower(-1);
+            motorBR.setPower(-1);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+
+            }
+        }*/
+
         if (Math.abs(yL) > .2) {
             //motorBL.setPower(leftABSMotorVal(yR) * motorScale);
             //motorFL.setPower(leftABSMotorVal(yR) * motorScale);
@@ -33,6 +55,7 @@ public class mainTele extends CustomOpMode {
             motorBL.setPower(0);
             motorFL.setPower(0);
         }
+
         if(Math.abs(yR) > .2) {
             //motorBR.setPower(rightABSMotorVal(yL) * motorScale);
             //motorFR.setPower(rightABSMotorVal(yL) * motorScale);
@@ -118,6 +141,18 @@ public class mainTele extends CustomOpMode {
             motorManip.setPower(0);
         }
 
+        if(gamepad2.a) {
+            servoBasket.setPosition(.15);
+        } else if(gamepad2.b) {
+            servoBasket.setPosition(0);
+        }
+
+        if(gamepad2.x) {
+            servoGate.setPosition(.25);
+        } else if(gamepad2.y) {
+            servoGate.setPosition(.5);
+        }
+
         telemetry.addData("Right motor speeds", yR);
         telemetry.addData("Left motor speed", yL);
         telemetry.addData("motorScale: ", motorScale);
@@ -129,6 +164,9 @@ public class mainTele extends CustomOpMode {
         //telemetry.addData("motorFR: ", motorFR.getCurrentPosition());
         //telemetry.addData("motorBR: ", motorBR.getCurrentPosition());
         telemetry.addData("yaw: ", imu.getYaw());
+        telemetry.addData("pitch: ", imu.getPitch());
+        telemetry.addData("servoBasket: ", servoBasket.getPosition());
+
         //telemetry.addData("angle error from 45: ", imu.getTrueDiff(45));
         //telemetry.addData("rangeB: ", getDistB());
         //telemetry.addData("rangeL: ", getDistL());
