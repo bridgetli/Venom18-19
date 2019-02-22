@@ -117,13 +117,12 @@ public class mainTele extends CustomOpMode {
         //    servoWinchArm.setPosition(.8);
         //}
 
-
         if (gamepad2.right_bumper) {
-            servoLeftManip.setPower(1);
-            servoRightManip.setPower(-1);
+            servoLeftManip.setPower(.85);
+            servoRightManip.setPower(-.85);
         } else if (gamepad2.left_bumper) {
-            servoLeftManip.setPower(-1);
-            servoRightManip.setPower(1);
+            servoLeftManip.setPower(-.85);
+            servoRightManip.setPower(.85);
         } else {
             servoLeftManip.setPower(0);
             servoRightManip.setPower(0);

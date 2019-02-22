@@ -87,12 +87,10 @@ public class CustomLinearOpMode extends LinearOpMode {
 
     //just had to put these to run the code dw about it
 
-
     @Override
     public void runOpMode() throws InterruptedException {
 
     }
-
 
     // initzialization method
     public void initizialize() {
@@ -183,7 +181,7 @@ public class CustomLinearOpMode extends LinearOpMode {
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
     }
 
-    public void delatch() throws InterruptedException{
+    public void delatch() throws InterruptedException {
         resetEncoders();
 
         motorLiftDown1.setPower(.8);
@@ -327,6 +325,7 @@ public class CustomLinearOpMode extends LinearOpMode {
         resetEncoders();
 
         double kPangle = 3.0/90.0;              // MIGHT NEED TO BE RETUNED
+
 
         if (encoder > 0) {
             while (motorBL.getCurrentPosition() < encoder && opModeIsActive()) {

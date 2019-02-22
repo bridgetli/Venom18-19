@@ -100,7 +100,7 @@ public class CustomOpMode extends OpMode{
         motorExtend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         motorLiftDown1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorLiftDown2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         motorExtend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         motorLiftDown1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -121,6 +121,8 @@ public class CustomOpMode extends OpMode{
 
         servoBasket = hardwareMap.servo.get("servoBasket");
         servoGate = hardwareMap.servo.get("servoGate");
+        servoBasket.setPosition(.5);
+        servoGate.setPosition(.5);
 
         servoLeftManip = hardwareMap.crservo.get("servoLeftManip");
         servoRightManip = hardwareMap.crservo.get("servoRightManip");

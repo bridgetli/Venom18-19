@@ -124,9 +124,35 @@ public class DriverlessTest extends CustomOpMode {
                             desiredAngle -= 360;
                         else if (desiredAngle <= -180)
                             desiredAngle += 360;
+
+                        eTime.reset();
+
+                    } else if (mode.equals("turning") && eTime.milliseconds() < 3500) {
+
+                        double angleError = imu.getTrueDiff(desiredAngle);
+
+                        double PIDchange = kP * angleError;
+
+                        if (PIDchange > 0 && PIDchange < minSpeed)
+                            PIDchange = minSpeed;
+                        else if (PIDchange < 0 && PIDchange > -minSpeed)
+                            PIDchange = -minSpeed;
+
+                        motorBL.setPower(Range.clip(-PIDchange, -maxSpeed, maxSpeed));
+                        motorFL.setPower(Range.clip(-PIDchange, -maxSpeed, maxSpeed));
+                        motorBR.setPower(Range.clip(PIDchange, -maxSpeed, maxSpeed));
+                        motorFR.setPower(Range.clip(PIDchange, -maxSpeed, maxSpeed));
+
+                        telemetry.addData("angleError: ", angleError);
+                        telemetry.addData("PIDCHANGE: ", PIDchange);
+                        telemetry.update();
+
                     } else if (mode.equals("turning")) {
-                        Pturn(desiredAngle, 3500);
+
+                        stopMotors();
+                        eTime.reset();
                         mode = "closing";
+
                     } else if (mode.equals("closing") && !updatedRecognitions.isEmpty()) {
                         double currY = updatedRecognitions.get(0).getBottom();
                         if (currY < 400) {
@@ -134,9 +160,10 @@ public class DriverlessTest extends CustomOpMode {
                             motorBR.setPower(.5);
                             motorFL.setPower(.5);
                             motorFR.setPower(.5);
+                        } else {
+                            stopMotors();
+                            mode = "picking up";
                         }
-                        stopMotors();
-                        mode = "picking up";
                     } else if (mode.equals("picking up") && !updatedRecognitions.isEmpty()) {
                         motorManip.setPower(-.5);
                         try {Thread.sleep(1000);}
@@ -220,7 +247,7 @@ public class DriverlessTest extends CustomOpMode {
                 Xcheck = false;
             }
             //close in on mineral
-            area = recognition.getHeight() * recognition.getWidth();
+            area = recognition.getHeight() * recognition.getWidth();            //TODO: Change to simple bottom bound recognition
             telemetry.addData("Area", area);
             if (area < areaUpperBounds && area > areaLowerBounds) {
                 telemetry.addLine("No action needed");
