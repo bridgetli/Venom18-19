@@ -76,7 +76,6 @@ public class SingleSampleDepot extends CustomLinearOpMode {
 
         stopMotors();
 
-        //TODO: optimize paths, focus on depot side first; averages 18 sec currently; goal 15 sec?
         if (blockPos == 'R' || blockPos == '?') {
             Pturn(45, 2000);
             moveToEncoderT(-2500, .45, 45, 3000);
@@ -110,5 +109,36 @@ public class SingleSampleDepot extends CustomLinearOpMode {
         //moveTimeP(1450, .95, 43);
     }
 
+    public void suckDaBlock(double currAngle) throws InterruptedException {
+        //maybe after pushing the block, move back and then grab it with the manip
+        moveToEncoderT(-500, .5, currAngle, 1500);
 
+        motorManip.setPower(-.5);
+        try {Thread.sleep(1000);}
+        catch (InterruptedException e) {telemetry.addLine("-_-");}
+        motorManip.setPower(0);
+
+        //servoLeftManip.setPower(-1); //plz remember to add this poor boy to customlinearopmode
+        //servoRightManip.setPower(1);
+
+        //probably dont have to extend, maybe take it out?
+        motorExtend.setPower(.5);
+        while(motorExtend.getCurrentPosition() < 250) {}
+        motorExtend.setPower(0);
+
+        //servoLeftManip.setPower(0);
+        //servoRightManip.setPower(0);
+
+        motorExtend.setPower(-.5);
+        while(motorExtend.getCurrentPosition() > 0) {}
+        motorExtend.setPower(0);
+
+        //if you want, maybe figure out how to score sampled mineral; dont personally recommend though as
+        //it'd be pretty time extensive...
+
+        //insert control award worthy code here
+
+        //return to original pos, and continue with auto
+        moveToEncoderT(500, .5, currAngle, 1500);
+    }
 }

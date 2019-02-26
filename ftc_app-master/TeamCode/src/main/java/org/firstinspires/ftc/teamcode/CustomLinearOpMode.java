@@ -546,7 +546,7 @@ public class CustomLinearOpMode extends LinearOpMode {
 
     public void getBlock() throws InterruptedException {
 
-        //can we not initialize vuforia before we start auto?
+        //TODO: can we not initialize vuforia before we start auto???????????????????
         initVuforia();
         if (ClassFactory.getInstance().canCreateTFObjectDetector())
             initTfod();
@@ -851,7 +851,7 @@ public class CustomLinearOpMode extends LinearOpMode {
 
     //motion profile stuff
 
-    //TODO: placeholder
+    //TODO: placeholder; probably doesnt matter
     public double averageCurrentVelocity() {
         return 0;
     }
