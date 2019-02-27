@@ -64,7 +64,7 @@ public class DriverlessTest extends CustomOpMode {
     @Override
     public void init() {
         //TODO: eventually move initVuforia() and initTfod() into CustomOpMode as part of initizialize()
-        //initizialize();
+        initizialize();
         initVuforia();
         if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
             initTfod();
@@ -117,7 +117,7 @@ public class DriverlessTest extends CustomOpMode {
 
                 if (gamepad1.a) {
                     if (!locked  && !updatedRecognitions.isEmpty()) {
-                        desiredAngle = imu.getYaw() + updatedRecognitions.get(0).estimateAngleToObject(AngleUnit.DEGREES);
+                        desiredAngle = imu.getYaw() + updatedRecognitions.get(0).estimateAngleToObject(AngleUnit.DEGREES) - 14;
                         locked = true;
                         mode = "turning";
                         if (desiredAngle > 180)
@@ -156,38 +156,61 @@ public class DriverlessTest extends CustomOpMode {
                     } else if (mode.equals("closing") && !updatedRecognitions.isEmpty()) {
                         double currY = updatedRecognitions.get(0).getBottom();
                         if (currY < 400) {
-                            motorBL.setPower(.5);
-                            motorBR.setPower(.5);
-                            motorFL.setPower(.5);
-                            motorFR.setPower(.5);
+                            motorBL.setPower(-.5);
+                            motorBR.setPower(-.5);
+                            motorFL.setPower(-.5);
+                            motorFR.setPower(-.5);
                         } else {
                             stopMotors();
                             mode = "picking up";
+                            eTime.reset();
                         }
-                    } else if (mode.equals("picking up") && !updatedRecognitions.isEmpty()) {
-                        motorManip.setPower(-.5);
-                        try {Thread.sleep(1000);}
-                        catch (InterruptedException e) {telemetry.addLine("-_-");}
-                        motorManip.setPower(0);
+                    } else if (mode.equals("picking up")) {
+                        if (eTime.milliseconds() < 1000) {
+                            motorManip.setPower(-.5);
+                        } else {
 
-                        mode = "";
+                            motorManip.setPower(0);
 
-                        servoLeftManip.setPower(-1);
-                        servoRightManip.setPower(1);
+                            mode = "extending";
+                            eTime.reset();
+                        }
+                    } else if (mode.equals("extending")) {
 
-                        motorExtend.setPower(.5);
-                        while(motorExtend.getCurrentPosition() < 1000) {}
-                        motorExtend.setPower(0);
+                        servoLeftManip.setPower(.8);
+                        servoRightManip.setPower(-.8);
 
-                        servoLeftManip.setPower(1);
-                        servoRightManip.setPower(-1);
+                        if (eTime.milliseconds() < 2500) {
+                            motorExtend.setPower(1);
 
-                        motorExtend.setPower(-.5);
-                        while(motorExtend.getCurrentPosition() > 0) {}
-                        motorExtend.setPower(0);
-                        mode = "";
-                        locked = false;
+                        } else {
+                            motorExtend.setPower(0);
+                            mode = "retracting";
+                            eTime.reset();
+                        }
+                    } else if (mode.equals("retracting")) {
+
+                        if (eTime.milliseconds() < 2500) {
+                            motorExtend.setPower(-1);
+                        } else {
+                            motorExtend.setPower(0);
+                            mode = "resetting";
+                            eTime.reset();
+                        }
+                    } else if (mode.equals("resetting")) {
+                        servoLeftManip.setPower(0);
+                        servoRightManip.setPower(0);
+
+                        if (eTime.milliseconds() < 2000) {
+                            motorManip.setPower(.85);
+                        } else {
+                            motorManip.setPower(0);
+                            mode = "";
+                            locked = false;
+                            telemetry.addLine("done, let go");
+                        }
                     }
+                    telemetry.addData("Mode: ", mode);
                 }
                 //(Y) for gold cube, (X) for white ball
                 /*if (golds > 0 && gamepad1.y) {

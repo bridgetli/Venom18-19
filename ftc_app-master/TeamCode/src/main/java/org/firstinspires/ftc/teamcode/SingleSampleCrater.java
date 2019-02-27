@@ -64,11 +64,14 @@ public class SingleSampleCrater extends CustomLinearOpMode {
 
         delatch();
 
+        Pturn(0, 1000);
+        telemetry.addLine("turn done");
+
         getBlock();
         telemetry.addData("blockPos: ", blockPos);
         telemetry.update();
 
-        moveToEncoder(-450, .45, 0);
+        moveToEncoder(-400, .45, 0);
 
         lowerLift();
 
@@ -77,16 +80,16 @@ public class SingleSampleCrater extends CustomLinearOpMode {
         //TODO: optimize paths, focus on depot side first; averages 18 sec currently; goal 15 sec?
         if (blockPos == 'R' || blockPos == '?') {
             Pturn(45, 2000);
-            moveToEncoderT(-1000, .55, 45, 2000);
-            moveToEncoderT(800, .55, 45, 2000);
+            moveToEncoderT(-900, .55, 45, 2000);
+            moveToEncoderT(670, .55, 45, 2000);
 
         } else if (blockPos == 'C') {
             moveToEncoderT(-900, .55, 0, 2000);
-            moveToEncoderT(750, .55, 0, 2000);
+            moveToEncoderT(700, .55, 0, 2000);
         } else {
             Pturn(-45, 2000);
-            moveToEncoderT(-1000, .55, -45, 2000);
-            moveToEncoderT(800, .55, -45, 2000);
+            moveToEncoderT(-900, .55, -45, 2000);
+            moveToEncoderT(700, .55, -45, 2000);
         }
 
         Pturn(-90, 3000);

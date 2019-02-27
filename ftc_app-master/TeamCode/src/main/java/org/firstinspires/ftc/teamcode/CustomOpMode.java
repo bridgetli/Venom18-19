@@ -121,7 +121,7 @@ public class CustomOpMode extends OpMode{
 
         servoBasket = hardwareMap.servo.get("servoBasket");
         servoGate = hardwareMap.servo.get("servoGate");
-        servoBasket.setPosition(.5);
+        servoBasket.setPosition(0);
         servoGate.setPosition(.5);
 
         servoLeftManip = hardwareMap.crservo.get("servoLeftManip");
@@ -183,6 +183,7 @@ public class CustomOpMode extends OpMode{
         }
         else return joyStickVal;
     }
+
     public double leftABSMotorVal(double joyStickVal) {
         double maxJump = .4;
         double c = .1;

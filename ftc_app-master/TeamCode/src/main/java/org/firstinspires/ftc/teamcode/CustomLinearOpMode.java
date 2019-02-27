@@ -561,7 +561,7 @@ public class CustomLinearOpMode extends LinearOpMode {
         List<Recognition> recognitions = null;
         boolean twoObjectsFound = false;
         time.reset();
-        while ((recognitions == null || !twoObjectsFound) && time.seconds() < 5) {
+        while ((recognitions == null || !twoObjectsFound) && time.seconds() < 5 && opModeIsActive()) {
             if (tfod != null) {
                 // getUpdatedRecognitions() will return null if no new information is available since
                 // the last time that call was made.
@@ -602,6 +602,7 @@ public class CustomLinearOpMode extends LinearOpMode {
                                 blockPos = min2X < min1X ? 'L' : 'C';
                             }
                         }
+                        telemetry.addData("Bo", "Is Gay");
                         telemetry.addData("blockPos: ", blockPos);
 
                     } else {

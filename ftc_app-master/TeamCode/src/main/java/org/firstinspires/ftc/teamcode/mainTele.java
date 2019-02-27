@@ -10,6 +10,8 @@ public class mainTele extends CustomOpMode {
 
     boolean rT = false;
     boolean lT = false;
+    boolean gateOpen = false;
+    boolean basketOut = false;
 
     public void init() {
         initizialize();
@@ -118,11 +120,11 @@ public class mainTele extends CustomOpMode {
         //}
 
         if (gamepad2.right_bumper) {
-            servoLeftManip.setPower(.85);
-            servoRightManip.setPower(-.85);
+            servoLeftManip.setPower(.8);
+            servoRightManip.setPower(-.8);
         } else if (gamepad2.left_bumper) {
-            servoLeftManip.setPower(-.85);
-            servoRightManip.setPower(.85);
+            servoLeftManip.setPower(-.8);
+            servoRightManip.setPower(.8);
         } else {
             servoLeftManip.setPower(0);
             servoRightManip.setPower(0);
@@ -140,16 +142,40 @@ public class mainTele extends CustomOpMode {
             motorManip.setPower(0);
         }
 
-        if(gamepad2.a) {
-            servoBasket.setPosition(.15);
-        } else if(gamepad2.b) {
+        if(gamepad2.a && !basketOut) {
+            servoBasket.setPosition(.25);
+            basketOut = true;
+            try {
+                Thread.sleep(250);
+            } catch (InterruptedException e) {
+
+            }
+        } else if(gamepad2.a) {
             servoBasket.setPosition(0);
+            basketOut = false;
+            try {
+                Thread.sleep(250);
+            } catch (InterruptedException e) {
+
+            }
         }
 
-        if(gamepad2.x) {
+        if(gamepad2.b && !gateOpen) {
             servoGate.setPosition(.25);
-        } else if(gamepad2.y) {
+            gateOpen = true;
+            try {
+                Thread.sleep(250);
+            } catch (InterruptedException e) {
+
+            }
+        } else if(gamepad2.b) {
             servoGate.setPosition(.5);
+            gateOpen = false;
+            try {
+                Thread.sleep(250);
+            } catch (InterruptedException e) {
+
+            }
         }
 
         telemetry.addData("Right motor speeds", yR);
