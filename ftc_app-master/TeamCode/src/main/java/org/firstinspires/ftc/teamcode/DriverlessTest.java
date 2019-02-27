@@ -155,7 +155,7 @@ public class DriverlessTest extends CustomOpMode {
 
                     } else if (mode.equals("closing") && !updatedRecognitions.isEmpty()) {
                         double currY = updatedRecognitions.get(0).getBottom();
-                        if (currY < 400) {
+                        if (currY < 400 && eTime.milliseconds() < 2000) {
                             motorBL.setPower(-.5);
                             motorBR.setPower(-.5);
                             motorFL.setPower(-.5);

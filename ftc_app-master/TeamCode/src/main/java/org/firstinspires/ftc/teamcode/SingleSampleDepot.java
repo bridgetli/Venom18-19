@@ -32,8 +32,6 @@ import java.io.FileOutputStream;
 @Autonomous (name = "SingleSampleDepot", group = "Autonomous")
 public class SingleSampleDepot extends CustomLinearOpMode {
 
-    private ElapsedTime time = new ElapsedTime();
-
     @Override
     public void runOpMode() throws InterruptedException {
         initizialize();
@@ -81,6 +79,7 @@ public class SingleSampleDepot extends CustomLinearOpMode {
 
         if (blockPos == 'R' || blockPos == '?') {
             Pturn(45, 2000);
+            //succDaBlock(45);
             moveToEncoderT(-2500, .45, 45, 3000);
             Pturn(-45, 2000);
             moveToEncoderT(-2000, .45, -45, 3000);
@@ -88,12 +87,14 @@ public class SingleSampleDepot extends CustomLinearOpMode {
             depositMarker();
             moveToEncoderT(3200, .85, 45, 5000);
         } else if (blockPos == 'C') {
+            //succDaBlock(0);
             moveToEncoderT(-4400, .45, 0, 3000);
             Pturn(45, 2000);
             depositMarker();
             moveToEncoderT(3200, .85, 45, 5000);
         } else {
             Pturn(-45, 2000);
+            //succDaBlock(-45);
             moveToEncoderT(-2500, .45, -45, 2000);
             Pturn(45, 2000);
             moveToEncoderT(-1500, .45, 45, 3000);
@@ -112,36 +113,35 @@ public class SingleSampleDepot extends CustomLinearOpMode {
         //moveTimeP(1450, .95, 43);
     }
 
-    public void suckDaBlock(double currAngle) throws InterruptedException {
+    public void succDaBlock(double currAngle) throws InterruptedException {
         //maybe after pushing the block, move back and then grab it with the manip
-        moveToEncoderT(-500, .5, currAngle, 1500);
+        moveToEncoderT(-500, .5, currAngle, 1500); //TODO: need to figure out how far back we need to be
 
-        motorManip.setPower(-.5);
-        try {Thread.sleep(1000);}
-        catch (InterruptedException e) {telemetry.addLine("-_-");}
+        //lower manip
+        eTime.reset();
+        while (eTime.milliseconds() < 1000)
+            motorManip.setPower(-.5);
         motorManip.setPower(0);
 
-        //servoLeftManip.setPower(-1); //plz remember to add this poor boy to customlinearopmode
-        //servoRightManip.setPower(1);
+        //succ
+        eTime.reset();
+        while (eTime.milliseconds() < 1000) {
+            servoLeftManip.setPower(-1);
+            servoRightManip.setPower(1);
+        }
+        servoLeftManip.setPower(0);
+        servoRightManip.setPower(0);
 
-        //probably dont have to extend, maybe take it out?
-        motorExtend.setPower(.5);
-        while(motorExtend.getCurrentPosition() < 250) {}
-        motorExtend.setPower(0);
+        //pull manip back
+        eTime.reset();
+        while (eTime.milliseconds() < 1000)
+            motorManip.setPower(.85);
+        motorManip.setPower(0);
 
-        //servoLeftManip.setPower(0);
-        //servoRightManip.setPower(0);
-
-        motorExtend.setPower(-.5);
-        while(motorExtend.getCurrentPosition() > 0) {}
-        motorExtend.setPower(0);
-
-        //if you want, maybe figure out how to score sampled mineral; dont personally recommend though as
-        //it'd be pretty time extensive...
-
+        //if you want, maybe figure out how to score sampled mineral; dont personally recommend though as it'd be pretty time extensive...
         //insert control award worthy code here
 
         //return to original pos, and continue with auto
-        moveToEncoderT(500, .5, currAngle, 1500);
+        moveToEncoderT(500, .5, currAngle, 1500); //TODO: ditto above... except reverse
     }
 }

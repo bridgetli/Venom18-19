@@ -10,6 +10,7 @@ import android.os.Environment;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -76,10 +77,13 @@ public class CustomLinearOpMode extends LinearOpMode {
     final double winchDownPower = .5;
     final double winchUpPower = .5;
 
+    CRServo servoLeftManip;
+    CRServo servoRightManip;
 
     String tensorflowInfo = "";
     //Servo servoMarker;
 
+    ElapsedTime eTime;
 
     IMU imu;
     protected ElapsedTime time = new ElapsedTime();
@@ -124,6 +128,9 @@ public class CustomLinearOpMode extends LinearOpMode {
 
         servoWinchArm = hardwareMap.servo.get("servoWinchArm");
 
+        servoLeftManip = hardwareMap.crservo.get("servoLeftManip");
+        servoRightManip = hardwareMap.crservo.get("servoRightManip");
+
         stopAllMotors();
 
         telemetry.addData("Motor Initialization Complete", "");
@@ -158,7 +165,7 @@ public class CustomLinearOpMode extends LinearOpMode {
         motorLiftDown2.setPower(0);
         motorExtend.setPower(0);
 
-        //vuforia + tfod init
+        eTime = new ElapsedTime();
 
         telemetry.addData("Initialization Complete", "");
         telemetry.update();
