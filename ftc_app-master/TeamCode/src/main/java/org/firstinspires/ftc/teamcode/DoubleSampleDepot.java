@@ -31,7 +31,7 @@ import java.io.FileOutputStream;
 public class DoubleSampleDepot extends CustomLinearOpMode {
 
     private ElapsedTime time = new ElapsedTime();
-    private char blockPos = 'C';
+    private char blockPos = 'C'; //i dont think we should need this... TODO: delete?!?
 
     @Override
     public void runOpMode() throws InterruptedException {
