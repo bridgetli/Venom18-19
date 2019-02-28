@@ -115,7 +115,7 @@ public class SingleSampleDepot extends CustomLinearOpMode {
 
     public void succDaBlock(double currAngle) throws InterruptedException {
         //maybe after pushing the block, move back and then grab it with the manip
-        moveToEncoderT(-500, .5, currAngle, 1500); //TODO: need to figure out how far back we need to be
+        moveToEncoderT(400, .5, currAngle, 1500); //TODO: need to figure out how far back we need to be
 
         //lower manip
         eTime.reset();
@@ -142,6 +142,6 @@ public class SingleSampleDepot extends CustomLinearOpMode {
         //insert control award worthy code here
 
         //return to original pos, and continue with auto
-        moveToEncoderT(500, .5, currAngle, 1500); //TODO: ditto above... except reverse
+        moveToEncoderT(-400, .5, currAngle, 1500); //TODO: ditto above... except reverse
     }
 }

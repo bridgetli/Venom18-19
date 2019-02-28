@@ -202,7 +202,7 @@ public class DriverlessTest extends CustomOpMode {
                         servoRightManip.setPower(0);
 
                         if (eTime.milliseconds() < 2000) {
-                            motorManip.setPower(.85);
+                            motorManip.setPower(.65);
                         } else {
                             motorManip.setPower(0);
                             mode = "";
