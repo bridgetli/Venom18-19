@@ -85,13 +85,13 @@ public class SingleSampleDepot extends CustomLinearOpMode {
             moveToEncoderT(-2000, .45, -45, 3000);
             Pturn(45, 2000);
             depositMarker();
-            moveToEncoderT(3200, .85, 45, 5000);
+            moveToEncoderT(3500, .85, 45, 5000);
         } else if (blockPos == 'C') {
             //succDaBlock(0);
             moveToEncoderT(-4400, .45, 0, 3000);
             Pturn(45, 2000);
             depositMarker();
-            moveToEncoderT(3200, .85, 45, 5000);
+            moveToEncoderT(3500, .85, 45, 5000);
         } else {
             Pturn(-45, 2000);
             //succDaBlock(-45);
@@ -99,7 +99,7 @@ public class SingleSampleDepot extends CustomLinearOpMode {
             Pturn(45, 2000);
             moveToEncoderT(-1500, .45, 45, 3000);
             depositMarker();
-            moveToEncoderT(3200, .85, 45, 5000);
+            moveToEncoderT(3500, .85, 45, 5000);
         }
 
         //moveToEncoderT(1500, .95, -90, 3000);
