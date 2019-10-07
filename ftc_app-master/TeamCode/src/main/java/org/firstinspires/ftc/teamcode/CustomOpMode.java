@@ -78,7 +78,8 @@ public class CustomOpMode extends OpMode{
        // motorWinchUp = hardwareMap.dcMotor.get("motorWinchUp");
         //motorWinchDown = hardwareMap.dcMotor.get("motorWinchDown");
 
-        motorBL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);motorBR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         //motorWinchDown.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
